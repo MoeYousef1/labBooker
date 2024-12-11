@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
-import axios from 'axios';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import LandingPage from "./components/landingPage";
 
 function App() {
-  useEffect(() => {
-    axios.get('http://localhost:5000')
-      .then(res => console.log(res.data))
-      .catch(err => console.error(err));
-  }, []);
-
-  return <div>Frontend Connected!</div>;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;

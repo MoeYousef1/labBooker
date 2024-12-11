@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
+const userRoutes = require('./routes/userRoutes');  
+
 
 const app = express();
 
@@ -13,12 +15,18 @@ app.use(bodyParser.json());
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
+  .catch(err => {
+    console.log(err)
+    process.exit(1);
+  });
+  
 
 // Routes
 app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
+
+app.get('/api/users',userRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
