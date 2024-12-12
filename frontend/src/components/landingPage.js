@@ -61,7 +61,7 @@ const LandingPage = () => {
                 {/* CTA Buttons */}
                 <div className="mt-8 flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
                   <button
-                    className="px-6 py-3 bg-gradient-to-r from-purple-800 to-purple-300 text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
+                    className="px-6 py-4 bg-gradient-to-r from-purple-800 to-purple-300 text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
                     onClick={() => window.location.href = '/booking'}
                   >
                     Book Now
