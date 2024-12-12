@@ -3,25 +3,28 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="bg-white rounded-lg shadow m-4 dark:bg-gray-800">
-      <div className="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
-        <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
-          © 2025 <Link to="/" className="hover:underline">LabBooker™</Link>. All Rights Reserved.
-        </span>
-        <ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+    <footer className="py-3 px-6 bg-gradient-to-r from-purple-800 to-purple-900 text-white">
+      <div className="mx-auto max-w-screen-xl text-center">
+        {/* Links */}
+        <ul className="flex justify-center items-center space-x-6">
           <li>
-            <Link to="/about" className="hover:underline me-4 md:me-6">About</Link>
+            <a href="#" className="hover:underline text-sm">About</a>
           </li>
           <li>
-            <Link to="/privacy-policy" className="hover:underline me-4 md:me-6">Privacy Policy</Link>
+            <a href="#" className="hover:underline text-sm">FAQs</a>
           </li>
           <li>
-            <Link to="/licensing" className="hover:underline me-4 md:me-6">Licensing</Link>
-          </li>
-          <li>
-            <Link to="/contact" className="hover:underline">Contact</Link>
+            <a href="#" className="hover:underline text-sm">Contact</a>
           </li>
         </ul>
+
+        {/* Line Under Links */}
+        <div className="border-b border-gray-500 my-3 w-1/4 mx-auto"></div>
+
+        {/* Copyright */}
+        <span className="text-xs text-gray-400 mt-4 block">
+          © 2024-2025 <a href="#" className="hover:underline">LabBooker™</a>. All Rights Reserved.
+        </span>
       </div>
     </footer>
   );

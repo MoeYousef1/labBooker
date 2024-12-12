@@ -3,6 +3,11 @@ import Navbar from "./Navbar";
 import Footer from "./footer";
 import collegeImage1 from './assets/landingPageBackground1.avif';
 import collegeImage from './assets/landingPagepic.avif';
+import highFive from './assets/high-five.png';
+import realTimeUpdate from './assets/real-time.png';
+import reliability  from './assets/reliability.png';
+
+
 
 const LandingPage = () => {
   return (
@@ -76,21 +81,30 @@ const LandingPage = () => {
 
       </div>
 
-      {/* Features Section */}
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-10 mt-10">
-        <div className="p-4 bg-white shadow rounded">
-          <h3 className="text-xl font-semibold">Quick Booking</h3>
-          <p className="mt-2 text-gray-600">Reserve study rooms in just a few clicks.</p>
-        </div>
-        <div className="p-4 bg-white shadow rounded">
-          <h3 className="text-xl font-semibold">User Dashboard</h3>
-          <p className="mt-2 text-gray-600">Manage your bookings with ease.</p>
-        </div>
-        <div className="p-4 bg-white shadow rounded">
-          <h3 className="text-xl font-semibold">Real-Time Availability</h3>
-          <p className="mt-2 text-gray-600">Check room availability instantly.</p>
-        </div>
-      </div>
+      <div className="bg-gradient-to-r from-purple-800 to-purple-300 py-10 border-[10px] px-6">
+  <h3 className="text-2xl font-bold text-center mb-6">Why You'll Love It</h3>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+    <div className="relative border-8 p-6 overflow-hidden">
+      <img src={highFive} alt="Feature 1" className="mx-auto w-16 h-16" />
+      <h4 className="text-lg font-bold mt-4 text-black !important">User-Friendly</h4>
+      <p className="text-sm mt-2  text-black !important">Easy-to-navigate platform for hassle-free bookings.</p>
+    </div>
+    <div className="relative border-8 p-6 overflow-hidden">
+      <img src={realTimeUpdate} alt="Feature 2" className="mx-auto w-16 h-16" />
+      <h4 className="text-lg font-bold mt-4 text-black !important">Real-Time Updates</h4>
+      <p className="text-sm mt-2 text-black !important">Get real-time availability status.</p>
+    </div>
+    <div className="relative border-8 p-6 overflow-hidden">
+      <img src={reliability} alt="Feature 3" className="mx-auto w-16 h-16" />
+      <h4 className="text-lg font-bold mt-4 text-black !important">Reliable</h4>
+      <p className="text-sm mt-2 text-black !important">Always accurate and up-to-date information.</p>
+    </div>
+  </div>
+</div>
+
+
+
+
 
       {/* Footer */}
       <Footer />

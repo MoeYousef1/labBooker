@@ -62,22 +62,36 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
-              <Link
-                to="/about"
-                onClick={() => setMobileDrawerOpen(false)}
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-400 md:p-0 transition duration-300"
-              >
-                About
-              </Link>
+            <Link
+               to="https://www.jce.ac.il/"
+               onClick={() => setMobileDrawerOpen(false)}
+               className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-400 md:p-0 transition duration-300"
+             >
+               <a
+                 href="https://www.jce.ac.il/"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-400 md:p-0 transition duration-300"
+               >
+                 College Website
+               </a>
+             </Link>
             </li>
             <li>
-              <Link
-                to="/services"
-                onClick={() => setMobileDrawerOpen(false)}
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-400 md:p-0 transition duration-300"
-              >
-                Services
-              </Link>
+            <Link
+               to="https://www.jce.ac.il/"
+               onClick={() => setMobileDrawerOpen(false)}
+               className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-400 md:p-0 transition duration-300"
+             >
+               <a
+                 href="https://www.jce.ac.il/"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-400 md:p-0 transition duration-300"
+               >
+                 Portal
+               </a>
+             </Link>
             </li>
             <li>
               <Link
@@ -85,7 +99,7 @@ const Navbar = () => {
                 onClick={() => setMobileDrawerOpen(false)}
                 className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-400 md:p-0 transition duration-300"
               >
-                Contact
+                Lab Rooms
               </Link>
             </li>
           </ul>
