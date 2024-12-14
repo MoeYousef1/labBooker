@@ -3,18 +3,18 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="py-3 px-6 bg-gradient-to-r from-purple-800 to-purple-900 text-white">
+    <footer className="py-3 px-6 bg-gradient-to-r from-[rgba(1,84,206,255)] to-[rgba(0,130,180,255)] text-white">
       <div className="mx-auto max-w-screen-xl text-center">
         {/* Links */}
         <ul className="flex justify-center items-center space-x-6">
           <li>
-            <a href="#" className="hover:underline text-sm">About</a>
+            <a href="#" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">About</a>
           </li>
           <li>
-            <a href="#" className="hover:underline text-sm">FAQs</a>
+            <a href="#" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">FAQs</a>
           </li>
           <li>
-            <a href="#" className="hover:underline text-sm">Contact</a>
+            <a href="#" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">Contact</a>
           </li>
         </ul>
 
