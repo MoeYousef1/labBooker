@@ -29,14 +29,18 @@ const LogInPage = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', formData);
+      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
       console.log('Success:', response.data); // You can handle successful login here
       alert('Login successful!');
     } catch (error) {
-      // Parse backend errors and set them to state
-      const backendErrors = error.response?.data?.errors || {};
-      setErrors(backendErrors);
-      setGeneralError(error.response?.data?.message || 'Something went wrong.');
+      // Backend errors handling
+      if (error.response && error.response.data) {
+        const backendErrorMessage = error.response.data.message || 'Something went wrong.';
+        setGeneralError(backendErrorMessage);
+      } else {
+        setGeneralError('An unexpected error occurred.');
+      }
+      setIsSubmitting(false);
     } finally {
       setIsSubmitting(false);
     }
