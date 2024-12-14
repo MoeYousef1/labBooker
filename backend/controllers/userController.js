@@ -1,12 +1,12 @@
-const User = require('./models/User');
+const User = require('../models/User');
 const bcrypt = require("bcrypt");
 
-async function fetchUsers(req) {
+async function fetchUsers(req, res) {
   try {
     const users = await User.find();
     res.status(200).json(users);
   } catch (error) {
-    throw  new Error('Failed fetiching users!' + error);
+    res.status(500).json({ message: 'Failed fetching users: ' + error.message });
   }
 }
 
