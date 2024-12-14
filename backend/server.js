@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');  
+const authRoutes = require('./routes/authRoutes');  
 
 
 const app = express();
@@ -26,7 +27,12 @@ app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
 
-app.use('/api/users',userRoutes);
+app.get('/protected', (req,res) => {
+  
+})
+
+app.use('/api/user',userRoutes);
+app.use('/api/auth',authRoutes);
 
 
 // Start Server
