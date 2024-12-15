@@ -1,13 +1,30 @@
 const User = require('../models/User');
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
+
+//generating token
+const generateToken = (user)=> {
+    const payload = { 
+        id:user._id,
+        email:user.email,
+        role:user.role,
+    };
+
+    const secretKey = process.env.JWT_SECRET;
+
+    const token = jwt.sign(payload, secretKey, { expiresIn: "1h" });
+
+    return token;
+}
 
 
+//signup controller
 async function signupRegister(req) {
   const { username, email, password } = req;
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return { message: "This e-mail is already in use!" };
+      return { status:409,message: "This e-mail is already in use!" };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -16,10 +33,11 @@ async function signupRegister(req) {
     await newUser.save();
     return { message: "User Created successfully." };
   } catch (error) {
-    throw new Error("Error Creating User!" + error);
+    throw new Error("Error Creating User!");
   }
 }
 
+//login controller 
 async function loginRegister(userData) {
   try {
     const { email, password } = userData;
@@ -33,12 +51,14 @@ async function loginRegister(userData) {
     if (!isMatch) {
       return { status: 401, message: "Incorrect password!" };
     }
-
-    return { status: 200, message: "Login successful!" };
+    const token = generateToken(userData); //Might be "User" insted of "userData"
+    return { status: 200, message: "Login successful!" ,token};
   } catch (error) {
     return { status: 500, message: "Internal Server Error: " + error.message };
   }
 }
+
+
 
 module.exports = { 
     
