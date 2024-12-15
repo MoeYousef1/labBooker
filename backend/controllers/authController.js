@@ -52,6 +52,7 @@ async function loginRegister(userData) {
       return { status: 401, message: "Incorrect password!" };
     }
     const token = generateToken(userData); //Might be "User" insted of "userData"
+    console.log(token);
     return { status: 200, message: "Login successful!" ,token};
   } catch (error) {
     return { status: 500, message: "Internal Server Error: " + error.message };
