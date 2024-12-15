@@ -1,0 +1,48 @@
+import React from "react";
+
+const AuthFooter = ({ isLoginPage, onLoginRedirect, onForgotPasswordRedirect, isRegisterPage }) => {
+  return (
+    <>
+    <div className="flex flex-col lg:flex-row items-center justify-between">
+      {/* Forgot Password (only on login page) */}
+      {isLoginPage && (
+        <button
+        onClick={onForgotPasswordRedirect} // Navigate to forgot password page
+          className="text-sm text-white font-semibold hover:underline mb-2 lg:mb-0"
+        >
+          Forgot password?
+        </button>
+      )}
+
+      {/* Don't have an account? and Register Button (only on login page) */}
+      {isLoginPage && (
+        <div className="flex items-center mt-2 lg:mt-0">
+          <p className="text-white font-semibold mr-6">Don't have an account?</p>
+          <button
+            type="button"
+            onClick={onLoginRedirect}
+            className="rounded border-2 border-blue-500 px-6 py-2 text-xs font-medium text-white hover:bg-blue-500 transition"
+          >
+            Register
+          </button>
+        </div>
+      )}
+          </div>
+
+      {/* Already have an account? and Log In Button (only on register page) */}
+      {isRegisterPage && (
+        <div className="flex items-center justify-center pb-6">
+          <p className="text-white font-semibold mr-10">Already have an account?</p>
+          <button
+            onClick={onLoginRedirect}
+            className="rounded border-2 border-blue-500 px-6 py-2 text-xs font-medium text-white hover:bg-blue-500 transition"
+          >
+            Log In
+          </button>
+        </div>
+      )}
+      </>
+  );
+};
+
+export default AuthFooter;
