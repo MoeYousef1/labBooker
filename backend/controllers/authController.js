@@ -20,24 +20,25 @@ async function signupRegister(req) {
   }
 }
 
-async function loginRegister(req) {
-  const { username, email, password } = req;
+async function loginRegister(userData) {
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return { message: "This e-mail is already in use!" };
+    const { email, password } = userData;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return { status: 404, message: "User does not exist!" };
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return { status: 401, message: "Incorrect password!" };
+    }
 
-    await newUser.save();
-    return { message: "User Created successfully." };
+    return { status: 200, message: "Login successful!" };
   } catch (error) {
-    throw new Error("Error Creating User!" + error);
+    return { status: 500, message: "Internal Server Error: " + error.message };
   }
 }
-
 
 module.exports = { 
     
