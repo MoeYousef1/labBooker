@@ -9,6 +9,9 @@ const bcrypt = require("bcrypt");
 router.post("/signup", async (req, res) => {
   try {
     const response = await authController.signupRegister(req.body);
+    if(response.message.includes("This e-mail is already in use!")) {
+      return res.status(409).json({message:response.message})
+    }
     res.json(response);
   } catch (error) {
     res.status(400).json({ message: "Error Creating User: " + error });
@@ -18,24 +21,24 @@ router.post("/signup", async (req, res) => {
 // Login Route
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body; 
+    const response = await authController.loginRegister(req.body);
 
-    // Check if the user exists in the database
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User Not Found!" });
+    // Check response and set appropriate status codes
+    if (response.message.includes("User does not exist")) {
+      return res.status(404).json({ message: response.message });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect Password, try again!" });
+    if (response.message.includes("Incorrect password")) {
+      return res.status(401).json({ message: response.message });
     }
 
-    res.status(200).json({ message: "Login successful" });
+    // If everything is successful, send status 200
+    res.status(200).json({ message: response.message });
   } catch (error) {
     res.status(500).json({ message: "Unable to login: " + error.message });
   }
 });
+
 
 
 module.exports = router;
