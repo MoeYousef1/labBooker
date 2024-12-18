@@ -1,7 +1,22 @@
 
-const User = require("../models/User");
+require('dotenv').config();
 const bcrypt = require("bcrypt");
+const User = require("../models/User");
+const nodemailer = require('nodemailer');
+const crypto = require("crypto");
 
+
+// Create a transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // Use the desired email service
+    auth: {
+      user: process.env.EMAIL, 
+      pass: process.env.PASSWORD, 
+    },
+  });
+
+
+//change password 
 async function changePassword(userData) {
     const { userId, currentPassword, newPassword } = userData;
   
@@ -30,11 +45,18 @@ async function changePassword(userData) {
     }
   };
 
+
+  //forgot password 
   async function forgotPassword(userData) {
     const {email} = userData;
     if(!email) {
         return {status:400,message:'Incorrect email'};
-    } 
+    }    
+  }
+
+  //send email 
+  async function sendEmail(userEmail) {
+    
   }
   module.exports = {
     changePassword,
