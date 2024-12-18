@@ -1,6 +1,6 @@
 import React from "react";
 
-const AuthFooter = ({ isLoginPage, onLoginRedirect, onForgotPasswordRedirect, isRegisterPage }) => {
+const AuthFooter = ({ isLoginPage, onLoginRedirect, onForgotPasswordRedirect, isRegisterPage, isForgotPassword }) => {
   return (
     <>
     <div className="flex flex-col lg:flex-row items-center justify-between">
@@ -33,6 +33,19 @@ const AuthFooter = ({ isLoginPage, onLoginRedirect, onForgotPasswordRedirect, is
       {isRegisterPage && (
         <div className="flex items-center justify-center pb-6">
           <p className="text-white font-semibold mr-10">Already have an account?</p>
+          <button
+            onClick={onLoginRedirect}
+            className="rounded border-2 border-blue-500 px-6 py-2 text-xs font-medium text-white hover:bg-blue-500 transition"
+          >
+            Log In
+          </button>
+        </div>
+      )}
+
+      {/* Forgot Password */}
+      {isForgotPassword && (
+        <div className="flex items-center justify-center pb-6 mt-4">
+          <p className="text-white font-semibold mr-10">Remember your password?</p>
           <button
             onClick={onLoginRedirect}
             className="rounded border-2 border-blue-500 px-6 py-2 text-xs font-medium text-white hover:bg-blue-500 transition"

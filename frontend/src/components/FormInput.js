@@ -1,6 +1,6 @@
 import React from "react";
 
-const FormInput = ({ type, name, value, onChange, label, error, required = true }) => {
+const FormInput = ({ type, name, value, onChange, label, error }) => {
   const inputClasses =
     "peer w-full p-3 border-[1px] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300";
   const labelClasses =
@@ -14,10 +14,9 @@ const FormInput = ({ type, name, value, onChange, label, error, required = true 
         value={value}
         onChange={onChange}
         className={`${inputClasses} ${error ? "border-red-500" : "border-gray-400"}`}
-        placeholder=" "
-        required={required}
+        placeholder=" " // Keeps the label styling functional
       />
-      <label htmlFor={name} className={labelClasses}>
+      <label htmlFor={name} clasName={labelClasses}>
         {label}
       </label>
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
