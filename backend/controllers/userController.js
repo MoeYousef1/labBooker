@@ -10,6 +10,10 @@ async function fetchUsers(req, res) {
   }
 }
 
+async function changePassword(req,res) {
+
+  const {passwod} = 
+}
 module.exports = { 
   fetchUsers
 };

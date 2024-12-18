@@ -41,8 +41,7 @@ async function signupRegister(req) {
 async function loginRegister(userData) {
   try {
     const { email, password } = userData;
-
-    const user = await User.findOne({ email });
+    const user = await User.findOne({email});
     if (!user) {
       return { status: 404, message: "User does not exist!" };
     }
@@ -51,9 +50,9 @@ async function loginRegister(userData) {
     if (!isMatch) {
       return { status: 401, message: "Incorrect password!" };
     }
+    const username = user.username;
     const token = generateToken(userData); //Might be "User" insted of "userData"
-    console.log(token);
-    return { status: 200, message: "Login successful!" ,token};
+    return { status: 200, message: "Login successful!" ,token, username};
   } catch (error) {
     return { status: 500, message: "Internal Server Error: " + error.message };
   }
