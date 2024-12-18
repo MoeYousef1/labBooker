@@ -4,7 +4,7 @@ import FormInput from "../components/FormInput";
 import AuthButton from "../components/AuthButton";
 import AuthFooter from "../components/AuthFooter";
 import collegeBuilding from "../assets/collegeBuilding.jpg"; // Reuse the background image
-import axios from 'axios';
+//import axios from 'axios';
 
 const ChangePasswordPage = () => {
   const [CurrentPassword, setCurrentPassword] = useState("");
