@@ -30,7 +30,12 @@ const LogInPage = () => {
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", formData);
       console.log("Success:", response.data);
-      alert("Login successful!");
+
+      // Store user info in localStorage (including username, email, etc.)
+      localStorage.setItem('user', JSON.stringify(formData));
+      
+      //alert("Login successful!");
+      navigate("/homepage");
     } catch (error) {
       const backendError = error.response?.data?.message || "An unexpected error occurred.";
       setGeneralError(backendError);

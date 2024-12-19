@@ -61,7 +61,7 @@ const ForgotPasswordPage = () => {
       }}
     >
       <div className="min-h-screen flex justify-center items-center">
-      <div className="w-full sm:w-[500px] p-10 bg-black bg-opacity-30 shadow-lg rounded-lg flex flex-col lg:flex-row">
+      <div className="w-full sm:w-[640px] p-10 bg-black bg-opacity-30 shadow-lg rounded-lg flex flex-col lg:flex-row">
       <div className="w-full p-6">
             <div className="text-center">
             <h4 className="mb-4 text-4xl font-extrabold text-white">
