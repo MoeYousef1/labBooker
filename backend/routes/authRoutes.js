@@ -33,7 +33,7 @@ router.post("/login", async (req, res) => {
     }
 
     // If everything is successful, send status 200
-    res.status(200).json({ message: response.message });
+    res.status(200).json( response );
   } catch (error) {
     res.status(500).json({ message: "Unable to login: " + error.message });
   }

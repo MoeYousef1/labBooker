@@ -28,6 +28,7 @@ app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
 
+
 app.get('/protected', (req,res) => {
   
 })
