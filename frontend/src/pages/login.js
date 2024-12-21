@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
 import AuthLayout from "../components/AuthLayout";
 import FormInput from "../components/FormInput";
-import ErrorMessage from "../components/ErrorMessage";
+import ErrorMessage from "../components/Error_successMessage";
 import AuthButton from "../components/AuthButton";
 import AuthFooter from "../components/AuthFooter";
 import lapLogo from "../assets/laptop.png";

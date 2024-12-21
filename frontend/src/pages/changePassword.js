@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import FormInput from "../components/FormInput";
 import AuthButton from "../components/AuthButton";
 import AuthFooter from "../components/AuthFooter";
-import collegeBuilding from "../assets/collegeBuilding.jpg"; // Reuse the background image
+import collegeBuilding from "../assets/collegeBuilding.jpg";
 import axios from "axios";
+import Message from "../components/Error_successMessage"; // Import the Message component
 
 const ChangePasswordPage = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -27,16 +28,25 @@ const ChangePasswordPage = () => {
     }
 
     const token = localStorage.getItem("token");
-    if (!token) {
-      setError("You must be logged in to change your password.");
+    // if (!token) {
+    //   setError("You must be logged in to change your password.");
+    //   setIsSubmitting(false);
+    //   return;
+    // }
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userEmail = user?.email;
+    if (!userEmail) {
+      setError("Unable to retrieve email. Please log in again.");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/settings/change-password", // Using POST as per your backend
+      const response = await axios.put(
+        "http://localhost:5000/api/settings/change-password",
         {
+          email: userEmail,
           currentPassword,
           newPassword,
         },
@@ -47,11 +57,10 @@ const ChangePasswordPage = () => {
 
       if (response.status === 200) {
         setSuccess(response.data.message || "Password changed successfully");
-        setTimeout(() => navigate("/login"), 2000); // Redirect to login after 2 seconds
+        setTimeout(() => navigate("/login"), 2000); // Redirect after 2 seconds
       }
     } catch (error) {
       console.error("API error:", error);
-      // Extract error message from the backend response if it exists
       if (error.response) {
         setError(error.response.data.message || "Something went wrong. Please try again.");
       } else {
@@ -95,7 +104,6 @@ const ChangePasswordPage = () => {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   label="Current Password"
-                  error={error}
                 />
                 <FormInput
                   type="password"
@@ -103,11 +111,12 @@ const ChangePasswordPage = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   label="New Password"
-                  error={error}
                 />
 
-                {success && <p className="text-green-500 text-sm mt-2">{success}</p>}
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                <div className="text-center">
+                  {error && <Message message={error} type="error" onClose={() => setError("")} />}
+                  {success && <Message message={success} type="success" onClose={() => setSuccess("")} />}
+                </div>
 
                 <div className="flex justify-between mt-4">
                   <button

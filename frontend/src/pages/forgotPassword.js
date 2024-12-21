@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FormInput from "../components/FormInput";
 import AuthButton from "../components/AuthButton";
-import AuthFooter from "../components/AuthFooter";
+// import AuthFooter from "../components/AuthFooter";
 import collegeBuilding from "../assets/collegeBuilding.jpg";
 //import axios from 'axios';
 
@@ -91,7 +91,7 @@ const ForgotPasswordPage = () => {
                   />
                   {success && <p className="text-green-500 text-sm mt-2">{success}</p>}
                   <AuthButton isSubmitting={isSubmitting} label="Reset password" />
-                  <AuthFooter isForgotPassword={true} onLoginRedirect={() => navigate("/login")} />
+                  {/* <AuthFooter isForgotPassword={true} onLoginRedirect={() => navigate("/login")} /> */}
                 </form>
               ) : (
                 <form onSubmit={handleCodeSubmit}>
