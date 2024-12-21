@@ -1,15 +1,25 @@
 import React from "react";
 
-const ErrorMessage = ({ message, onClose }) => {
+const Message = ({ message, onClose, type }) => {
   if (!message) return null;
 
+  const messageType =
+    type === "success"
+      ? "bg-green-100 border-green-400 text-green-700"
+      : "bg-red-100 border-red-400 text-red-700";
+
+  const closeButtonColor = type === "success" ? "text-green-500" : "text-red-500";
+
   return (
-    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mt-1 relative" role="alert">
+    <div
+      className={`${messageType} border px-4 py-2 rounded mt-1 relative`}
+      role="alert"
+    >
       <span>{message}</span>
       {onClose && (
         <button onClick={onClose} className="absolute top-0 right-0 px-4 py-3">
           <svg
-            className="fill-current h-6 w-6 text-red-500"
+            className={`fill-current h-6 w-6 ${closeButtonColor}`}
             role="button"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
@@ -23,4 +33,4 @@ const ErrorMessage = ({ message, onClose }) => {
   );
 };
 
-export default ErrorMessage;
+export default Message;

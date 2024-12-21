@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import FormInput from "../components/FormInput";
 import AuthButton from "../components/AuthButton";
 import AuthFooter from "../components/AuthFooter";
-import collegeBuilding from "../assets/collegeBuilding.jpg"; // Reuse the background image
-//import axios from 'axios';
+import collegeBuilding from "../assets/collegeBuilding.jpg";
+import axios from "axios";
+import Message from "../components/Error_successMessage"; // Import the Message component
 
 const ChangePasswordPage = () => {
-  const [CurrentPassword, setCurrentPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -16,38 +17,62 @@ const ChangePasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    setIsSubmitting(false);
-  
-    // Frontend validation
-    if (!CurrentPassword || !newPassword) {
+    setError(""); // Clear previous error
+    setSuccess(""); // Clear previous success
+    setIsSubmitting(true);
+
+    if (!currentPassword || !newPassword) {
       setError("All fields are required");
+      setIsSubmitting(false);
       return;
     }
-  
-    setIsSubmitting(true); // Proceed with submission only if validation passes
-  
+
+    const token = localStorage.getItem("token");
+    // if (!token) {
+    //   setError("You must be logged in to change your password.");
+    //   setIsSubmitting(false);
+    //   return;
+    // }
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userEmail = user?.email;
+    if (!userEmail) {
+      setError("Unable to retrieve email. Please log in again.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Mock success response
-      console.log("Mocking API call...");
-      const mockResponse = { status: 200, data: { message: "Password updated successfully." } };
-  
-      if (mockResponse.status === 200) {
-        setSuccess(mockResponse.data.message);
-        navigate("/login"); // Redirect to login page after success
+      const response = await axios.put(
+        "http://localhost:5000/api/settings/change-password",
+        {
+          email: userEmail,
+          currentPassword,
+          newPassword,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        setSuccess(response.data.message || "Password changed successfully");
+        setTimeout(() => navigate("/login"), 2000); // Redirect after 2 seconds
       }
     } catch (error) {
-      // Simulate a backend error
-      setError("Mock error: Something went wrong. Please try again.");
+      console.error("API error:", error);
+      if (error.response) {
+        setError(error.response.data.message || "Something went wrong. Please try again.");
+      } else {
+        setError("Network error. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
-  
-  
+
   const handleCancel = () => {
-    navigate("/"); // Redirect to home or any other page you prefer
+    navigate("/homepage"); // Redirect to home or any other page you prefer
   };
 
   return (
@@ -75,11 +100,10 @@ const ChangePasswordPage = () => {
               <form onSubmit={handleSubmit}>
                 <FormInput
                   type="password"
-                  name="CurrentPassword"
-                  value={CurrentPassword}
+                  name="currentPassword"
+                  value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   label="Current Password"
-                  error={error}
                 />
                 <FormInput
                   type="password"
@@ -87,11 +111,12 @@ const ChangePasswordPage = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   label="New Password"
-                  error={error}
                 />
 
-                {success && <p className="text-green-500 text-sm mt-2">{success}</p>}
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                <div className="text-center">
+                  {error && <Message message={error} type="error" onClose={() => setError("")} />}
+                  {success && <Message message={success} type="success" onClose={() => setSuccess("")} />}
+                </div>
 
                 <div className="flex justify-between mt-4">
                   <button
