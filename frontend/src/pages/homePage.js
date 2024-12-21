@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/NavBar2";
-import HeroSection from "../components/HeroSection2";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import Navbar from "../components/Navbar";
+import HeroSection from "../components/HeroSection";
 import FeaturesSection from "../components/FeaturesSection";
 import Footer from "../components/footer";
 
 const HomePage = () => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    email: "", // Now only storing email
+    email: "",
+    username: "",
   });
+
+  const navigate = useNavigate(); // Use navigate for redirection
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -16,19 +20,25 @@ const HomePage = () => {
       try {
         const parsedUser = JSON.parse(user);
         setUserInfo({
-          email: parsedUser.email || "", // Only set email
+          email: parsedUser.email || "",
+          username: parsedUser.username || "",  // Get the username
         });
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
+    } else {
+      navigate("/login"); // Redirect to login if no user data is found
     }
-  }, []);
+  }, [navigate]);
 
   const toggleProfileDropdown = () => setProfileDropdownOpen(!profileDropdownOpen);
 
   const handleLogout = () => {
+    // Clear user data from localStorage
     localStorage.removeItem("user");
-    console.log("Logging out...");
+    localStorage.removeItem("token");
+    setUserInfo({ email: "", username: "" });
+    navigate("/login"); // Redirect to login page after logout
   };
 
   return (
@@ -36,8 +46,9 @@ const HomePage = () => {
       <Navbar
         profileDropdownOpen={profileDropdownOpen}
         toggleProfileDropdown={toggleProfileDropdown}
-        handleLogout={handleLogout}
         userInfo={userInfo}
+        setUserInfo={setUserInfo}
+        handleLogout={handleLogout} // Pass logout function to Navbar
       />
       <HeroSection userInfo={userInfo} />
       <FeaturesSection />

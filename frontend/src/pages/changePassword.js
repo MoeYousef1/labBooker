@@ -4,10 +4,10 @@ import FormInput from "../components/FormInput";
 import AuthButton from "../components/AuthButton";
 import AuthFooter from "../components/AuthFooter";
 import collegeBuilding from "../assets/collegeBuilding.jpg"; // Reuse the background image
-//import axios from 'axios';
+import axios from "axios";
 
 const ChangePasswordPage = () => {
-  const [CurrentPassword, setCurrentPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -16,38 +16,54 @@ const ChangePasswordPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    setIsSubmitting(false);
-  
-    // Frontend validation
-    if (!CurrentPassword || !newPassword) {
+    setError(""); // Clear previous error
+    setSuccess(""); // Clear previous success
+    setIsSubmitting(true);
+
+    if (!currentPassword || !newPassword) {
       setError("All fields are required");
+      setIsSubmitting(false);
       return;
     }
-  
-    setIsSubmitting(true); // Proceed with submission only if validation passes
-  
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("You must be logged in to change your password.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Mock success response
-      console.log("Mocking API call...");
-      const mockResponse = { status: 200, data: { message: "Password updated successfully." } };
-  
-      if (mockResponse.status === 200) {
-        setSuccess(mockResponse.data.message);
-        navigate("/login"); // Redirect to login page after success
+      const response = await axios.post(
+        "http://localhost:5000/api/settings/change-password", // Using POST as per your backend
+        {
+          currentPassword,
+          newPassword,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        setSuccess(response.data.message || "Password changed successfully");
+        setTimeout(() => navigate("/login"), 2000); // Redirect to login after 2 seconds
       }
     } catch (error) {
-      // Simulate a backend error
-      setError("Mock error: Something went wrong. Please try again.");
+      console.error("API error:", error);
+      // Extract error message from the backend response if it exists
+      if (error.response) {
+        setError(error.response.data.message || "Something went wrong. Please try again.");
+      } else {
+        setError("Network error. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
-  
-  
+
   const handleCancel = () => {
-    navigate("/"); // Redirect to home or any other page you prefer
+    navigate("/homepage"); // Redirect to home or any other page you prefer
   };
 
   return (
@@ -75,8 +91,8 @@ const ChangePasswordPage = () => {
               <form onSubmit={handleSubmit}>
                 <FormInput
                   type="password"
-                  name="CurrentPassword"
-                  value={CurrentPassword}
+                  name="currentPassword"
+                  value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   label="Current Password"
                   error={error}
