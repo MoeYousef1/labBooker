@@ -43,42 +43,65 @@ async function changePassword(userData) {
         return {status:400,message:'Incorrect email'};
     }    
   }
-
   
-// // Create a transporter
-// const transporter = nodemailer.createTransport({
-//     service: 'gmail', // Use the desired email service
-//     auth: {
-//       user: process.env.EMAIL, 
-//       pass: process.env.PASSWORD, 
-//     },
-//   });
+// Create a transporter
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // Set to true for port 465
+  auth: {
+    user: process.env.EMAIL, // Your email address
+    pass: process.env.PASSWORD, // Your app password
+  },
+});
+
+// Generate a mock verification code
+const verificationCode = Math.floor(100000 + Math.random() * 900000); // Random 6-digit code
+
+// Email options
+const mailOptions = {
+  from: {
+    name: 'Lab Booker',
+    address: process.env.EMAIL,
+  },
+  to: 'recipient@example.com', // Replace with the recipient's email
+  subject: 'Your Verification Code',
+  html: `
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; box-shadow: 0px 4px 6px rgba(0,0,0,0.1);">
+      <div style="background-color: #4CAF50; color: white; text-align: center; padding: 20px;">
+        <h1 style="margin: 0;">Lab Booker</h1>
+      </div>
+      <div style="padding: 20px;">
+        <p style="font-size: 16px; line-height: 1.5;">Hello ,</p>
+        <p style="font-size: 16px; line-height: 1.5;">Your verification code is:</p>
+        <div style="font-size: 24px; font-weight: bold; color: #4CAF50; text-align: center; margin: 20px 0; border: 2px dashed #4CAF50; padding: 10px;">
+          ${verificationCode}
+        </div>
+        <p style="font-size: 16px; line-height: 1.5;">Please enter this code to verify your account. If you did not request this code, please ignore this email.</p>
+        <p style="font-size: 16px; line-height: 1.5;">Thank you for using Lab Booker!</p>
+      </div>
+      <div style="background-color: #f4f4f4; text-align: center; padding: 10px; font-size: 12px; color: #666;">
+        <p style="margin: 0;">© 2024 Lab Booker. All rights reserved.</p>
+      </div>
+    </div>
+  `,
+};
+
+// Function to send email
+const sendMail = async (transporter, mailOptions) => {
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Verification Email sent successfully!');
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+};
 
 
-//  const transport =  nodemailer.createTransport( {
-//     host:'mxslurp.click',
-//     port:'2525',
-//     secure:false,
-//     auth: {
-//       useR:'362b2a08-9f3f-4c9b-bfcc-4d45e3981fcc@mailslurp.biz' ,
-//       pass: '2txbIS9ILsfi4OcyyilGmzFEqACpassW'
-//     }
-//   })
+// Call the function
+// sendMail(transporter, mailOptions);
 
-//   transport.sendMail({
-//     subject: 'test email',
-//     text:'hello world',
-//     from:'362b2a08-9f3f-4c9b-bfcc-4d45e3981fcc@mailslurp.biz ',
-//     to: '362b2a08-9f3f-4c9b-bfcc-4d45e3981fcc@mailslurp.biz '
-//   }).then ( ()=> {
-//     console.log('email is sent');
-//   }).catch((err=> { 
-//     console.error(err);
-//   }))
-//   //send email 
-//   async function verficationMail(userEmail) {
-    
-//   }
+
   module.exports = {
     changePassword,
     forgotPassword

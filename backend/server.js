@@ -6,7 +6,7 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');  
 const authRoutes = require('./routes/authRoutes');  
 const settingsRoutes = require('./routes/settingsRoutes');  
-
+const mail = require('../backend/controllers/settingsController');
 
 const app = express();
 
