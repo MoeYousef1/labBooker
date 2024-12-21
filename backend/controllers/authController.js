@@ -1,8 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
-// Generating access token
 const generateToken = (user) => {
   const payload = {
     id: user._id,

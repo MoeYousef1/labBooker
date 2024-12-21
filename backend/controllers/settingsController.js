@@ -1,31 +1,21 @@
 
 require('dotenv').config();
 const bcrypt = require("bcrypt");
-const User = require("../models/User");
+const UserCollection = require("../models/User");
 const nodemailer = require('nodemailer');
 const crypto = require("crypto");
 
 
-// Create a transporter
-const transporter = nodemailer.createTransport({
-    service: 'gmail', // Use the desired email service
-    auth: {
-      user: process.env.EMAIL, 
-      pass: process.env.PASSWORD, 
-    },
-  });
-
 
 //change password 
 async function changePassword(userData) {
-    const { userId, currentPassword, newPassword } = userData;
-  
-    if (!userId || !currentPassword || !newPassword) {
+    const { email, currentPassword, newPassword } = userData;
+    if (!email || !currentPassword || !newPassword) {
       return { status: 400, message: "All fields are required" };
     }
   
     try {
-      const user = await User.findById(userId);
+      const user = await UserCollection.findOne({ email });
   
       if (!user) {
         return { status: 400, message: "User not found" };
@@ -54,10 +44,41 @@ async function changePassword(userData) {
     }    
   }
 
-  //send email 
-  async function sendEmail(userEmail) {
+  
+// // Create a transporter
+// const transporter = nodemailer.createTransport({
+//     service: 'gmail', // Use the desired email service
+//     auth: {
+//       user: process.env.EMAIL, 
+//       pass: process.env.PASSWORD, 
+//     },
+//   });
+
+
+//  const transport =  nodemailer.createTransport( {
+//     host:'mxslurp.click',
+//     port:'2525',
+//     secure:false,
+//     auth: {
+//       useR:'362b2a08-9f3f-4c9b-bfcc-4d45e3981fcc@mailslurp.biz' ,
+//       pass: '2txbIS9ILsfi4OcyyilGmzFEqACpassW'
+//     }
+//   })
+
+//   transport.sendMail({
+//     subject: 'test email',
+//     text:'hello world',
+//     from:'362b2a08-9f3f-4c9b-bfcc-4d45e3981fcc@mailslurp.biz ',
+//     to: '362b2a08-9f3f-4c9b-bfcc-4d45e3981fcc@mailslurp.biz '
+//   }).then ( ()=> {
+//     console.log('email is sent');
+//   }).catch((err=> { 
+//     console.error(err);
+//   }))
+//   //send email 
+//   async function verficationMail(userEmail) {
     
-  }
+//   }
   module.exports = {
     changePassword,
     forgotPassword
