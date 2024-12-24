@@ -26,10 +26,10 @@ const HeroSection = ({ userInfo }) => {
         </div>
         <div>
           <button
-            className="px-6 py-3 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/rooms'}
+            className="px-6 py-4 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
+            onClick={() => window.location.href = '/dashboard'}
           >
-            View Rooms
+            Dashboard
           </button>
         </div>
       </div>
@@ -57,7 +57,7 @@ const HeroSection = ({ userInfo }) => {
         </div>
         <div>
           <button
-            className="px-6 py-3 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
+            className="px-6 py-4 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
             onClick={() => window.location.href = '/login'}
           >
             Login

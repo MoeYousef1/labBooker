@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+//import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
@@ -8,13 +8,13 @@ function Footer() {
         {/* Links */}
         <ul className="flex justify-center items-center space-x-6">
           <li>
-            <a href="#" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">About</a>
+            <a href="/about" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">About</a>
           </li>
           <li>
-            <a href="#" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">FAQs</a>
+            <a href="/faq" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">FAQs</a>
           </li>
           <li>
-            <a href="#" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">Contact</a>
+            <a href="/contact" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">Contact</a>
           </li>
         </ul>
 
@@ -23,7 +23,7 @@ function Footer() {
 
         {/* Copyright */}
         <span className="text-xs text-gray-400 mt-4 block">
-          © 2024-2025 <a href="#" className="hover:underline">LabBooker™</a>. All Rights Reserved.
+          © 2024-2025 <a href="/" className="hover:underline">LabBooker™</a>. All Rights Reserved.
         </span>
       </div>
     </footer>

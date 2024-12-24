@@ -6,7 +6,8 @@ import SignUpPage from './pages/signUp';
 import ForgotPassword from './pages/forgotPassword';
 import ChangePasswordPage from "./pages/changePassword";
 import HomePage from "./pages/homePage";
-import PrivateRoute from './components/PrivateRoute'; // Import PrivateRoute
+import AccountSettingsPage from "./pages/accountSettings";
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
@@ -19,12 +20,20 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/changepassword" element={<ChangePasswordPage />} />
         
-        {/* Protected Route for HomePage */}
+        {/* Protected Routes */}
         <Route 
           path="/homepage" 
           element={
             <PrivateRoute>
               <HomePage />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/accountsettings" 
+          element={
+            <PrivateRoute>
+              <AccountSettingsPage />
             </PrivateRoute>
           } 
         />

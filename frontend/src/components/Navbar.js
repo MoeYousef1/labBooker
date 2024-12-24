@@ -93,7 +93,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
               
                   {/* Settings Section */}
                   <Link
-                    to="/settings"
+                    to="/accountsettings"
                     className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
                   >
                     <User className="w-5 h-5 text-green-500 mr-3" />
