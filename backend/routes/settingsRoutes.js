@@ -48,7 +48,7 @@ router.post("/validate-code", async (req, res) => {
       return res.status(400).json({ message: "Email and code are required." });
     }
 
-    const response = await settingsController.validateCode(email, code);
+    const response = await settingsController.validateVerificationCode(email, code);
 
     if (response.status === 400) {
       return res.status(400).json({ message: response.message });
@@ -64,8 +64,24 @@ router.post("/validate-code", async (req, res) => {
   }
 });
 
-module.exports = router;
+// Reset Password Route
+router.put("/reset-password", async (req, res) => {
+  try {
+    const response = await settingsController.resetPassword(req.body);
 
+    if (response.status === 400) {
+      return res.status(400).json({ message: response.message });
+    }
+
+    if (response.status === 200) {
+      return res.status(200).json({ message: response.message });
+    }
+
+    res.status(500).json({ message: "Unexpected error" });
+  } catch (error) {
+    res.status(500).json({ error: "Server error. Please try again later." });
+  }
+});
 
 
 module.exports = router;

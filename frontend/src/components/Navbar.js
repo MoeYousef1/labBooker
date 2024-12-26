@@ -1,6 +1,15 @@
-import { Menu, X, User, Bell } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { MdDashboard } from "react-icons/md";
+import { FaUser } from "react-icons/fa";
+import { IoIosSettings } from "react-icons/io";
+import { RiLogoutBoxLine } from "react-icons/ri";
+import { IoIosArrowDropdownCircle } from "react-icons/io";
+//import { IoIosArrowDropupCircle } from "react-icons/io";
+import { MdNotificationsActive } from "react-icons/md";
+
+
 
 const Navbar = ({ userInfo, setUserInfo }) => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -50,20 +59,20 @@ const Navbar = ({ userInfo, setUserInfo }) => {
           {userInfo ? (
             <div className="relative flex items-center space-x-4">
               {/* Notification Icon */}
-              <button className="relative text-white hover:bg-gray-700 rounded-lg p-2">
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+              <button className="relative text-white hover:bg-blue-600 rounded-full p-2 transition-transform transform hover:scale-105 ">
+              <MdNotificationsActive className="w-6 h-6" />
+              {/* <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span> */}
               </button>
 
               {/* Profile Icon */}
               <div className="relative">
                 <button
                   onClick={toggleProfileDropdown}
-                  className="flex items-center space-x-2 text-white bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400 p-2 rounded-full shadow-lg transition-transform transform hover:scale-105 profile-icon"
+                  className="flex items-center space-x-2 text-white hover:bg-blue-600 p-2 rounded-full transition-transform transform hover:scale-105 profile-icon"
                 >
-                  <User className="w-6 h-6" />
-                  <span className="hidden md:block font-medium">Profile</span>
-                  <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                  <IoIosArrowDropdownCircle className="w-6 h-6" />
+
+                  {/* <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span> */}
                 </button>
 
                 {/* Profile Dropdown */}
@@ -71,13 +80,15 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                 <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg p-4 profile-dropdown">
                 {/* User Info */}
                 <div className="flex items-center p-4 bg-gray-100 rounded-lg space-x-4">
-                  <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold">
+                  {/* Profile Circle */}
+                  <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold relative">
                     {userInfo.username.charAt(0).toUpperCase()}
                   </div>
-                  <div>
+                  
+                  <div className="overflow-hidden">
                     <p className="font-semibold text-gray-800">{userInfo.username}</p>
-                    <p className="text-sm text-gray-500">{userInfo.email}</p>
-                  </div>
+                    <p className="text-sm text-gray-500 truncate max-w-full" title={userInfo.email}>{userInfo.email}</p>
+                    </div>
                 </div>
               
                 {/* Navigation Sections */}
@@ -87,17 +98,9 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                     to="/dashboard"
                     className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
                   >
-                    <User className="w-5 h-5 text-blue-500 mr-3" />
+                    <MdDashboard className="w-5 h-5 mr-3" />
+
                     Dashboard
-                  </Link>
-              
-                  {/* Settings Section */}
-                  <Link
-                    to="/accountsettings"
-                    className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
-                  >
-                    <User className="w-5 h-5 text-green-500 mr-3" />
-                    Account Settings
                   </Link>
               
                   {/* Profile Section */}
@@ -105,17 +108,18 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                     to="/profile"
                     className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
                   >
-                    <User className="w-5 h-5 text-purple-500 mr-3" />
+                    <FaUser className="w-5 h-5 mr-3" />
                     My Profile
                   </Link>
-              
-                  {/* Penalties Section */}
+
+                  
+                  {/* Settings Section */}
                   <Link
-                    to="/penalties"
+                    to="/accountsettings"
                     className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
                   >
-                    <User className="w-5 h-5 text-red-500 mr-3" />
-                    Penalties
+                    <IoIosSettings className="w-5 h-5 mr-3" />
+                     Settings
                   </Link>
                 </div>
               
@@ -125,7 +129,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                     onClick={handleLogout}
                     className="flex items-center px-4 py-2 w-full text-gray-800 hover:bg-red-100 hover:text-red-500 rounded-lg transition duration-300"
                   >
-                    <X className="w-5 h-5 text-red-500 mr-3" />
+                    <RiLogoutBoxLine className="w-5 h-5 mr-3" />
                     Logout
                   </button>
                 </div>
@@ -165,7 +169,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
           <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-transparent md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
             <li>
               <Link
-                to="/"
+                to="/homepage"
                 onClick={() => setMobileDrawerOpen(false)}
                 className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r  hover:from-blue-400  hover:to-blue-800 md:p-0 transition duration-300"
                 aria-current="page"

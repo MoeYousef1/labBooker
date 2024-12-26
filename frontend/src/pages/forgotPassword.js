@@ -2,54 +2,69 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FormInput from "../components/FormInput";
 import AuthButton from "../components/AuthButton";
-// import AuthFooter from "../components/AuthFooter";
 import collegeBuilding from "../assets/collegeBuilding.jpg";
-//import axios from 'axios';
-
+import Message from "../components/Error_successMessage"; // Import the Message component
+import axios from "axios";
 
 const ForgotPasswordPage = () => {
-  const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [step, setStep] = useState(1); // Step 1: Enter email, Step 2: Enter code
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // Manage form submission state
-  const navigate = useNavigate();
+const [email, setEmail] = useState("");
+const [code, setCode] = useState("");
+const [step, setStep] = useState(1);
+const [error, setError] = useState("");
+const [success, setSuccess] = useState("");
+const [isSubmitting, setIsSubmitting] = useState(false);
+const navigate = useNavigate();
 
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setIsSubmitting(true);
+const handleEmailSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setSuccess("");
+  setIsSubmitting(true);
 
-    // Simulate a mock response
-    setTimeout(() => {
-      setSuccess("A verification code has been sent to your email.");
+  try {
+    const response = await axios.post("http://localhost:5000/api/settings/forgot-password", {
+      email,
+    });
+
+    if (response.data && response.status === 200) {
+      setSuccess(response.data.message);
       setStep(2); // Move to step 2 for code entry
-      setIsSubmitting(false);
-    }, 1000); // Simulate a delay
+      localStorage.setItem("email", email); // Store email in localStorage
+    }
+  } catch (err) {
+    setError(err.response?.data?.message || "Failed to send verification email. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
-    // In a real scenario, replace the setTimeout with actual API logic
-  };
 
-  const handleCodeSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setIsSubmitting(true);
+const handleCodeSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setSuccess("");
+  setIsSubmitting(true);
 
-    // Simulate mock code verification
-    setTimeout(() => {
-      const mockSuccess = true; // Simulate success
-      if (mockSuccess) {
-        setSuccess("Code verified successfully! Redirecting to change password page.");
-        navigate("/changepassword");
-      } else {
-        setError("Invalid code. Please try again.");
-      }
-      setIsSubmitting(false);
-    }, 1000);
-  };
+  const storedEmail = localStorage.getItem("email"); // Retrieve email from localStorage
+
+  try {
+    const response = await axios.post("http://localhost:5000/api/settings/validate-code", {
+      email: storedEmail, // Send the email that was stored earlier
+      code, // Just send the code
+    });
+
+    if (response.data && response.status === 200) {
+      setSuccess(response.data.message);
+      setTimeout(() => navigate("/resetpassword"), 2000); // Redirect after a delay
+    }
+  } catch (err) {
+    console.log(err.response?.data); // Log the error response for debugging
+    setError(err.response?.data?.message || "Invalid verification code. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <section
@@ -61,20 +76,16 @@ const ForgotPasswordPage = () => {
       }}
     >
       <div className="min-h-screen flex justify-center items-center">
-      <div className="w-full sm:w-[640px] p-10 bg-black bg-opacity-30 shadow-lg rounded-lg flex flex-col lg:flex-row">
-      <div className="w-full p-6">
+        <div className="w-full sm:w-[640px] p-10 bg-black bg-opacity-30 shadow-lg rounded-lg flex flex-col lg:flex-row">
+          <div className="w-full p-6">
             <div className="text-center">
-            <h4 className="mb-4 text-4xl font-extrabold text-white">
+              <h4 className="mb-4 text-4xl font-extrabold text-white">
                 {step === 1 ? "Forgot password?" : "Enter Verification Code"}
               </h4>
               <p className="mt-2 text-sm text-white">
-                {step === 1 ? (
-                  <>
-                  Enter your email address to reset your password. We'll send a verification code to your email.
-                  </>
-                ) : (
-                  "Check your email for the verification code."
-                )}
+                {step === 1
+                  ? "Enter your email address to reset your password. We'll send a verification code to your email."
+                  : "Check your email for the verification code."}
               </p>
             </div>
 
@@ -89,9 +100,13 @@ const ForgotPasswordPage = () => {
                     label="Email address"
                     error={error}
                   />
-                  {success && <p className="text-green-500 text-sm mt-2">{success}</p>}
+                  <div className="text-center">
+                  {error && <Message message={error} type="error" onClose={() => setError("")} />}
+                  {success && <Message message={success} type="success" onClose={() => setSuccess("")} />}
+                  </div>
+                    <div className="mt-4">
                   <AuthButton isSubmitting={isSubmitting} label="Reset password" />
-                  {/* <AuthFooter isForgotPassword={true} onLoginRedirect={() => navigate("/login")} /> */}
+                    </div>
                 </form>
               ) : (
                 <form onSubmit={handleCodeSubmit}>
@@ -103,7 +118,13 @@ const ForgotPasswordPage = () => {
                     label="Verification Code"
                     error={error}
                   />
+                  <div className="text-center">
+                  {error && <Message message={error} type="error" onClose={() => setError("")} />}
+                  {success && <Message message={success} type="success" onClose={() => setSuccess("")} />}
+                  </div>
+                    <div className="mt-4">
                   <AuthButton isSubmitting={isSubmitting} label="Verify Code" />
+                    </div>
                 </form>
               )}
             </div>

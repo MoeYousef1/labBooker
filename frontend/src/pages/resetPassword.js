@@ -2,18 +2,17 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FormInput from "../components/FormInput";
 import AuthButton from "../components/AuthButton";
-import AuthFooter from "../components/AuthFooter";
 import collegeBuilding from "../assets/collegeBuilding.jpg";
-import axios from "axios";
 import Message from "../components/Error_successMessage"; // Import the Message component
+import axios from "axios";
 
-const ChangePasswordPage = () => {
-  const [currentPassword, setCurrentPassword] = useState("");
+const ResetPasswordPage = () => {
   const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,42 +20,38 @@ const ChangePasswordPage = () => {
     setSuccess(""); // Clear previous success
     setIsSubmitting(true);
 
-    if (!currentPassword || !newPassword) {
+    // Retrieve stored email from localStorage inside handleSubmit
+    const storedEmail = localStorage.getItem("email");
+
+    if (!confirmNewPassword || !newPassword) {
       setError("All fields are required");
       setIsSubmitting(false);
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("You must be logged in to change your password.");
+    if (newPassword !== confirmNewPassword) {
+      setError("Passwords do not match");
       setIsSubmitting(false);
       return;
     }
 
-    const user = JSON.parse(localStorage.getItem("user"));
-    const userEmail = user?.email;
-    if (!userEmail) {
-      setError("Unable to retrieve email. Please log in again.");
+    if (!storedEmail) {
+      setError("Unable to retrieve email. Please try again.");
       setIsSubmitting(false);
       return;
     }
+
 
     try {
-      const response = await axios.put(
-        "http://localhost:5000/api/settings/change-password",
-        {
-          email: userEmail,
-          currentPassword,
-          newPassword,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.put("http://localhost:5000/api/settings/reset-password", {
+        email: storedEmail, 
+        newPassword, 
+        confirmNewPassword
+      });
 
       if (response.status === 200) {
-        setSuccess(response.data.message || "Password changed successfully");
+        setSuccess(response.data.message || "Password reset successfully");
+        localStorage.removeItem("email"); // Clear the email after resetting password
         setTimeout(() => navigate("/login"), 2000); // Redirect after 2 seconds
       }
     } catch (error) {
@@ -71,7 +66,9 @@ const ChangePasswordPage = () => {
     }
   };
 
+  
   const handleCancel = () => {
+    localStorage.removeItem("email"); // Clear the email after resetting password
     navigate("/homepage"); // Redirect to home or any other page you prefer
   };
 
@@ -89,10 +86,10 @@ const ChangePasswordPage = () => {
           <div className="w-full p-6">
             <div className="text-center">
               <h4 className="mb-4 text-4xl font-extrabold text-white">
-                Change Password
+                Reset Password
               </h4>
               <p className="mt-2 text-sm text-white">
-                Please enter your current password and new password to update your credentials.
+                Please enter your new password and confirm it to reset your credentials.
               </p>
             </div>
 
@@ -100,17 +97,17 @@ const ChangePasswordPage = () => {
               <form onSubmit={handleSubmit}>
                 <FormInput
                   type="password"
-                  name="currentPassword"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  label="Current Password"
-                />
-                <FormInput
-                  type="password"
                   name="newPassword"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   label="New Password"
+                />
+                <FormInput
+                  type="password"
+                  name="confirmNewPassword"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  label="Confirm New Password"
                 />
 
                 <div className="text-center">
@@ -126,11 +123,10 @@ const ChangePasswordPage = () => {
                   >
                     Cancel
                   </button>
-                  <AuthButton isSubmitting={isSubmitting} label="Apply Changes" />
+                  <AuthButton isSubmitting={isSubmitting} label="Reset Password" />
                 </div>
               </form>
             </div>
-            <AuthFooter isForgotPassword={false} onLoginRedirect={() => navigate("/login")} />
           </div>
         </div>
       </div>
@@ -138,4 +134,4 @@ const ChangePasswordPage = () => {
   );
 };
 
-export default ChangePasswordPage;
+export default ResetPasswordPage;

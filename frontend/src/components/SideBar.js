@@ -1,8 +1,32 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from "react";
+import { MdDashboard } from "react-icons/md";
+import { FaUser } from "react-icons/fa";
+import { IoIosSettings } from "react-icons/io";
+import { RiLogoutBoxLine } from "react-icons/ri";
+import {useNavigate } from "react-router-dom";
+import { FaHome } from "react-icons/fa";
 
-  
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [, setUserInfo] = useState({ email: "", username: "" });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      try {
+        const parsedUser = JSON.parse(user);
+        setUserInfo({
+          email: parsedUser.email || "",
+          username: parsedUser.username || "",
+        });
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    } else {
+      navigate("/login"); // Redirect to login if no user data is found
+    }
+  }, [navigate]);
 
   // Toggle sidebar state
   const toggleSidebar = () => {
@@ -17,11 +41,23 @@ export function Sidebar() {
     }
   };
 
+  const handleBackHomeClick = () => {
+    navigate("/homepage");
+  };
+
+   // Handle logout action
+   const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUserInfo(null);
+    navigate("/login");
+  };
+
   return (
     <div className="flex h-full relative">
       {/* Sidebar */}
       <div
-        className={`sidebar-container h-screen w-64 bg-gradient-to-r from-blue-400 to-blue-800 text-white p-4 shadow-xl transition-all duration-300 
+        className={`sidebar-container h-screen w-auto bg-gradient-to-r from-blue-400 to-blue-800 text-white p-4 shadow-xl transition-all duration-300 
           ${isOpen ? 'block fixed top-0 left-0 z-50' : 'hidden sm:block sm:static'}`}
       >
         <div className="flex justify-between items-center mb-6">
@@ -38,34 +74,54 @@ export function Sidebar() {
         <ul>
           <li className="py-2 px-4 hover:bg-blue-950 cursor-pointer rounded">
             <div className="flex items-center space-x-3">
-              <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-              </svg>
-              <span>Dashboard</span>
+            <MdDashboard className="w-5 h-5" />
+            <button
+                onClick={() => navigate("/dashboard")} // Use navigate to go to the homepage
+              >
+                Dashboard
+              </button>
             </div>
           </li>
           <li className="py-2 px-4 hover:bg-blue-950 cursor-pointer rounded">
             <div className="flex items-center space-x-3">
-              <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6h6M6 12v6h6" />
-              </svg>
-              <span>Profile</span>
+            <FaUser className="w-5 h-5" />
+            <button
+                onClick={() => navigate("/myprofile")} // Use navigate to go to the homepage
+              >
+               My Profile
+              </button>
             </div>
           </li>
           <li className="py-2 px-4 hover:bg-blue-950 cursor-pointer rounded">
             <div className="flex items-center space-x-3">
-              <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 10l5 5-5 5M13 10l5 5-5 5" />
-              </svg>
-              <span>Settings</span>
+            <IoIosSettings className="w-5 h-5" />
+            <button
+                onClick={() => navigate("/accountsettings")} // Use navigate to go to the homepage
+              >
+                Settings
+              </button>
             </div>
           </li>
           <li className="py-2 px-4 hover:bg-blue-950 cursor-pointer rounded">
             <div className="flex items-center space-x-3">
-              <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 10l5 5-5 5M13 10l5 5-5 5" />
-              </svg>
-              <span>Log Out</span>
+            <FaHome className="w-5 h-5" />
+            <button
+                    onClick={handleBackHomeClick} >
+                    Home
+
+                  </button>
+            </div>
+          </li>
+        </ul>
+        <ul>
+        <li className="py-2 px-4 hover:bg-blue-950 cursor-pointer rounded absolute bottom-10 ">
+            <div className="flex items-center space-x-3">
+            <RiLogoutBoxLine className="w-5 h-5" />
+            <button
+                    onClick={handleLogout} >
+                    Log Out
+
+                  </button>
             </div>
           </li>
         </ul>

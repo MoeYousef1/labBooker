@@ -20,7 +20,6 @@ const FormInput = ({ type, name, value, onChange, label, error, required = false
       <label htmlFor={name} className={labelClasses}>
         {label}
       </label>
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };

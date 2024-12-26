@@ -35,6 +35,8 @@ async function changePassword(userData) {
   }
 };
 
+
+
 // Create a transporter for nodemailer
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -142,9 +144,39 @@ async function forgotPassword(userData) {
   }
 }
 
+// Reset Password Function
+async function resetPassword(userData) {
+  const { email, newPassword, confirmNewPassword } = userData;
+
+  if (!email || !newPassword || !confirmNewPassword) {
+    return { status: 400, message: "All fields are required" };
+  }
+
+  if (newPassword !== confirmNewPassword) {
+    return { status: 400, message: "Passwords do not match" };
+  }
+
+  try {
+    const user = await UserCollection.findOne({ email });
+
+    if (!user) {
+      return { status: 400, message: "User not found" };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return { status: 200, message: "Password reset successfully" };
+  } catch (error) {
+    return { status: 500, message: "Internal Server Error: " + error.message };
+  }
+}
+
 module.exports = {
   forgotPassword,
   changePassword,
   sendVerificationCode,
   validateVerificationCode,
+  resetPassword, // Add this to export the reset password function
 };
