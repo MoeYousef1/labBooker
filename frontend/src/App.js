@@ -9,6 +9,10 @@ import ResetPasswordPage from "./pages/resetPassword";
 import HomePage from "./pages/homePage";
 import AccountSettingsPage from "./pages/accountSettings";
 import PrivateRoute from './components/PrivateRoute';
+import FAQ from "./pages/faq";
+import ABOUT from "./pages/about";
+
+
 
 function App() {
   return (
@@ -21,6 +25,10 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/changepassword" element={<ChangePasswordPage />} />
         <Route path="/resetpassword" element={<ResetPasswordPage />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/about" element={<ABOUT />} />
+
+
 
         
         {/* Protected Routes */}

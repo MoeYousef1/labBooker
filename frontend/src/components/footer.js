@@ -3,18 +3,18 @@ import React from 'react';
 
 function Footer() {
   return (
-    <footer className="py-3 px-6 bg-gradient-to-r from-[rgba(1,84,206,255)] to-[rgba(0,130,180,255)] text-white">
+    <footer className="py-3 px-6 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400 text-white">
       <div className="mx-auto max-w-screen-xl text-center">
         {/* Links */}
         <ul className="flex justify-center items-center space-x-6">
           <li>
-            <a href="/about" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">About</a>
+            <a href="/about" className="hover:underline text-sm text-white hover:text-blue-950">About</a>
           </li>
           <li>
-            <a href="/faq" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">FAQs</a>
+            <a href="/faq" className="hover:underline text-sm text-white hover:text-blue-950">FAQs</a>
           </li>
           <li>
-            <a href="/contact" className="hover:underline text-sm text-white hover:text-[rgba(1,156,140,255)]">Contact</a>
+            <a href="/contact" className="hover:underline text-sm text-white hover:text-blue-950">Contact</a>
           </li>
         </ul>
 
