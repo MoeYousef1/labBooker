@@ -6,7 +6,7 @@ import { FaUser } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { IoIosArrowDropdownCircle } from "react-icons/io";
-//import { IoIosArrowDropupCircle } from "react-icons/io";
+import { IoIosArrowDropupCircle } from "react-icons/io";
 import { MdNotificationsActive } from "react-icons/md";
 
 
@@ -70,8 +70,12 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                   onClick={toggleProfileDropdown}
                   className="flex items-center space-x-2 text-white hover:bg-blue-600 p-2 rounded-full transition-transform transform hover:scale-105 profile-icon"
                 >
-                  <IoIosArrowDropdownCircle className="w-6 h-6" />
+                  {profileDropdownOpen ? (
+                    <IoIosArrowDropupCircle className="w-6 h-6 pointer-events-none" />
 
+        ) : (
+          <IoIosArrowDropdownCircle className="w-6 h-6 pointer-events-none" />
+        )}
                   {/* <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span> */}
                 </button>
 
