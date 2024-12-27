@@ -1,8 +1,8 @@
 const express = require("express");
-const User = require("../models/User"); 
+// const User = require("../models/User"); 
 const router = express.Router();
 const authController = require("../controllers/authController");
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 
 
 // Sign-up Route
@@ -12,8 +12,12 @@ router.post("/signup", async (req, res) => {
     if(response.message.includes("This e-mail is already in use!")) {
       return res.status(409).json({message:response.message})
     }
+    if(response.message.includes("Password is invalid ")) {
+      return res.status(400).json({message:response.message});
+    }
     res.json(response);
   } catch (error) {
+    console.error(error);
     res.status(400).json({ message: "Error Creating User: " + error });
   }
 });

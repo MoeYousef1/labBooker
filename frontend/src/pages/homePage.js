@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Navbar from "../components/Navbar";
 import HeroSection from "../components/HeroSection";
-import FeaturesSection from "../components/FeaturesSection";
+// import FeaturesSection from "../components/FeaturesSection";
 import Footer from "../components/footer";
 
 const HomePage = () => {
@@ -51,7 +51,7 @@ const HomePage = () => {
         handleLogout={handleLogout} // Pass logout function to Navbar
       />
       <HeroSection userInfo={userInfo} />
-      <FeaturesSection />
+      {/* <FeaturesSection /> */}
       <Footer />
     </div>
   );

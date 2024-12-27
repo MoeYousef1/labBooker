@@ -6,7 +6,8 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');  
 const authRoutes = require('./routes/authRoutes');  
 const settingsRoutes = require('./routes/settingsRoutes');  
-const mail = require('../backend/controllers/settingsController');
+const roomRoutes = require('./routes/roomsRoutes');
+// const mail = require('../backend/controllers/settingsController');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get('/protected', (req,res) => {
 app.use('/api/user',userRoutes);
 app.use('/api/auth',authRoutes);
 app.use('/api/settings/', settingsRoutes);
+app.use('/api/room',roomRoutes);
 
 
 // Start Server

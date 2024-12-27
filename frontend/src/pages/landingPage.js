@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import HeroSection from "../components/HeroSection";
-import FeaturesSection from "../components/FeaturesSection";
+// import FeaturesSection from "../components/FeaturesSection";
 import Footer from "../components/footer";
 
 const LandingPage = () => {
@@ -9,7 +9,7 @@ const LandingPage = () => {
     <div className="min-h-screen w-full overflow-x-hidden">
       <Navbar />
       <HeroSection />
-      <FeaturesSection />
+      {/* <FeaturesSection /> */}
       <Footer />
     </div>
   );

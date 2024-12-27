@@ -9,6 +9,7 @@ import AuthFooter from "../components/AuthFooter";
 import lapLogo from "../assets/laptop.png";
 import headerImage from "../assets/header-bg.jpg";
 import collegeLogoWhite from "../assets/collegeLogoWhite.png";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const LogInPage = () => {
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ const LogInPage = () => {
         <h4 className="mb-8 mt-1 text-4xl font-extrabold text-white">LabBooker</h4>
       </div>
       <form onSubmit={handleSubmit}>
-        <p className="mb-4 text-white font-semibold">Please login to your account</p>
+        <p className="mb-4 text-white font-semibold">login to your account</p>
         <FormInput
           type="email"
           name="email"
@@ -100,7 +101,7 @@ const LogInPage = () => {
             className="absolute top-3 right-3 text-gray-500"
             onClick={() => setShowPassword((prev) => !prev)}
           >
-            {showPassword ? "Hide" : "Show"}
+            {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
           </button>
         </div>
         <div className="mb-6 text-center">

@@ -51,7 +51,10 @@ async function signupRegister(req) {
     if (existingUser) {
       return { status: 409, message: "This e-mail is already in use!" };
     }
-
+    const isValid = validatePassword(password);
+    if(isValid!== 'Valid') {
+      return {status:400 , message: "Password is invalid "};
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });
 
@@ -87,6 +90,32 @@ async function loginRegister(userData) {
   } catch (error) {
     return { status: 500, message: "Internal Server Error: " + error.message };
   }
+}
+
+function validatePassword(password) {
+  const minLength = 8;
+  const hasUppercase = /[A-Z]/.test(password); // At least one uppercase letter
+  const hasLowercase = /[a-z]/.test(password); // At least one lowercase letter
+  const hasNumber = /\d/.test(password);       // At least one number
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password); // At least one special character
+
+  if (password.length < minLength) {
+      return "Password must be at least 8 characters long.";
+  }
+  if (!hasUppercase) {
+      return "Password must include at least one uppercase letter.";
+  }
+  if (!hasLowercase) {
+      return "Password must include at least one lowercase letter.";
+  }
+  if (!hasNumber) {
+      return "Password must include at least one number.";
+  }
+  if (!hasSpecialChar) {
+      return "Password must include at least one special character.";
+  }
+
+  return "Valid";
 }
 
 module.exports = {

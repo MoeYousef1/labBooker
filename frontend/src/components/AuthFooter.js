@@ -17,11 +17,11 @@ const AuthFooter = ({ isLoginPage, onLoginRedirect, onForgotPasswordRedirect, is
       {/* Don't have an account? and Register Button (only on login page) */}
       {isLoginPage && (
         <div className="flex items-center mt-2 lg:mt-0">
-          <p className="text-white font-semibold mr-6">Don't have an account?</p>
+          <p className="text-white font-semibold mr-2">Don't have an account?</p>
           <button
             type="button"
             onClick={onLoginRedirect}
-            className="rounded border-2 border-blue-500 px-6 py-2 text-xs font-medium text-white hover:bg-blue-500 transition"
+            className="rounded border-2 border-blue-500 px-6 py-2 text-xs font-medium  bg-blue-500 text-white hover:bg-white hover:text-primary hover:border-white transition"
           >
             Register
           </button>

@@ -39,7 +39,7 @@ const SignUpPage = () => {
     setIsSubmitting(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setErrors({ confirmPassword: "Passwords do not match." });
+      setErrors({ confirmPassword: "Passwords does not match." });
       setIsSubmitting(false);
       return;
     }
