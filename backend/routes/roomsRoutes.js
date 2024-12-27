@@ -14,15 +14,44 @@ router.get("/rooms", async (req, res) => {
   }
 });
 
-// Add a new room
-router.post('/rooms', async (req, res) => {
+// Create Room Route
+router.post("/rooms", async (req, res) => {
+  try {
+    const response = await roomController.createRoom(req.body);
+    return res.status(201).json(response);
+  } catch (error) {
+    if (error.code === 11000) {
+      // Duplicate key error
+      return res.status(400).json({ message: "Room with this name already exists" });
+    } else if (error.name === 'ValidationError') {
+      // Validation error
+      return res.status(400).json({ message: error.message });
+    } else {
+      console.error("Error creating room: ", error.message);
+      return res.status(500).json({ message: "Failed to create room" });
+    }
+  }
+});
+
+// Update Room Details 
+router.put("/rooms/:id", async (req, res) => {
     try {
-        const result = await createRoom(req.body);
-        res.status(result.status).json({ message: result.message, room: result.room });
+        const response = await roomController.updateRoom(req.params.id, req.body);
+        return res.status(response.status).json({ message: response.message });
     } catch (error) {
-        res.status(error.status || 500).json({ message: error.message });
+        console.error("Failed to update room details " + error.message);
+        return res.status(error.status || 500).json({ error: error.message || "Failed to update room details" });
     }
 });
 
-module.exports = router;
+router.delete("/rooms/:id", async (req, res) => {
+  try {
+    const response = await roomController.deleteRoom(req.params.id);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Error deleting room:", error.message);
+    return res.status(500).json({ message: "Failed to delete room" });
+  }
+});
 
+module.exports = router;
