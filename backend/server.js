@@ -7,6 +7,7 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');  
 const settingsRoutes = require('./routes/settingsRoutes');  
 const roomRoutes = require('./routes/roomsRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 // const mail = require('../backend/controllers/settingsController');
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/user',userRoutes);
 app.use('/api/auth',authRoutes);
 app.use('/api/settings/', settingsRoutes);
 app.use('/api/room',roomRoutes);
+app.use('/api/upload',uploadRoutes);
 
 
 // Start Server

@@ -1,5 +1,5 @@
 const Room = require("../models/Room"); // Import the Room model
-// const { validateRoomData } = require("../utiles/validations");
+// const { validateRoomData } = require("../utils/validations");
 // Controller function to fetch all room
 
 async function getRooms() {

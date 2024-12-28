@@ -13,7 +13,6 @@ import FAQ from "./pages/faq";
 import ABOUT from "./pages/about";
 
 
-
 function App() {
   return (
     <Router>
@@ -27,9 +26,6 @@ function App() {
         <Route path="/resetpassword" element={<ResetPasswordPage />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/about" element={<ABOUT />} />
-
-
-
         
         {/* Protected Routes */}
         <Route 
