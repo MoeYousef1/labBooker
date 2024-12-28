@@ -1,5 +1,5 @@
 const Room = require("../models/Room"); // Import the Room model
-const { validateRoomData } = require("../utiles/validations");
+// const { validateRoomData } = require("../utiles/validations");
 // Controller function to fetch all room
 
 async function getRooms() {
@@ -16,10 +16,6 @@ async function getRooms() {
 async function createRoom(roomData) {
   try {
     const newRoom = new Room(roomData);
-    const isRoomValid = validateRoomData(roomData);
-    if (!isRoomValid.isValid) {
-      return { status: 400, message: isRoomValid.message };
-    }
     await newRoom.save();
     return {
       status: 201,
@@ -44,10 +40,10 @@ async function updateRoom(roomId, roomData) {
     if (!room) {
       return { status: 404, message: "Room not found" };
     }
-    const isRoomValid = validateRoomData(roomData);
-    if (!isRoomValid.isValid) {
-      return { status: 400, message: isRoomValid.message };
-    }
+    // const isRoomValid = validateRoomData(roomData);
+    // if (!isRoomValid.isValid) {
+    //   return { status: 400, message: isRoomValid.message };
+    // }
     room.name = name;
     room.type = type;
     room.capacity = capacity;
