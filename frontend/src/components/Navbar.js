@@ -5,23 +5,18 @@ import { MdDashboard } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
 import { RiLogoutBoxLine } from "react-icons/ri";
-import { IoIosArrowDropdownCircle } from "react-icons/io";
-import { IoIosArrowDropupCircle } from "react-icons/io";
+import { IoIosArrowDropdownCircle, IoIosArrowDropupCircle } from "react-icons/io";
 import { MdNotificationsActive } from "react-icons/md";
-
-
 
 const Navbar = ({ userInfo, setUserInfo }) => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Toggle mobile navbar visibility
   const toggleNavbar = () => {
     setMobileDrawerOpen(!mobileDrawerOpen);
   };
 
-  // Handle logout action
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
@@ -29,15 +24,16 @@ const Navbar = ({ userInfo, setUserInfo }) => {
     navigate("/login");
   };
 
-  // Toggle profile dropdown
   const toggleProfileDropdown = () => {
     setProfileDropdownOpen((prevState) => !prevState);
   };
 
-  // Close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest(".profile-dropdown") && !event.target.closest(".profile-icon")) {
+      if (
+        !event.target.closest(".profile-dropdown") &&
+        !event.target.closest(".profile-icon")
+      ) {
         setProfileDropdownOpen(false);
       }
     };
@@ -50,8 +46,14 @@ const Navbar = ({ userInfo, setUserInfo }) => {
     <nav className="fixed w-full z-30 top-0 backdrop-blur-lg bg-transparent shadow-lg transition-all duration-300">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         {/* Brand Name */}
-        <Link to="/" onClick={() => setMobileDrawerOpen(false)} className="flex items-center space-x-3 rtl:space-x-reverse">
-          <span className="self-center text-2xl font-bold text-white tracking-wide">LabBooker</span>
+        <Link
+          to="/"
+          onClick={() => setMobileDrawerOpen(false)}
+          className="flex items-center space-x-3 rtl:space-x-reverse"
+        >
+          <span className="self-center text-2xl font-bold text-white tracking-wide">
+            LabBooker
+          </span>
         </Link>
 
         {/* Buttons (Login or Profile) */}
@@ -59,9 +61,8 @@ const Navbar = ({ userInfo, setUserInfo }) => {
           {userInfo ? (
             <div className="relative flex items-center space-x-4">
               {/* Notification Icon */}
-              <button className="relative text-white hover:bg-blue-600 rounded-full p-2 transition-transform transform hover:scale-105 ">
-              <MdNotificationsActive className="w-6 h-6" />
-              {/* <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span> */}
+              <button className="relative text-white hover:bg-blue-600 rounded-full p-2 transition-transform transform hover:scale-105">
+                <MdNotificationsActive className="w-6 h-6" />
               </button>
 
               {/* Profile Icon */}
@@ -72,74 +73,65 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                 >
                   {profileDropdownOpen ? (
                     <IoIosArrowDropupCircle className="w-6 h-6 pointer-events-none" />
-
-        ) : (
-          <IoIosArrowDropdownCircle className="w-6 h-6 pointer-events-none" />
-        )}
-                  {/* <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span> */}
+                  ) : (
+                    <IoIosArrowDropdownCircle className="w-6 h-6 pointer-events-none" />
+                  )}
                 </button>
 
                 {/* Profile Dropdown */}
                 {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg p-4 profile-dropdown">
-                {/* User Info */}
-                <div className="flex items-center p-4 bg-gray-100 rounded-lg space-x-4">
-                  {/* Profile Circle */}
-                  <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold relative">
-                    {userInfo.username.charAt(0).toUpperCase()}
-                  </div>
-                  
-                  <div className="overflow-hidden">
-                    <p className="font-semibold text-gray-800">{userInfo.username}</p>
-                    <p className="text-sm text-gray-500 truncate max-w-full" title={userInfo.email}>{userInfo.email}</p>
+                  <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg p-4 profile-dropdown">
+                    {/* User Info */}
+                    <div className="flex items-center p-4 bg-gray-100 rounded-lg space-x-4">
+                      <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold relative">
+                        {userInfo.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="font-semibold text-gray-800">{userInfo.username}</p>
+                        <p
+                          className="text-sm text-gray-500 truncate max-w-full"
+                          title={userInfo.email}
+                        >
+                          {userInfo.email}
+                        </p>
+                      </div>
                     </div>
-                </div>
-              
-                {/* Navigation Sections */}
-                <div className="mt-4">
-                  {/* Dashboard Section */}
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
-                  >
-                    <MdDashboard className="w-5 h-5 mr-3" />
 
-                    Dashboard
-                  </Link>
-              
-                  {/* Profile Section */}
-                  <Link
-                    to="/profile"
-                    className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
-                  >
-                    <FaUser className="w-5 h-5 mr-3" />
-                    My Profile
-                  </Link>
+                    {/* Navigation Sections */}
+                    <div className="mt-4">
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
+                      >
+                        <MdDashboard className="w-5 h-5 mr-3" /> Dashboard
+                      </Link>
 
-                  
-                  {/* Settings Section */}
-                  <Link
-                    to="/accountsettings"
-                    className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
-                  >
-                    <IoIosSettings className="w-5 h-5 mr-3" />
-                     Settings
-                  </Link>
-                </div>
-              
-                {/* Logout Button */}
-                <div className="border-t border-gray-200 mt-4 pt-4">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center px-4 py-2 w-full text-gray-800 hover:bg-red-100 hover:text-red-500 rounded-lg transition duration-300"
-                  >
-                    <RiLogoutBoxLine className="w-5 h-5 mr-3" />
-                    Logout
-                  </button>
-                </div>
-              </div>
-              
-              )}
+                      <Link
+                        to="/profile"
+                        className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
+                      >
+                        <FaUser className="w-5 h-5 mr-3" /> My Profile
+                      </Link>
+
+                      <Link
+                        to="/accountsettings"
+                        className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
+                      >
+                        <IoIosSettings className="w-5 h-5 mr-3" /> Settings
+                      </Link>
+                    </div>
+
+                    {/* Logout Button */}
+                    <div className="border-t border-gray-200 mt-4 pt-4">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center px-4 py-2 w-full text-gray-800 hover:bg-red-100 hover:text-red-500 rounded-lg transition duration-300"
+                      >
+                        <RiLogoutBoxLine className="w-5 h-5 mr-3" /> Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -175,7 +167,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
               <Link
                 to="/homepage"
                 onClick={() => setMobileDrawerOpen(false)}
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r  hover:from-blue-400  hover:to-blue-800 md:p-0 transition duration-300"
+                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-800 md:p-0 transition duration-300"
                 aria-current="page"
               >
                 Home
@@ -186,7 +178,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                 href="https://www.jce.ac.il/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400  hover:to-blue-800 md:p-0 transition duration-300"
+                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-800 md:p-0 transition duration-300"
               >
                 College Website
               </a>
@@ -196,16 +188,16 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                 href="https://www.jce.ac.il/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r  hover:from-blue-400  hover:to-blue-800 md:p-0 transition duration-300"
+                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-800 md:p-0 transition duration-300"
               >
                 Portal
               </a>
             </li>
             <li>
               <Link
-                to="/contact"
+                to="/labrooms"
                 onClick={() => setMobileDrawerOpen(false)}
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r  hover:from-blue-400  hover:to-blue-800 md:p-0 transition duration-300"
+                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-800 md:p-0 transition duration-300"
               >
                 Lab Rooms
               </Link>
