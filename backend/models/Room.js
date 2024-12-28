@@ -22,6 +22,10 @@ const roomSchema = new mongoose.Schema(
       type: String,
       required: false, // Description is optional
     },
+    imageUel: {
+      type: String,
+      required: false, // Image URL is optional
+    }
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );
