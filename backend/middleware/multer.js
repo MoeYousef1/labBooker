@@ -1,13 +1,14 @@
 const multer = require('multer');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 // Configure storage for uploaded files
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, '../frontend/public/uploads'); 
-    },
+        const destinationPath = path.join(__dirname, '../../frontend/public/uploads');
+        cb(null, destinationPath);    },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const uniqueSuffix = `${Date.now()}-${uuidv4()}`;
         cb(null, uniqueSuffix + path.extname(file.originalname)); // Unique file name
     },
 });

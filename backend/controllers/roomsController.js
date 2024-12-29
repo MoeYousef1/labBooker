@@ -1,6 +1,7 @@
 const Room = require("../models/Room"); // Import the Room model
-// const { validateRoomData } = require("../utils/validations");
-// Controller function to fetch all room
+const uploadMulter = require("../middleware/multer");
+const cloudinary = require("../utils/cloudinary");
+const fs = require("fs");
 
 async function getRooms() {
   try {
@@ -13,52 +14,96 @@ async function getRooms() {
   }
 }
 
-async function createRoom(roomData) {
-  try {
-    const newRoom = new Room(roomData);
-    await newRoom.save();
-    return {
-      status: 201,
-      message: "Room added successfully",
-      room: newRoom,
-    };
-  } catch (error) {
-    console.error("Error creating room: " + error.message);
+async function createRoom(req, res) {
+  return new Promise((resolve, reject) => {
+    uploadMulter(req, res, async (err) => {
+      if (err) {
+        console.error("Error uploading file:", err.message);
+        reject({ status: 500, message: "Failed to upload file" });
+      } else {
+        try {
+          const { name, type, capacity } = req.body;
+          let imageUrl = "";
 
-    throw {
-      status: 500,
-      message: "Failed to add room. Please check the input and try again.",
-    };
-  }
+          if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path); // Upload file to Cloudinary
+            fs.unlinkSync(req.file.path); // Remove file from server after upload
+            imageUrl = result.secure_url; // Save the Cloudinary URL
+          }
+
+          if (!name || !type || !capacity) {
+            reject({ status: 400, message: "Missing required fields: name, type, capacity" });
+            return;
+          }
+
+          const newRoom = new Room({
+            name,
+            type,
+            capacity,
+            imageUrl, // Save the Cloudinary URL
+          });
+
+          await newRoom.save();
+          resolve({
+            status: 201,
+            message: "Room created successfully",
+            room: newRoom,
+          });
+        } catch (error) {
+          console.error("Error creating room:", error.message);
+          reject({
+            status: 500,
+            message: "Failed to create room. Please check the input and try again."
+          });
+        }
+      }
+    });
+  });
 }
 
-async function updateRoom(roomId, roomData) {
-  try {
-    const { name, type, capacity } = roomData;
-    const room = await Room.findById(roomId);
+async function updateRoom(req, res) {
+  return new Promise((resolve, reject) => {
+    uploadMulter(req, res, async (err) => {
+      if (err) {
+        console.error("Error uploading file:", err.message);
+        reject({ status: 500, message: "Failed to upload file" });
+      } else {
+        try {
+          const { name, type, capacity } = req.body;
+          const roomId = req.params.id;
+          const room = await Room.findById(roomId);
 
-    if (!room) {
-      return { status: 404, message: "Room not found" };
-    }
-    // const isRoomValid = validateRoomData(roomData);
-    // if (!isRoomValid.isValid) {
-    //   return { status: 400, message: isRoomValid.message };
-    // }
-    room.name = name;
-    room.type = type;
-    room.capacity = capacity;
+          if (!room) {
+            reject({ status: 404, message: "Room not found" });
+          } else {
+            if (req.file) {
+              const result = await cloudinary.uploader.upload(req.file.path); // Upload file to Cloudinary
+              fs.unlinkSync(req.file.path); // Remove file from server after upload
+              room.imageUrl = result.secure_url; // Update the Cloudinary URL
+            }
 
-    await room.save();
+            room.name = name;
+            room.type = type;
+            room.capacity = capacity;
 
-    return { status: 200, message: "Room updated successfully" };
-  } catch (error) {
-    console.error("Error updating room: " + error.message);
-
-    throw {
-      status: 500,
-      message: "Failed to update room. Please check the input and try again.",
-    };
-  }
+            await room.save();
+            resolve({
+              status: 200,
+              message: "Room updated successfully",
+              room,
+            });
+          }
+        } catch (error) {
+          console.error("Error updating room:", error.message);
+          reject({
+            status: 500,
+            message:
+              "Failed to update room. Please check the input and try again.",
+          });
+        }
+      }
+    });
+  });
 }
 
 async function deleteRoom(roomId) {

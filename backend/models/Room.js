@@ -22,7 +22,7 @@ const roomSchema = new mongoose.Schema(
       type: String,
       required: false, // Description is optional
     },
-    imageUel: {
+    imageUrl: {
       type: String,
       required: false, // Image URL is optional
     }
