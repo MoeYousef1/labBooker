@@ -4,6 +4,7 @@ const UserCollection = require("../models/User");
 const nodemailer = require('nodemailer');
 const crypto = require("crypto");
 const uniqeId = crypto.randomBytes(3).toString('hex');
+const { validatePassword} = require("../utils/validatePassword");
 // Temporary in-memory storage for codes
 const verificationCodes = new Map();
 
@@ -24,7 +25,7 @@ async function changePassword(userData) {
     if (!isMatch) {
       return { status: 400, message: "Incorrect Password, try again" };
     }
-
+    validatePassword(newPassword);
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
@@ -162,13 +163,17 @@ async function resetPassword(userData) {
     if (!user) {
       return { status: 400, message: "User not found" };
     }
-
+    const isValid = validatePassword(newPassword);
+    if(isValid!== 'Valid') {
+      return {status:400 , message: "Password is invalid "};
+    }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
 
     return { status: 200, message: "Password reset successfully" };
   } catch (error) {
+    console.error(error);
     return { status: 500, message: "Internal Server Error: " + error.message };
   }
 }
