@@ -32,7 +32,10 @@ async function createRoom(req, res) {
           }
 
           if (!name || !type || !capacity) {
-            reject({ status: 400, message: "Missing required fields: name, type, capacity" });
+            reject({
+              status: 400,
+              message: "Missing required fields: name, type, capacity",
+            });
             return;
           }
 
@@ -53,7 +56,8 @@ async function createRoom(req, res) {
           console.error("Error creating room:", error.message);
           reject({
             status: 500,
-            message: "Failed to create room. Please check the input and try again."
+            message:
+              "Failed to create room. Please check the input and try again.",
           });
         }
       }
@@ -69,7 +73,7 @@ async function updateRoom(req, res) {
         reject({ status: 500, message: "Failed to upload file" });
       } else {
         try {
-          const { name, type, capacity } = req.body;
+          const { name, type, capacity, description } = req.body;
           const roomId = req.params.id;
           const room = await Room.findById(roomId);
 
@@ -85,6 +89,7 @@ async function updateRoom(req, res) {
             room.name = name;
             room.type = type;
             room.capacity = capacity;
+            room.description = description;
 
             await room.save();
             resolve({
@@ -108,13 +113,21 @@ async function updateRoom(req, res) {
 
 async function deleteRoom(roomId) {
   try {
-    const room = await Room.findByIdAndDelete(roomId);
+    const room = await Room.findById(roomId);
     if (!room) {
       return {
         status: 404,
         message: "Room not found",
       };
     }
+
+    const imageUrl = room.imageUrl;
+    if(imageUrl) {
+      const publicId = imageUrl.split('/').slice(-1)[0].split('.')[0];
+      await cloudinary.uploader.destroy(publicId);
+    }
+    await Room.findByIdAndDelete(roomId);
+    
     return {
       status: 200,
       message: "Room deleted successfully",
