@@ -11,6 +11,7 @@ import AccountSettingsPage from "./pages/accountSettings";
 import PrivateRoute from './components/PrivateRoute';
 import FAQ from "./pages/faq";
 import ABOUT from "./pages/about";
+import LabRooms from "./pages/LabRooms"
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/resetpassword" element={<ResetPasswordPage />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/about" element={<ABOUT />} />
+
         
         {/* Protected Routes */}
         <Route 
@@ -41,6 +43,14 @@ function App() {
           element={
             <PrivateRoute>
               <AccountSettingsPage />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/labrooms" 
+          element={
+            <PrivateRoute>
+              <LabRooms />
             </PrivateRoute>
           } 
         />

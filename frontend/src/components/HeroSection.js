@@ -19,7 +19,7 @@ const HeroSection = ({ userInfo }) => {
         <div>
           <button
             className="px-6 py-4 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/booking'}
+            onClick={() => window.location.href = '/labrooms'}
           >
             Book Now
           </button>
