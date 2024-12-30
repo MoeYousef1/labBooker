@@ -11,7 +11,6 @@ async function fetchUsers(req, res) {
   }
 }
 
-
 module.exports = {
   fetchUsers,
 };

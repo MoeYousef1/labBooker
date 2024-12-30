@@ -23,61 +23,59 @@ const AccountSettings = () => {
     }
   }, [navigate]);
 
-
   return (
     <div className="flex flex-wrap sm:flex-nowrap">
-  {/* Sidebar */}
-    <Sidebar />
-  {/* Main Content */}
-  <div className="w-full sm:w-3/4 px-4 sm:px-8 max-w-screen-xl mx-auto mt-4">
-    <div className="grid grid-cols-1 gap-4">
+      {/* Sidebar */}
+      <Sidebar />
       {/* Main Content */}
-      <div className="overflow-hidden rounded-xl bg-gray-50 px-4 py-6 sm:px-8 sm:shadow">
-        <h1 className="text-2xl font-semibold">Account Settings</h1>
-        <hr className="my-4" />
+      <div className="w-full sm:w-3/4 px-4 sm:px-8 max-w-screen-xl mx-auto mt-4">
+        <div className="grid grid-cols-1 gap-4">
+          {/* Main Content */}
+          <div className="overflow-hidden rounded-xl bg-gray-50 px-4 py-6 sm:px-8 sm:shadow">
+            <h1 className="text-2xl font-semibold">Account Settings</h1>
+            <hr className="my-4" />
 
-        {/* User Information Section */}
-        <div>
-          <p className="text-xl font-semibold">User Information</p>
-          <div className="flex flex-col sm:flex-row items-center pt-4">
-            <div className="text-center mb-4 sm:mb-0 sm:mr-10">
-              <div className="w-24 h-24 bg-gray-200 rounded-full flex justify-center items-center text-3xl font-bold">
-                {userInfo.username[0]} {/* First letter of username */}
+            {/* User Information Section */}
+            <div>
+              <p className="text-xl font-semibold">User Information</p>
+              <div className="flex flex-col sm:flex-row items-center pt-4">
+                <div className="text-center mb-4 sm:mb-0 sm:mr-10">
+                  <div className="w-24 h-24 bg-gray-200 rounded-full flex justify-center items-center text-3xl font-bold">
+                    {userInfo.username[0]} {/* First letter of username */}
+                  </div>
+                </div>
+
+                <div className="text-center sm:text-left">
+                  <p className="text-gray-600">
+                    <strong>Username:</strong> {userInfo.username}
+                  </p>
+                  <p className="text-gray-600">
+                    <strong>Email:</strong> {userInfo.email}
+                  </p>
+                </div>
               </div>
             </div>
+            <hr className="my-4" />
 
-            <div className="text-center sm:text-left">
-              <p className="text-gray-600">
-                <strong>Username:</strong> {userInfo.username}
-              </p>
-              <p className="text-gray-600">
-                <strong>Email:</strong> {userInfo.email}
-              </p>
+            {/* Password Section */}
+            <div>
+              <p className="text-xl font-semibold">Password</p>
+              <div className="flex flex-col space-y-3">
+                <div className="text-center mt-4">
+                  <button
+                    onClick={() => navigate("/changepassword")}
+                    className="bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft text-white px-4 py-2 rounded-md transition"
+                  >
+                    Change Password
+                  </button>
+                </div>
+              </div>
             </div>
+            <hr className="my-4" />
           </div>
         </div>
-        <hr className="my-4" />
-
-        {/* Password Section */}
-        <div>
-          <p className="text-xl font-semibold">Password</p>
-          <div className="flex flex-col space-y-3">
-            <div className="text-center mt-4">
-              <button
-                onClick={() => navigate("/changepassword")}
-                className="bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-              >
-                Change Password
-              </button>
-            </div>
-          </div>
-        </div>
-        <hr className="my-4" />
       </div>
     </div>
-  </div>
-</div>
-
   );
 };
 

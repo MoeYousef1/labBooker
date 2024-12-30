@@ -35,7 +35,7 @@ const ImageUpload = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       // Assuming the response contains the image URL

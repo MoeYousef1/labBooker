@@ -30,7 +30,7 @@ const SignUpPage = () => {
   };
 
   const handleCloseError = () => {
-    setGeneralError(''); // Clears the general error
+    setGeneralError(""); // Clears the general error
     setErrors({}); // Clears specific field errors (like confirmPassword)
   };
 
@@ -47,7 +47,7 @@ const SignUpPage = () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/signup",
-        formData
+        formData,
       );
       console.log("Success:", response.data);
       alert("Sign-up successful!");
@@ -64,12 +64,17 @@ const SignUpPage = () => {
   const rightContent = (
     <>
       <div className="text-center">
-              <h4 className="mb-4 text-lg font-semibold">LabBooker - Azrieli College of Engineering Jerusalem</h4>
-              <p className="text-sm mb-4 ">LabBooker is your go-to platform for reserving study rooms. Sign up to get started and book your next study space today!</p>
-            </div>
-            <div className="mt-2">
-              <img src={collegeLogoWhite} alt="collegeLogoWhite" />
-            </div>
+        <h4 className="mb-4 text-lg font-semibold">
+          LabBooker - Azrieli College of Engineering Jerusalem
+        </h4>
+        <p className="text-sm mb-4 ">
+          LabBooker is your go-to platform for reserving study rooms. Sign up to
+          get started and book your next study space today!
+        </p>
+      </div>
+      <div className="mt-2">
+        <img src={collegeLogoWhite} alt="collegeLogoWhite" />
+      </div>
     </>
   );
 
@@ -114,11 +119,17 @@ const SignUpPage = () => {
           type="password"
         />
         <div className="mb-6 text-center">
-        <AuthButton isSubmitting={isSubmitting} label="Sign Up" />
-        <ErrorMessage message={generalError || errors.email ||errors.confirmPassword} onClose={() => handleCloseError()} />
+          <AuthButton isSubmitting={isSubmitting} label="Sign Up" />
+          <ErrorMessage
+            message={generalError || errors.email || errors.confirmPassword}
+            onClose={() => handleCloseError()}
+          />
         </div>
       </form>
-      <AuthFooter isRegisterPage={true} onLoginRedirect={() => navigate("/login")} />
+      <AuthFooter
+        isRegisterPage={true}
+        onLoginRedirect={() => navigate("/login")}
+      />
     </AuthLayout>
   );
 };

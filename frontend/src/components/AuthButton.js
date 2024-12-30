@@ -5,7 +5,7 @@ const AuthButton = ({ isSubmitting, label }) => {
     <button
       type="submit"
       disabled={isSubmitting}
-      className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white py-2 px-4 rounded shadow-md hover:shadow-lg transition"
+      className="w-full bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft text-white py-2 px-4 rounded shadow-md hover:shadow-lg transition"
     >
       {isSubmitting ? "Processing..." : label}
     </button>

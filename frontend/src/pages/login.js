@@ -38,7 +38,10 @@ const LogInPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", formData);
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData,
+      );
       console.log("Success:", response.data);
 
       localStorage.setItem("token", response.data.token);
@@ -52,7 +55,8 @@ const LogInPage = () => {
       const from = location.state?.from || "/homepage";
       navigate(from);
     } catch (error) {
-      const backendError = error.response?.data?.message || "An unexpected error occurred.";
+      const backendError =
+        error.response?.data?.message || "An unexpected error occurred.";
       setGeneralError(backendError);
     } finally {
       setIsSubmitting(false);
@@ -62,8 +66,13 @@ const LogInPage = () => {
   const rightContent = (
     <>
       <div className="text-center">
-        <h4 className="mb-4 text-lg font-semibold">LabBooker - Azrieli College of Engineering Jerusalem</h4>
-        <p className="text-sm mb-4">LabBooker is your go-to platform for reserving study rooms. Sign up to get started and book your next study space today!</p>
+        <h4 className="mb-4 text-lg font-semibold">
+          LabBooker - Azrieli College of Engineering Jerusalem
+        </h4>
+        <p className="text-sm mb-4">
+          LabBooker is your go-to platform for reserving study rooms. Sign up to
+          get started and book your next study space today!
+        </p>
       </div>
       <div className="mt-2">
         <img src={collegeLogoWhite} alt="collegeLogoWhite" />
@@ -75,7 +84,9 @@ const LogInPage = () => {
     <AuthLayout headerImage={headerImage} rightContent={rightContent}>
       <div className="text-center">
         <img className="mx-auto w-48" src={lapLogo} alt="logo" />
-        <h4 className="mb-8 mt-1 text-4xl font-extrabold text-white">LabBooker</h4>
+        <h4 className="mb-8 mt-1 text-4xl font-extrabold text-white">
+          LabBooker
+        </h4>
       </div>
       <form onSubmit={handleSubmit}>
         <p className="mb-4 text-white font-semibold">login to your account</p>
@@ -106,7 +117,10 @@ const LogInPage = () => {
         </div>
         <div className="mb-6 text-center">
           <AuthButton isSubmitting={isSubmitting} label="Log In" />
-          <ErrorMessage message={generalError} onClose={() => setGeneralError("")} />
+          <ErrorMessage
+            message={generalError}
+            onClose={() => setGeneralError("")}
+          />
         </div>
       </form>
       <AuthFooter

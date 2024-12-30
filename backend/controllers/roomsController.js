@@ -122,12 +122,12 @@ async function deleteRoom(roomId) {
     }
 
     const imageUrl = room.imageUrl;
-    if(imageUrl) {
-      const publicId = imageUrl.split('/').slice(-1)[0].split('.')[0];
+    if (imageUrl) {
+      const publicId = imageUrl.split("/").slice(-1)[0].split(".")[0];
       await cloudinary.uploader.destroy(publicId);
     }
     await Room.findByIdAndDelete(roomId);
-    
+
     return {
       status: 200,
       message: "Room deleted successfully",

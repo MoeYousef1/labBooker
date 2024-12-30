@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {validatePassword} = require("../utils/validatePassword");
+const { validatePassword } = require("../utils/validatePassword");
 const generateToken = (user) => {
   const payload = {
     id: user._id,
@@ -53,8 +53,8 @@ async function signupRegister(req) {
       return { status: 409, message: "This e-mail is already in use!" };
     }
     const isValid = validatePassword(password);
-    if(isValid!== 'Valid') {
-      return {status:400 , message: "Password is invalid "};
+    if (isValid !== "Valid") {
+      return { status: 400, message: "Password is invalid " };
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });
@@ -84,9 +84,12 @@ async function loginRegister(userData) {
     const token = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
-
     return {
-      status: 200,message: "Login successful!",token,refreshToken,username,
+      status: 200,
+      message: "Login successful!",
+      token,
+      refreshToken,
+      username,
     };
   } catch (error) {
     return { status: 500, message: "Internal Server Error: " + error.message };

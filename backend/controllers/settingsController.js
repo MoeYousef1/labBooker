@@ -1,10 +1,10 @@
-require('dotenv').config();
+require("dotenv").config();
 const bcrypt = require("bcrypt");
 const UserCollection = require("../models/User");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-const uniqeId = crypto.randomBytes(3).toString('hex');
-const { validatePassword} = require("../utils/validatePassword");
+const uniqeId = crypto.randomBytes(3).toString("hex");
+const { validatePassword } = require("../utils/validatePassword");
 // Temporary in-memory storage for codes
 const verificationCodes = new Map();
 
@@ -34,13 +34,11 @@ async function changePassword(userData) {
   } catch (error) {
     return { status: 500, message: "Internal Server Error: " + error.message };
   }
-};
-
-
+}
 
 // Create a transporter for nodemailer
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: "smtp.gmail.com",
   port: 587,
   secure: false, // Set to true for port 465
   auth: {
@@ -59,7 +57,7 @@ async function sendVerificationCode(email) {
 
   const mailOptions = {
     from: {
-      name: 'Lab Booker',
+      name: "Lab Booker",
       address: process.env.EMAIL,
     },
     to: email,
@@ -89,7 +87,10 @@ async function sendVerificationCode(email) {
     await transporter.sendMail(mailOptions);
     return { status: 200, message: "Verification code sent successfully!" };
   } catch (error) {
-    return { status: 500, message: "Failed to send verification code: " + error.message };
+    return {
+      status: 500,
+      message: "Failed to send verification code: " + error.message,
+    };
   }
 }
 
@@ -164,8 +165,8 @@ async function resetPassword(userData) {
       return { status: 400, message: "User not found" };
     }
     const isValid = validatePassword(newPassword);
-    if(isValid!== 'Valid') {
-      return {status:400 , message: "Password is invalid "};
+    if (isValid !== "Valid") {
+      return { status: 400, message: "Password is invalid " };
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
