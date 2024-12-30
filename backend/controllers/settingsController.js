@@ -183,5 +183,5 @@ module.exports = {
   changePassword,
   sendVerificationCode,
   validateVerificationCode,
-  resetPassword, // Add this to export the reset password function
+  resetPassword,
 };
