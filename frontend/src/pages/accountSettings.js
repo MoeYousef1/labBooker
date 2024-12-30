@@ -24,11 +24,11 @@ const AccountSettings = () => {
   }, [navigate]);
 
   return (
-    <div className="flex flex-wrap sm:flex-nowrap">
+    <div className="min-h-screen bg-gradient-to-br from-grayLight to-grayDark flex">
       {/* Sidebar */}
       <Sidebar />
       {/* Main Content */}
-      <div className="w-full sm:w-3/4 px-4 sm:px-8 max-w-screen-xl mx-auto mt-4">
+      <div className="flex-1 px-4 sm:px-8 max-w-screen-xl mx-auto mt-4">
         <div className="grid grid-cols-1 gap-4">
           {/* Main Content */}
           <div className="overflow-hidden rounded-xl bg-gray-50 px-4 py-6 sm:px-8 sm:shadow">

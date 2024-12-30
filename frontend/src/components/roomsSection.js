@@ -8,6 +8,8 @@ import { BsFillProjectorFill } from "react-icons/bs";
 import { FiPrinter } from "react-icons/fi";
 import { TbAirConditioning } from "react-icons/tb";
 import { CiSpeaker } from "react-icons/ci";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const iconMapping = {
   wifi: <FaWifi className="h-5 w-5" />,
@@ -27,6 +29,13 @@ const RoomsSection = ({ userInfo }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedRoom, setExpandedRoom] = useState(null);
+  const [popupAmenities, setPopupAmenities] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const navigate = useNavigate();
+
+  const handleRulesNavigation = () => {
+    navigate("/roomguidelines"); // Navigate to the rules page
+  };
 
   const containerRef = useRef(null); // Reference to the container holding icons
 
@@ -54,8 +63,7 @@ const RoomsSection = ({ userInfo }) => {
     const updateVisibleIcons = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
-        const iconWidth = 52; // Approximate width of each icon
-        console.log(containerWidth);
+        const iconWidth = 60; // Approximate width of each icon
         const visibleIcons = Math.floor(containerWidth / iconWidth);
         setVisibleIconsCount(visibleIcons);
       }
@@ -76,6 +84,11 @@ const RoomsSection = ({ userInfo }) => {
     setExpandedRoom((prevExpandedRoom) =>
       prevExpandedRoom === roomId ? null : roomId,
     );
+  };
+
+  const handleExtraClick = (room) => {
+    setPopupAmenities(room.amenities);
+    setShowPopup(true);
   };
 
   return (
@@ -157,7 +170,7 @@ const RoomsSection = ({ userInfo }) => {
                         .map((amenity, index) => (
                           <span
                             key={index}
-                            data-tooltip-target={amenity.icon}
+                            title={amenity.name} // Display name on hover
                             className="cursor-pointer rounded-full bg-grayMid p-3 text-white transition-colors hover:bg-grayDark"
                           >
                             {iconMapping[amenity.icon]}
@@ -168,6 +181,7 @@ const RoomsSection = ({ userInfo }) => {
                       {extraCount > 0 && (
                         <span
                           className="cursor-pointer rounded-full bg-grayMid p-3 text-white transition-colors hover:bg-grayDark"
+                          onClick={() => handleExtraClick(room)}
                           title={`+${extraCount} more`}
                         >
                           +{extraCount}
@@ -175,13 +189,33 @@ const RoomsSection = ({ userInfo }) => {
                       )}
                     </div>
 
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => toggleDescription(room._id)}
+                        className="mt-6 text-sm text-grayDark hover:text-grayExtraDark focus:outline-none transition duration-300 ease-in-out transform hover:scale-105 flex items-center"
+                        title={
+                          expandedRoom === room._id
+                            ? "Click to collapse"
+                            : "Click to expand description"
+                        } // Tooltip feature
+                      >
+                        <span>
+                          {expandedRoom === room._id
+                            ? "Show Less"
+                            : "Show More"}
+                        </span>{" "}
+                        {/* Button text */}
+                        {expandedRoom === room._id ? (
+                          <IoIosArrowUp className="ml-2" /> // Arrow pointing up when description is expanded
+                        ) : (
+                          <IoIosArrowDown className="ml-2" /> // Arrow pointing down when description is collapsed
+                        )}
+                      </button>
+                    </div>
+
                     {/* Room Description */}
                     <div
-                      className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                        expandedRoom === room._id
-                          ? "max-h-full opacity-100"
-                          : "max-h-0 opacity-0"
-                      }`}
+                      className={`transition-all duration-500 ease-in-out overflow-hidden ${expandedRoom === room._id ? "max-h-full opacity-100" : "max-h-0 opacity-0"}`}
                     >
                       <p className="mt-4 text-sm text-tertiary">
                         {room.description || "No description available."}
@@ -190,12 +224,11 @@ const RoomsSection = ({ userInfo }) => {
 
                     <div className="flex justify-between">
                       <button
-                        onClick={() => toggleDescription(room._id)}
-                        className="mt-4 text-sm text-grayDark hover:text-grayExtraDark focus:outline-none transition duration-300 ease-in-out transform hover:scale-105"
+                        className="mt-6 text-lg text-gray-800 font-semibold underline hover:text-gray-600 "
+                        onClick={handleRulesNavigation} // Updated handler
                       >
-                        {expandedRoom === room._id ? "Show Less" : "Read More"}
+                        Guidelines
                       </button>
-
                       <button
                         className="mt-6 py-3 px-6 bg-gradient-grayMidToRight text-white font-semibold text-lg rounded-lg focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105"
                         onClick={() => handleBookRoom(room._id)}
@@ -214,6 +247,29 @@ const RoomsSection = ({ userInfo }) => {
           )}
         </div>
       </div>
+
+      {/* Popup for extra amenities */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-lg font-bold mb-4">Room Amenities</h3>
+            <ul>
+              {popupAmenities.map((amenity, index) => (
+                <li key={index} className="flex items-center gap-2 mb-2">
+                  {iconMapping[amenity.icon]}
+                  <span>{amenity.name}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="mt-4 py-2 px-4 bg-gradient-grayMidToRight text-white rounded-lg"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -32,7 +32,7 @@ const roomSchema = new mongoose.Schema(
           type: String,
           required: true, // Amenity name is required
         },
-        iconClass: {
+        icon: {
           type: String,
           enum: [
             "wifi",

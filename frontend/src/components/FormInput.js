@@ -8,6 +8,7 @@ const FormInput = ({
   label,
   error,
   required = false,
+  rows = 3, // Default to 3 rows for textarea
 }) => {
   const inputClasses =
     "peer w-full p-3 border-[1px] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300";
@@ -16,15 +17,27 @@ const FormInput = ({
 
   return (
     <div className="mb-4 relative">
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className={`${inputClasses} ${error ? "border-red-500" : "border-grayLight"}`}
-        placeholder=" "
-        required={required} // Default is now `false` to avoid triggering native validation
-      />
+      {type === "textarea" ? (
+        <textarea
+          name={name}
+          value={value}
+          onChange={onChange}
+          rows={rows}
+          className={`${inputClasses} ${error ? "border-red-500" : "border-grayLight"}`}
+          placeholder=" "
+          required={required}
+        />
+      ) : (
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          className={`${inputClasses} ${error ? "border-red-500" : "border-grayLight"}`}
+          placeholder=" "
+          required={required}
+        />
+      )}
       <label htmlFor={name} className={labelClasses}>
         {label}
       </label>

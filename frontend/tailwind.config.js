@@ -22,7 +22,8 @@ module.exports = {
         "gradient-primaryToLeft": "linear-gradient(to left, #60A5FA, #1E40AF)", // Blue gradient from right to left
         "gradient-grayToRight": "linear-gradient(to right, #D1D5DB, #1F2937)", // gray-400 to gray-800 gradient
         "gradient-grayToLeft": "linear-gradient(to left, #D1D5DB, #1F2937)", // gray-400 to gray-800 gradient (opposite direction)
-        "gradient-grayMidToRight": "linear-gradient(to right, #4B5563, #111827)", // gray-600 to gray-800 gradient
+        "gradient-grayMidToRight":
+          "linear-gradient(to right, #4B5563, #111827)", // gray-600 to gray-800 gradient
         "gradient-grayMidToLeft": "linear-gradient(to left, #4B5563, #1F2937)", // gray-600 to gray-800 gradient (opposite direction)
       },
     },
