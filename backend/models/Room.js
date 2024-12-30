@@ -50,6 +50,12 @@ const roomSchema = new mongoose.Schema(
         },
       },
     ], // Array to store multiple amenities
+    occupiedTimeSlots: [
+      {
+        date: String,
+        slot: String,
+      },
+    ], // Array to store occupied time slots
   },
   { timestamps: true }, // Automatically adds createdAt and updatedAt fields
 );

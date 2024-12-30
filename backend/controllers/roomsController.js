@@ -25,7 +25,7 @@ async function createRoom(req, res) {
           // Extract fields from the request body
           const { name, type, capacity, description, amenities } = req.body;
           let imageUrl = "";
-
+          
           // Ensure amenities is an array if provided
           let parsedAmenities = [];
           if (amenities) {
@@ -33,13 +33,11 @@ async function createRoom(req, res) {
               // Check if amenities is an array, and ensure each object has the correct properties
               if (Array.isArray(amenities)) {
                 // Ensure that each amenity object only contains 'name' and 'icon'
-                parsedAmenities = amenities.map((item) => {
-                  if (item.name && item.iconClass) {
-                    return { name: item.name, icon: item.iconClass };
+                parsedAmenities = amenities.map(item => {
+                  if (item.name && item.icon) {
+                    return { name: item.name, icon: item.icon };
                   }
-                  throw new Error(
-                    "Each amenity must have a 'name' and 'icon' property.",
-                  );
+                  throw new Error("Each amenity must have a 'name' and 'icon' property.");
                 });
               } else {
                 // If amenities is a stringified array, try to parse it
@@ -48,8 +46,7 @@ async function createRoom(req, res) {
             } catch (parseError) {
               reject({
                 status: 400,
-                message:
-                  "Invalid format for amenities. It should be an array of objects with 'name' and 'icon' properties.",
+                message: "Invalid format for amenities. It should be an array of objects with 'name' and 'icon' properties.",
               });
               return;
             }
