@@ -52,7 +52,7 @@ const ChangePasswordPage = () => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -62,7 +62,10 @@ const ChangePasswordPage = () => {
     } catch (error) {
       console.error("API error:", error);
       if (error.response) {
-        setError(error.response.data.message || "Something went wrong. Please try again.");
+        setError(
+          error.response.data.message ||
+            "Something went wrong. Please try again.",
+        );
       } else {
         setError("Network error. Please try again.");
       }
@@ -92,7 +95,8 @@ const ChangePasswordPage = () => {
                 Change Password
               </h4>
               <p className="mt-2 text-sm text-white">
-                Please enter your current password and new password to update your credentials.
+                Please enter your current password and new password to update
+                your credentials.
               </p>
             </div>
 
@@ -114,23 +118,41 @@ const ChangePasswordPage = () => {
                 />
 
                 <div className="text-center">
-                  {error && <Message message={error} type="error" onClose={() => setError("")} />}
-                  {success && <Message message={success} type="success" onClose={() => setSuccess("")} />}
+                  {error && (
+                    <Message
+                      message={error}
+                      type="error"
+                      onClose={() => setError("")}
+                    />
+                  )}
+                  {success && (
+                    <Message
+                      message={success}
+                      type="success"
+                      onClose={() => setSuccess("")}
+                    />
+                  )}
                 </div>
 
                 <div className="flex justify-between mt-4">
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="mr-2 w-5/12 py-2 px-4 bg-gray-400 text-white rounded-md"
+                    className="mr-2 w-5/12 py-2 px-4 bg-gradient-grayToRight hover:bg-gradient-grayToLeft text-white rounded-md"
                   >
                     Cancel
                   </button>
-                  <AuthButton isSubmitting={isSubmitting} label="Apply Changes" />
+                  <AuthButton
+                    isSubmitting={isSubmitting}
+                    label="Apply Changes"
+                  />
                 </div>
               </form>
             </div>
-            <AuthFooter isForgotPassword={false} onLoginRedirect={() => navigate("/login")} />
+            <AuthFooter
+              isForgotPassword={false}
+              onLoginRedirect={() => navigate("/login")}
+            />
           </div>
         </div>
       </div>

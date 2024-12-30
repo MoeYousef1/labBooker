@@ -1,14 +1,14 @@
 import React from "react";
-import collegeLogo from '../assets/azraileLogo.png';
-import Header from '../assets/header-bg.jpg';
+import collegeLogo from "../assets/azraileLogo.png";
+import Header from "../assets/header-bg.jpg";
 
 const HeroSection = ({ userInfo }) => {
   // If userInfo is available (after login), display a personalized message
   const renderHeroContent = userInfo ? (
     <>
       <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
-        <span className="bg-gradient-to-r from-blue-400 to-blue-800 text-transparent bg-clip-text">
-          Welcome, 
+        <span className="bg-gradient-primaryToRight text-transparent bg-clip-text">
+          Welcome,
         </span>{" "}
         {userInfo.username}!
       </h1>
@@ -18,16 +18,16 @@ const HeroSection = ({ userInfo }) => {
       <div className="mt-8 flex justify-center items-center space-x-4">
         <div>
           <button
-            className="px-6 py-4 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/labrooms'}
+            className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
+            onClick={() => (window.location.href = "/labrooms")}
           >
             Book Now
           </button>
         </div>
         <div>
           <button
-            className="px-6 py-4 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/dashboard'}
+            className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
+            onClick={() => (window.location.href = "/dashboard")}
           >
             Dashboard
           </button>
@@ -38,7 +38,7 @@ const HeroSection = ({ userInfo }) => {
     // If userInfo is not available (before login), display a general message
     <>
       <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
-        <span className="bg-gradient-to-r from-blue-400 to-blue-800 text-transparent bg-clip-text">
+        <span className="bg-gradient-primaryToRight text-transparent bg-clip-text">
           Book
         </span>{" "}
         Your Study Room with Ease
@@ -49,16 +49,16 @@ const HeroSection = ({ userInfo }) => {
       <div className="mt-8 flex justify-center items-center space-x-4">
         <div>
           <button
-            className="px-6 py-4 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/booking'}
+            className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
+            onClick={() => (window.location.href = "/booking")}
           >
             Book Now
           </button>
         </div>
         <div>
           <button
-            className="px-6 py-4 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => window.location.href = '/login'}
+            className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
+            onClick={() => (window.location.href = "/login")}
           >
             Login
           </button>
@@ -101,9 +101,7 @@ const HeroSection = ({ userInfo }) => {
 
           {/* Right Div - Text Content */}
           <div className="w-full md:w-1/2 flex justify-center items-center text-white text-center p-4">
-            <div className="space-y-6">
-              {renderHeroContent}
-            </div>
+            <div className="space-y-6">{renderHeroContent}</div>
           </div>
         </div>
       </div>

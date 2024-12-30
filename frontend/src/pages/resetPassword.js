@@ -12,7 +12,7 @@ const ResetPasswordPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,13 +41,15 @@ const ResetPasswordPage = () => {
       return;
     }
 
-
     try {
-      const response = await axios.put("http://localhost:5000/api/settings/reset-password", {
-        email: storedEmail, 
-        newPassword, 
-        confirmNewPassword
-      });
+      const response = await axios.put(
+        "http://localhost:5000/api/settings/reset-password",
+        {
+          email: storedEmail,
+          newPassword,
+          confirmNewPassword,
+        },
+      );
 
       if (response.status === 200) {
         setSuccess(response.data.message || "Password reset successfully");
@@ -57,7 +59,10 @@ const ResetPasswordPage = () => {
     } catch (error) {
       console.error("API error:", error);
       if (error.response) {
-        setError(error.response.data.message || "Something went wrong. Please try again.");
+        setError(
+          error.response.data.message ||
+            "Something went wrong. Please try again.",
+        );
       } else {
         setError("Network error. Please try again.");
       }
@@ -66,7 +71,6 @@ const ResetPasswordPage = () => {
     }
   };
 
-  
   const handleCancel = () => {
     localStorage.removeItem("email"); // Clear the email after resetting password
     navigate("/homepage"); // Redirect to home or any other page you prefer
@@ -89,7 +93,8 @@ const ResetPasswordPage = () => {
                 Reset Password
               </h4>
               <p className="mt-2 text-sm text-white">
-                Please enter your new password and confirm it to reset your credentials.
+                Please enter your new password and confirm it to reset your
+                credentials.
               </p>
             </div>
 
@@ -111,19 +116,34 @@ const ResetPasswordPage = () => {
                 />
 
                 <div className="text-center">
-                  {error && <Message message={error} type="error" onClose={() => setError("")} />}
-                  {success && <Message message={success} type="success" onClose={() => setSuccess("")} />}
+                  {error && (
+                    <Message
+                      message={error}
+                      type="error"
+                      onClose={() => setError("")}
+                    />
+                  )}
+                  {success && (
+                    <Message
+                      message={success}
+                      type="success"
+                      onClose={() => setSuccess("")}
+                    />
+                  )}
                 </div>
 
                 <div className="flex justify-between mt-4">
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="mr-2 w-5/12 py-2 px-4 bg-gray-400 text-white rounded-md"
+                    className="mr-2 w-5/12 py-2 px-4 bg-gradient-grayToRight hover:bg-gradient-grayToLeft text-white rounded-md"
                   >
                     Cancel
                   </button>
-                  <AuthButton isSubmitting={isSubmitting} label="Reset Password" />
+                  <AuthButton
+                    isSubmitting={isSubmitting}
+                    label="Reset Password"
+                  />
                 </div>
               </form>
             </div>

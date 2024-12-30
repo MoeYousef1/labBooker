@@ -1,18 +1,17 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/landingPage";
-import LoginPage from './pages/login';              
-import SignUpPage from './pages/signUp';
-import ForgotPassword from './pages/forgotPassword';
+import LoginPage from "./pages/login";
+import SignUpPage from "./pages/signUp";
+import ForgotPassword from "./pages/forgotPassword";
 import ChangePasswordPage from "./pages/changePassword";
 import ResetPasswordPage from "./pages/resetPassword";
 import HomePage from "./pages/homePage";
 import AccountSettingsPage from "./pages/accountSettings";
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from "./components/PrivateRoute";
 import FAQ from "./pages/faq";
 import ABOUT from "./pages/about";
-import LabRooms from "./pages/LabRooms"
-
+import LabRooms from "./pages/LabRooms";
 
 function App() {
   return (
@@ -28,31 +27,30 @@ function App() {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/about" element={<ABOUT />} />
 
-        
         {/* Protected Routes */}
-        <Route 
-          path="/homepage" 
+        <Route
+          path="/homepage"
           element={
             <PrivateRoute>
               <HomePage />
             </PrivateRoute>
-          } 
+          }
         />
-        <Route 
-          path="/accountsettings" 
+        <Route
+          path="/accountsettings"
           element={
             <PrivateRoute>
               <AccountSettingsPage />
             </PrivateRoute>
-          } 
+          }
         />
-        <Route 
-          path="/labrooms" 
+        <Route
+          path="/labrooms"
           element={
             <PrivateRoute>
               <LabRooms />
             </PrivateRoute>
-          } 
+          }
         />
       </Routes>
     </Router>

@@ -20,7 +20,7 @@ const LabRooms = () => {
         const parsedUser = JSON.parse(user);
         setUserInfo({
           email: parsedUser.email || "",
-          username: parsedUser.username || "",  // Get the username
+          username: parsedUser.username || "", // Get the username
         });
       } catch (error) {
         console.error("Error parsing user data:", error);
@@ -30,7 +30,8 @@ const LabRooms = () => {
     }
   }, [navigate]);
 
-  const toggleProfileDropdown = () => setProfileDropdownOpen(!profileDropdownOpen);
+  const toggleProfileDropdown = () =>
+    setProfileDropdownOpen(!profileDropdownOpen);
 
   const handleLogout = () => {
     // Clear user data from localStorage
@@ -56,4 +57,3 @@ const LabRooms = () => {
 };
 
 export default LabRooms;
-

@@ -5,7 +5,10 @@ import { MdDashboard } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
 import { RiLogoutBoxLine } from "react-icons/ri";
-import { IoIosArrowDropdownCircle, IoIosArrowDropupCircle } from "react-icons/io";
+import {
+  IoIosArrowDropdownCircle,
+  IoIosArrowDropupCircle,
+} from "react-icons/io";
 import { MdNotificationsActive } from "react-icons/md";
 
 const Navbar = ({ userInfo, setUserInfo }) => {
@@ -61,7 +64,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
           {userInfo ? (
             <div className="relative flex items-center space-x-4">
               {/* Notification Icon */}
-              <button className="relative text-white hover:bg-blue-600 rounded-full p-2 transition-transform transform hover:scale-105">
+              <button className="relative text-white hover:bg-blueMid rounded-full p-2 transition-transform transform hover:scale-105">
                 <MdNotificationsActive className="w-6 h-6" />
               </button>
 
@@ -69,7 +72,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
               <div className="relative">
                 <button
                   onClick={toggleProfileDropdown}
-                  className="flex items-center space-x-2 text-white hover:bg-blue-600 p-2 rounded-full transition-transform transform hover:scale-105 profile-icon"
+                  className="flex items-center space-x-2 text-white hover:bg-blueMid p-2 rounded-full transition-transform transform hover:scale-105 profile-icon"
                 >
                   {profileDropdownOpen ? (
                     <IoIosArrowDropupCircle className="w-6 h-6 pointer-events-none" />
@@ -83,13 +86,15 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                   <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg p-4 profile-dropdown">
                     {/* User Info */}
                     <div className="flex items-center p-4 bg-gray-100 rounded-lg space-x-4">
-                      <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold relative">
+                      <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-lg font-bold relative">
                         {userInfo.username.charAt(0).toUpperCase()}
                       </div>
                       <div className="overflow-hidden">
-                        <p className="font-semibold text-gray-800">{userInfo.username}</p>
+                        <p className="font-semibold text-grayDark">
+                          {userInfo.username}
+                        </p>
                         <p
-                          className="text-sm text-gray-500 truncate max-w-full"
+                          className="text-sm text-tertiary truncate max-w-full"
                           title={userInfo.email}
                         >
                           {userInfo.email}
@@ -101,21 +106,21 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                     <div className="mt-4">
                       <Link
                         to="/dashboard"
-                        className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
+                        className="flex items-center px-4 py-2 text-grayDark hover:bg-gray-100 rounded-lg transition duration-300"
                       >
                         <MdDashboard className="w-5 h-5 mr-3" /> Dashboard
                       </Link>
 
                       <Link
                         to="/profile"
-                        className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
+                        className="flex items-center px-4 py-2 text-grayDark hover:bg-gray-100 rounded-lg transition duration-300"
                       >
                         <FaUser className="w-5 h-5 mr-3" /> My Profile
                       </Link>
 
                       <Link
                         to="/accountsettings"
-                        className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg transition duration-300"
+                        className="flex items-center px-4 py-2 text-grayDark hover:bg-gray-100 rounded-lg transition duration-300"
                       >
                         <IoIosSettings className="w-5 h-5 mr-3" /> Settings
                       </Link>
@@ -125,7 +130,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                     <div className="border-t border-gray-200 mt-4 pt-4">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center px-4 py-2 w-full text-gray-800 hover:bg-red-100 hover:text-red-500 rounded-lg transition duration-300"
+                        className="flex items-center px-4 py-2 w-full text-grayDark hover:bg-red-100 hover:text-red-500 rounded-lg transition duration-300"
                       >
                         <RiLogoutBoxLine className="w-5 h-5 mr-3" /> Logout
                       </button>
@@ -137,7 +142,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
           ) : (
             <Link
               to="/login"
-              className="text-white bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 transition duration-300 shadow-md"
+              className="text-white bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft focus:ring-4 font-medium rounded-lg text-sm px-4 py-2 transition duration-300 shadow-md"
             >
               Log In
             </Link>
@@ -147,11 +152,15 @@ const Navbar = ({ userInfo, setUserInfo }) => {
           <button
             onClick={toggleNavbar}
             type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 transition duration-300"
+            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-tertiary transition duration-300"
             aria-controls="navbar-sticky"
             aria-expanded={mobileDrawerOpen}
           >
-            {mobileDrawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileDrawerOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
           </button>
         </div>
 
@@ -167,7 +176,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
               <Link
                 to="/homepage"
                 onClick={() => setMobileDrawerOpen(false)}
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-800 md:p-0 transition duration-300"
+                className="block py-2 px-3 text-white rounded hover:bg-gradient-primaryToLeft md:p-0 transition duration-300"
                 aria-current="page"
               >
                 Home
@@ -178,7 +187,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                 href="https://www.jce.ac.il/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-800 md:p-0 transition duration-300"
+                className="block py-2 px-3 text-white rounded hover:bg-gradient-primaryToLeft md:p-0 transition duration-300"
               >
                 College Website
               </a>
@@ -188,7 +197,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
                 href="https://www.jce.ac.il/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-800 md:p-0 transition duration-300"
+                className="block py-2 px-3 text-white rounded hover:bg-gradient-primaryToLeft md:p-0 transition duration-300"
               >
                 Portal
               </a>
@@ -197,7 +206,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
               <Link
                 to="/labrooms"
                 onClick={() => setMobileDrawerOpen(false)}
-                className="block py-2 px-3 text-white rounded hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-800 md:p-0 transition duration-300"
+                className="block py-2 px-3 text-white rounded hover:bg-gradient-primaryToLeft md:p-0 transition duration-300"
               >
                 Lab Rooms
               </Link>

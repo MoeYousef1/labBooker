@@ -22,15 +22,44 @@ async function createRoom(req, res) {
         reject({ status: 500, message: "Failed to upload file" });
       } else {
         try {
-          const { name, type, capacity } = req.body;
+          // Extract fields from the request body
+          const { name, type, capacity, description, amenities } = req.body;
           let imageUrl = "";
+          
+          // Ensure amenities is an array if provided
+          let parsedAmenities = [];
+          if (amenities) {
+            try {
+              // Check if amenities is an array, and ensure each object has the correct properties
+              if (Array.isArray(amenities)) {
+                // Ensure that each amenity object only contains 'name' and 'icon'
+                parsedAmenities = amenities.map(item => {
+                  if (item.name && item.icon) {
+                    return { name: item.name, icon: item.icon };
+                  }
+                  throw new Error("Each amenity must have a 'name' and 'icon' property.");
+                });
+              } else {
+                // If amenities is a stringified array, try to parse it
+                parsedAmenities = JSON.parse(amenities);
+              }
+            } catch (parseError) {
+              reject({
+                status: 400,
+                message: "Invalid format for amenities. It should be an array of objects with 'name' and 'icon' properties.",
+              });
+              return;
+            }
+          }
 
+          // Handle file upload if present
           if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path); // Upload file to Cloudinary
             fs.unlinkSync(req.file.path); // Remove file from server after upload
             imageUrl = result.secure_url; // Save the Cloudinary URL
           }
 
+          // Check for required fields
           if (!name || !type || !capacity) {
             reject({
               status: 400,
@@ -39,14 +68,20 @@ async function createRoom(req, res) {
             return;
           }
 
+          // Create a new Room object with amenities included
           const newRoom = new Room({
             name,
             type,
             capacity,
+            description, // Add description if provided
             imageUrl, // Save the Cloudinary URL
+            amenities: parsedAmenities, // Add amenities as an array of objects
           });
 
+          // Save the new room
           await newRoom.save();
+
+          // Return response with the created room
           resolve({
             status: 201,
             message: "Room created successfully",
@@ -122,12 +157,12 @@ async function deleteRoom(roomId) {
     }
 
     const imageUrl = room.imageUrl;
-    if(imageUrl) {
-      const publicId = imageUrl.split('/').slice(-1)[0].split('.')[0];
+    if (imageUrl) {
+      const publicId = imageUrl.split("/").slice(-1)[0].split(".")[0];
       await cloudinary.uploader.destroy(publicId);
     }
     await Room.findByIdAndDelete(roomId);
-    
+
     return {
       status: 200,
       message: "Room deleted successfully",

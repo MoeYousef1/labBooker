@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const  settingsController = require("../controllers/settingsController");
+const settingsController = require("../controllers/settingsController");
 
 router.put("/change-password", async (req, res) => {
   try {
@@ -38,7 +38,6 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-
 // Validate Verification Code Route
 router.post("/validate-code", async (req, res) => {
   try {
@@ -48,7 +47,10 @@ router.post("/validate-code", async (req, res) => {
       return res.status(400).json({ message: "Email and code are required." });
     }
 
-    const response = await settingsController.validateVerificationCode(email, code);
+    const response = await settingsController.validateVerificationCode(
+      email,
+      code,
+    );
 
     if (response.status === 400) {
       return res.status(400).json({ message: response.message });
@@ -82,6 +84,5 @@ router.put("/reset-password", async (req, res) => {
     res.status(500).json({ error: "Server error. Please try again later." });
   }
 });
-
 
 module.exports = router;

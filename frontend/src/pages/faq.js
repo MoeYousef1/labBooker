@@ -6,11 +6,11 @@ const AccordionItem = ({ question, answer, isActive, onToggle }) => {
     <div className="accordion py-8 px-6 border-b border-solid border-gray-200 transition-all duration-500 rounded-2xl hover:bg-indigo-50">
       <button
         onClick={onToggle}
-        className="accordion-toggle group inline-flex items-center justify-between leading-8 text-gray-900 w-full transition duration-500 text-left hover:text-indigo-600"
+        className="accordion-toggle group inline-flex items-center justify-between leading-8 text-gray-900 w-full transition duration-500 text-left hover:text-blueDark"
       >
         <h5>{question}</h5>
         <svg
-          className={`text-gray-500 transition duration-500 group-hover:text-indigo-600 ${
+          className={`text-gray-500 transition duration-500 group-hover:text-blueDark ${
             isActive ? "rotate-180" : "rotate-0"
           }`}
           width="22"
@@ -92,7 +92,7 @@ const FAQ = () => {
       <div className="absolute bottom-8 left-8">
         <button
           onClick={() => (window.location.href = "/homepage")}
-          className="px-6 py-3 bg-gradient-to-r from-blue-400 to-blue-800 hover:from-blue-800 hover:to-blue-400 text-white rounded-lg shadow-md transition duration-300"
+          className="px-6 py-3 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft text-white rounded-lg shadow-md transition duration-300"
         >
           Back to Home
         </button>

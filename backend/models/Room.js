@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Define the room schema
 const roomSchema = new mongoose.Schema(
@@ -6,11 +6,11 @@ const roomSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true, // Room name is required
-      unique: true,   // Room name should be unique
+      unique: true, // Room name should be unique
     },
     type: {
       type: String,
-      enum: ['Open', 'Small Seminar', 'Large Seminar'], // Types of rooms available
+      enum: ["Open", "Small Seminar", "Large Seminar"], // Types of rooms available
       required: true,
     },
     capacity: {
@@ -25,10 +25,40 @@ const roomSchema = new mongoose.Schema(
     imageUrl: {
       type: String,
       required: false, // Image URL is optional
-    }
+    },
+    amenities: [
+      {
+        name: {
+          type: String,
+          required: true, // Amenity name is required
+        },
+        iconClass: {
+          type: String,
+          enum: [
+            "wifi",
+            "tv",
+            "projector",
+            "coffee",
+            "chargingstation",
+            "chair",
+            "whiteboard",
+            "ac",
+            "printer",
+            "speakers",
+          ], // Predefined list of allowed icons
+          required: false, // Icon class is optional, use if you want to show icons in the UI
+        },
+      },
+    ], // Array to store multiple amenities
+    occupiedTimeSlots: [
+      {
+        date: String,
+        slot: String,
+      },
+    ], // Array to store occupied time slots
   },
-  { timestamps: true } // Automatically adds createdAt and updatedAt fields
+  { timestamps: true }, // Automatically adds createdAt and updatedAt fields
 );
 
 // Create and export the Room model based on the schema
-module.exports = mongoose.model('Room', roomSchema);
+module.exports = mongoose.model("Room", roomSchema);
