@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import RoomImg from "../assets/room.jpg"; // Placeholder image
 import iconMapping from "../utils/iconMapping"; // Centralized icon mapping utility
+import RoomCardBookingForm from "./roomCardBookingForm";
 
 const RoomCard = ({
   rooms,
   room,
-  handleBookRoom,
   extraCount,
   containerRef,
   visibleIconsCount,
@@ -15,7 +15,14 @@ const RoomCard = ({
   expandedRoom,
   handleRulesNavigation,
   setVisibleIconsCount,
+  activeRoom,
+  setActiveRoom,
 }) => {
+  // Handle the card's "Book Now" button click
+  const handleStartBooking = (roomId) => {
+    setActiveRoom(roomId); // Set the active room to this card's ID
+  };
+
   useEffect(() => {
     const updateVisibleIcons = () => {
       if (containerRef.current) {
@@ -36,17 +43,18 @@ const RoomCard = ({
   return (
     <div
       key={room._id}
-      className="relative flex w-full max-w-md flex-col rounded-xl bg-white text-gray-700 shadow-lg mx-auto"
+      className="relative flex flex-col lg:flex-row w-full max-w-4xl rounded-xl bg-white text-gray-700 shadow-lg mx-auto mb-6"
     >
-      <div className="relative mx-4 mt-4 overflow-hidden rounded-xl bg-gray-500 text-white shadow-lg">
-        <img
-          src={room.imageUrl || RoomImg}
-          alt={room.name}
-          className="w-full h-64 object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-black/60"></div>
-      </div>
-      <div className="p-6 flex-1 flex flex-col justify-between">
+      {/* Left Side: Room details */}
+      <div className="lg:w-2/3 w-full p-6 flex-1 flex flex-col justify-between">
+        <div className="relative mx-4 mt-4 overflow-hidden rounded-xl bg-gray-500 text-white shadow-lg mb-2">
+          <img
+            src={room.imageUrl || RoomImg}
+            alt={room.name}
+            className="w-full h-64 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-black/60"></div>
+        </div>
         <h5 className="text-xl md:text-3xl font-extrabold mb-4 relative text-center bg-gradient-grayMidToRight text-white rounded-lg inline-block">
           {room.name}
         </h5>
@@ -101,21 +109,23 @@ const RoomCard = ({
               expandedRoom === room._id
                 ? "Click to collapse"
                 : "Click to expand description"
-            } // Tooltip feature
+            }
           >
             <span>{expandedRoom === room._id ? "Show Less" : "Show More"}</span>{" "}
-            {/* Button text */}
             {expandedRoom === room._id ? (
-              <IoIosArrowUp className="ml-2" /> // Arrow pointing up when description is expanded
+              <IoIosArrowUp className="ml-2" />
             ) : (
-              <IoIosArrowDown className="ml-2" /> // Arrow pointing down when description is collapsed
+              <IoIosArrowDown className="ml-2" />
             )}
           </button>
         </div>
 
-        {/* Room Description */}
         <div
-          className={`transition-all duration-500 ease-in-out overflow-hidden ${expandedRoom === room._id ? "max-h-full opacity-100" : "max-h-0 opacity-0"}`}
+          className={`transition-all duration-500 ease-in-out overflow-hidden ${
+            expandedRoom === room._id
+              ? "max-h-full opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
         >
           <p className="mt-4 text-sm text-tertiary">
             {room.description || "No description available."}
@@ -125,18 +135,22 @@ const RoomCard = ({
         <div className="flex justify-between">
           <button
             className="mt-6 text-lg text-gray-800 font-semibold underline hover:text-gray-600 "
-            onClick={handleRulesNavigation} // Updated handler
+            onClick={handleRulesNavigation}
           >
             Guidelines
           </button>
           <button
             className="mt-6 py-3 px-6 bg-gradient-grayMidToRight text-white font-semibold text-lg rounded-lg focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105"
-            onClick={() => handleBookRoom(room._id)}
+            onClick={() => handleStartBooking(room._id)}
           >
             Book Now
           </button>
         </div>
       </div>
+
+      <div className="lg:w-px w-full bg-gray-300 lg:h-full h-px "></div>
+
+      <RoomCardBookingForm room={room} activeRoom={activeRoom} />
     </div>
   );
 };

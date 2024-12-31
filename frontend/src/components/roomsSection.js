@@ -12,6 +12,7 @@ const RoomsSection = ({ userInfo }) => {
   const [expandedRoom, setExpandedRoom] = useState(null);
   const [popupAmenities, setPopupAmenities] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [activeRoom, setActiveRoom] = useState(null); // Declare activeRoom here
   const navigate = useNavigate();
 
   const handleRulesNavigation = () => {
@@ -39,10 +40,6 @@ const RoomsSection = ({ userInfo }) => {
 
   // Calculate the number of visible icons based on the container width
   const [visibleIconsCount, setVisibleIconsCount] = useState(0);
-
-  const handleBookRoom = (roomId) => {
-    alert(`Room ${roomId} booked!`);
-  };
 
   const toggleDescription = (roomId) => {
     setExpandedRoom((prevExpandedRoom) =>
@@ -86,7 +83,7 @@ const RoomsSection = ({ userInfo }) => {
           <div className="text-center text-lg text-red-500">{error}</div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {rooms.length > 0 ? (
             rooms.map((room) => {
               const extraCount = Math.max(
@@ -98,7 +95,6 @@ const RoomsSection = ({ userInfo }) => {
                   key={room._id}
                   rooms={rooms}
                   room={room}
-                  handleBookRoom={handleBookRoom}
                   extraCount={extraCount}
                   containerRef={containerRef}
                   visibleIconsCount={visibleIconsCount}
@@ -107,6 +103,8 @@ const RoomsSection = ({ userInfo }) => {
                   expandedRoom={expandedRoom}
                   handleRulesNavigation={handleRulesNavigation}
                   setVisibleIconsCount={setVisibleIconsCount}
+                  activeRoom={activeRoom} // Pass activeRoom to RoomCard
+                  setActiveRoom={setActiveRoom} // Pass setActiveRoom to RoomCard
                 />
               );
             })
