@@ -6,7 +6,7 @@ const bookingController = require("../controllers/bookingController");
 router.get("/bookings", async (req, res) => {
   try {
     // Call the controller function to get bookings
-    const response = await bookingController.getBookings();
+    const response = await bookingController.getBookings(req ,res);
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching bookings:", error.message);
@@ -18,7 +18,7 @@ router.get("/bookings", async (req, res) => {
 router.get("/booking/:id", async (req, res) => {
   try {
     // Call the controller function to get booking by ID
-    const response = await bookingController.getBookingById(req.params.id);
+    const response = await bookingController.getBookingById(req,res);
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching booking:", error.message);
@@ -30,7 +30,10 @@ router.get("/booking/:id", async (req, res) => {
 router.post("/booking", async (req, res) => {
   try {
     // Call the controller function to create booking
-    await bookingController.createBooking(req, res);
+    const response = await bookingController.createBooking(req, res);
+    if(!response ){
+      return res.status(400).json(response);
+    }
   } catch (error) {
     console.error("Error creating booking:", error.message);
     return res.status(500).json({ message: "Failed to create booking" });
@@ -40,7 +43,10 @@ router.post("/booking", async (req, res) => {
 router.delete("/booking/:id", async (req, res) => {
   try {
     // Call the controller function to delete booking
-    const response = await bookingController.deleteBooking(req.params.id);
+    const response = await bookingController.deleteBooking(req,res);
+    if(!response){
+      return res.status(400).json(response);
+    }
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error deleting booking:", error.message);
