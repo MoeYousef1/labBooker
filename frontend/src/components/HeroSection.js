@@ -50,7 +50,7 @@ const HeroSection = ({ userInfo }) => {
         <div>
           <button
             className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => (window.location.href = "/booking")}
+            onClick={() => (window.location.href = "/labrooms")}
           >
             Book Now
           </button>
@@ -58,9 +58,9 @@ const HeroSection = ({ userInfo }) => {
         <div>
           <button
             className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => (window.location.href = "/login")}
+            onClick={() => (window.location.href = "/dashboard")}
           >
-            Login
+            Dashboard
           </button>
         </div>
       </div>
