@@ -132,7 +132,7 @@ async function updateRoom(req, res) {
               room.amenities = JSON.parse(amenities).map((amenity) => {
                 if (!amenity.name || !amenity.icon) {
                   throw new Error(
-                    "Each amenity must have 'name' and 'icon' properties."
+                    "Each amenity must have 'name' and 'icon' properties.",
                   );
                 }
                 return { name: amenity.name, icon: amenity.icon };
@@ -165,14 +165,14 @@ async function updateRoom(req, res) {
           console.error("Error updating room:", error.message);
           reject({
             status: 500,
-            message: "Failed to update room. Please check the input and try again.",
+            message:
+              "Failed to update room. Please check the input and try again.",
           });
         }
       }
     });
   });
 }
-
 
 async function deleteRoom(roomId) {
   try {
