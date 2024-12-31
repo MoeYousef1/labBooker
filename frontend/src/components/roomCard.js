@@ -20,7 +20,11 @@ const RoomCard = ({
 }) => {
   // Handle the card's "Book Now" button click
   const handleStartBooking = (roomId) => {
-    setActiveRoom(roomId); // Set the active room to this card's ID
+    if (activeRoom === roomId) {
+      setActiveRoom(null); // Deactivate the room
+    } else {
+      setActiveRoom(roomId); // Activate the room
+    }
   };
 
   useEffect(() => {
@@ -143,7 +147,7 @@ const RoomCard = ({
             className="mt-6 py-3 px-6 bg-gradient-grayMidToRight text-white font-semibold text-lg rounded-lg focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105"
             onClick={() => handleStartBooking(room._id)}
           >
-            Book Now
+            {activeRoom === room._id ? "Cancel" : "Book Now"}
           </button>
         </div>
       </div>
