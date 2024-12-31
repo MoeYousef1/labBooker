@@ -29,7 +29,6 @@ mongoose
     process.exit(1);
   });
 
-
 // Routes
 app.get("/", (req, res) => {
   res.send("Backend is running!");
@@ -40,7 +39,9 @@ app.get("/health", async (req, res) => {
     await mongoose.connection.db.command({ ping: 1 });
     res.status(200).json({ message: "Server is healthy!" });
   } catch (error) {
-    res.status(500).json({ message: "Database connection issue", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Database connection issue", error: error.message });
   }
 });
 

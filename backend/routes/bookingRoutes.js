@@ -27,13 +27,13 @@ router.get("/booking/:id", async (req, res) => {
 });
 
 // Create Booking Route
-router.post('/booking', async (req, res) => {
+router.post("/booking", async (req, res) => {
   try {
     // Call the controller function to create booking
     await bookingController.createBooking(req, res);
   } catch (error) {
-    console.error('Error creating booking:', error.message);
-    return res.status(500).json({ message: 'Failed to create booking' });
+    console.error("Error creating booking:", error.message);
+    return res.status(500).json({ message: "Failed to create booking" });
   }
 });
 // delete Booking Route

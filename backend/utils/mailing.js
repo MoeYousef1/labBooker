@@ -34,7 +34,7 @@
 //           }
 //         }
 //       }
-//       console.log("All emails sent successfully");  
+//       console.log("All emails sent successfully");
 
 //   } catch (error) {
 //     console.error("Error sending emails: " + error.message);
