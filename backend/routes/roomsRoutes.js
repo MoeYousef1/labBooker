@@ -14,6 +14,17 @@ router.get("/rooms", async (req, res) => {
   }
 });
 
+router.get("/rooms/:id", async (req, res) => {
+  try {
+    // Call the controller function to get the room by id
+    const response = await roomController.getRooms(req.params.id);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching room:", error.message);
+    return res.status(500).json({ message: "Failed to fetch room" });
+  }
+});
+
 // Create Room Route
 router.post("/rooms", async (req, res) => {
   try {

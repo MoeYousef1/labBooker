@@ -14,6 +14,7 @@ import ABOUT from "./pages/about";
 import LabRooms from "./pages/LabRooms";
 import RoomGuidelines from "./pages/roomGuidelines ";
 import ContactPage from "./pages/contact";
+import RoomOperationpage from "./pages/roomOperationPage";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/about" element={<ABOUT />} />
         <Route path="/roomguidelines" element={<RoomGuidelines />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/roomOperationpage" element={<RoomOperationpage />} />
 
         {/* Protected Routes */}
         <Route

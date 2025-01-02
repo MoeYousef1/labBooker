@@ -28,7 +28,7 @@ const AccountSettings = () => {
       {/* Sidebar */}
       <Sidebar />
       {/* Main Content */}
-      <div className="flex-1 px-4 sm:px-8 max-w-screen-xl mx-auto mt-4">
+      <div className="flex-1 sm:pl-48 px-4 sm:px-8 max-w-screen-xl mx-auto mt-4">
         <div className="grid grid-cols-1 gap-4">
           {/* Main Content */}
           <div className="overflow-hidden rounded-xl bg-gray-50 px-4 py-6 sm:px-8 sm:shadow">

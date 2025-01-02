@@ -57,8 +57,8 @@ export function Sidebar() {
     <div className="flex h-full relative">
       {/* Sidebar */}
       <div
-        className={`sidebar-container h-screen w-auto bg-gradient-primaryToRight text-white p-4 shadow-xl transition-all duration-300 
-          ${isOpen ? "block fixed top-0 left-0 z-50" : "hidden sm:block sm:static"}`}
+        className={`sidebar-container fixed top-0 left-0 h-screen w-auto bg-gradient-primaryToRight text-white p-4 shadow-xl justify-between transition-all duration-300 
+          ${isOpen ? "z-50" : "hidden sm:block"}`}
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">LabBooker™</h2>

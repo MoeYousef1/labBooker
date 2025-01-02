@@ -31,7 +31,7 @@ const bookingSchema = new mongoose.Schema(
       default: "Pending", // Booking is initially pending
     },
   },
-  { timestamps: true } // Automatically adds createdAt and updatedAt fields
+  { timestamps: true }, // Automatically adds createdAt and updatedAt fields
 );
 
 // Create and export the Booking model based on the schema

@@ -18,8 +18,8 @@ async function validateTimeSlot(roomId, date, startTime, endTime) {
     $or: [
       { startTime: { $lt: endTime, $gt: startTime } },
       { endTime: { $lt: endTime, $gt: startTime } },
-      { startTime: { $lte: startTime }, endTime: { $gte: endTime } }
-    ]
+      { startTime: { $lte: startTime }, endTime: { $gte: endTime } },
+    ],
   });
 
   if (overlappingBooking) {

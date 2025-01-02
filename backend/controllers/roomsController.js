@@ -3,11 +3,29 @@ const uploadMulter = require("../middleware/multer");
 const cloudinary = require("../utils/cloudinary");
 const fs = require("fs");
 
-async function getRooms() {
+// async function getRooms() {
+//   try {
+//     // Fetch all room documents from the database
+//     const rooms = await Room.find();
+//     return rooms;
+//   } catch (error) {
+//     console.error("Error in getRooms:", error.message);
+//     throw new Error("Unable to fetch rooms");
+//   }
+// }
+
+async function getRooms(roomId = null) {
   try {
-    // Fetch all room documents from the database
-    const rooms = await Room.find();
-    return rooms;
+    if (roomId) {
+      const room = await Room.findById(roomId);
+      if (!room) {
+        throw new Error("Room not found");
+      }
+      return room;
+    } else {
+      const rooms = await Room.find();
+      return rooms;
+    }
   } catch (error) {
     console.error("Error in getRooms:", error.message);
     throw new Error("Unable to fetch rooms");
