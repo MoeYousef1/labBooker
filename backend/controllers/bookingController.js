@@ -66,12 +66,18 @@ async function getBookings(req, res) {
 async function getBookingById(req, res) {
   try {
     const id = req.params.id;
+
+    // Fetch the booking by ID
     const booking = await Booking.findById(id)
       .populate("roomId")
       .populate("userId");
+
+    // If no booking is found, send a 404 response
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
+
+    // Send the booking as a response
     res.status(200).json(booking);
   } catch (error) {
     console.error("Error fetching booking:", error.message);

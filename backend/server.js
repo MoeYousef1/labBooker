@@ -11,6 +11,7 @@ const settingsRoutes = require("./routes/settingsRoutes");
 const roomRoutes = require("./routes/roomsRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
+const configRoutes = require("./routes/configRoutes");
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use("/api/settings/", settingsRoutes);
 app.use("/api/room", roomRoutes);
 app.use("/api/book", bookingRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/config",configRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
