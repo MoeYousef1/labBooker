@@ -52,7 +52,7 @@ app.use("/api/settings/", settingsRoutes);
 app.use("/api/room", roomRoutes);
 app.use("/api/book", bookingRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api/config",configRoutes);
+app.use("/api/config", configRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

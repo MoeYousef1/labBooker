@@ -95,6 +95,7 @@ const RoomsSection = ({ userInfo }) => {
                   key={room._id}
                   rooms={rooms}
                   room={room}
+                  userInfo={userInfo}
                   extraCount={extraCount}
                   containerRef={containerRef}
                   visibleIconsCount={visibleIconsCount}

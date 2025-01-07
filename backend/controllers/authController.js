@@ -81,6 +81,8 @@ async function loginRegister(userData) {
     }
 
     const username = user.username;
+    const id = user._id.toString();
+    console.log(id);
     const token = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
@@ -90,6 +92,7 @@ async function loginRegister(userData) {
       token,
       refreshToken,
       username,
+      id,
     };
   } catch (error) {
     return { status: 500, message: "Internal Server Error: " + error.message };
