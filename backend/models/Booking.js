@@ -30,8 +30,14 @@ const bookingSchema = new mongoose.Schema(
       enum: ["Pending", "Confirmed", "Canceled"],
       default: "Pending", // Booking is initially pending
     },
+    additionalUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
-  { timestamps: true }, // Automatically adds createdAt and updatedAt fields
+  { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );
 
 // Create and export the Booking model based on the schema

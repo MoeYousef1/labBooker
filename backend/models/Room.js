@@ -56,6 +56,10 @@ const roomSchema = new mongoose.Schema(
         slot: String,
       },
     ], // Array to store occupied time slots
+    bookingConfirmationRequired: {
+      type: Boolean,
+      default: false, // Indicates if booking confirmation is required
+    },
   },
   { timestamps: true }, // Automatically adds createdAt and updatedAt fields
 );
