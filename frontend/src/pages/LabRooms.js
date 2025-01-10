@@ -9,6 +9,7 @@ const LabRooms = () => {
   const [userInfo, setUserInfo] = useState({
     email: "",
     username: "",
+    id: "",
   });
 
   const navigate = useNavigate(); // Use navigate for redirection
@@ -21,6 +22,7 @@ const LabRooms = () => {
         setUserInfo({
           email: parsedUser.email || "",
           username: parsedUser.username || "", // Get the username
+          id: parsedUser.id || "",
         });
       } catch (error) {
         console.error("Error parsing user data:", error);

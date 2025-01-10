@@ -7,6 +7,7 @@ import RoomCardBookingForm from "./roomCardBookingForm";
 const RoomCard = ({
   rooms,
   room,
+  userInfo,
   extraCount,
   containerRef,
   visibleIconsCount,
@@ -154,7 +155,11 @@ const RoomCard = ({
 
       <div className="lg:w-px w-full bg-gray-300 lg:h-full h-px "></div>
 
-      <RoomCardBookingForm room={room} activeRoom={activeRoom} />
+      <RoomCardBookingForm
+        room={room}
+        activeRoom={activeRoom}
+        userInfo={userInfo}
+      />
     </div>
   );
 };

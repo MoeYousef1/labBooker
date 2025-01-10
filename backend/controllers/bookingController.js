@@ -10,7 +10,8 @@ const BOOKING_NOT_FOUND = {
 };
 
 async function createBooking(req, res) {
-  const { roomId, userId, date, startTime, endTime, additionalUsers } = req.body;
+  const { roomId, userId, date, startTime, endTime, additionalUsers } =
+    req.body;
 
   if (!roomId || !userId || !date || !startTime || !endTime) {
     return res.status(400).json({ message: "All fields are required" });
@@ -30,15 +31,23 @@ async function createBooking(req, res) {
     }
 
     // Validate Time Slot
-    const isTimeSlotAvailable = await validateTimeSlot(roomId, date, startTime, endTime);
+    const isTimeSlotAvailable = await validateTimeSlot(
+      roomId,
+      date,
+      startTime,
+      endTime,
+    );
     if (!isTimeSlotAvailable) {
       return res.status(400).json({ message: "Time slot is already booked" });
     }
 
     // Validate room type and user count
-    const requiredUserCount = room.type === "Small Seminar" ? 2 : room.type === "Large Seminar" ? 3 : 1;
+    const requiredUserCount =
+      room.type === "Small Seminar" ? 2 : room.type === "Large Seminar" ? 3 : 1;
     if (additionalUsers.length + 1 < requiredUserCount) {
-      return res.status(400).json({ message: `${room.type} Room requires at least ${requiredUserCount} users to book` });
+      return res.status(400).json({
+        message: `${room.type} Room requires at least ${requiredUserCount} users to book`,
+      });
     }
 
     // Validate additional users
@@ -46,20 +55,31 @@ async function createBooking(req, res) {
     for (const email of additionalUsers) {
       const additionalUser = await User.findOne({ email });
       if (!additionalUser) {
-        return res.status(404).json({ message: `User with email ${email} not found` });
+        return res
+          .status(404)
+          .json({ message: `User with email ${email} not found` });
       }
       additionalUserIds.push(additionalUser._id);
     }
 
     // Create Booking
-    const booking = new Booking({ roomId, userId, date, startTime, endTime, additionalUsers: additionalUserIds });
+    const booking = new Booking({
+      roomId,
+      userId,
+      date,
+      startTime,
+      endTime,
+      additionalUsers: additionalUserIds,
+    });
     await booking.save();
 
     // Update Room's occupied time slots
     room.occupiedTimeSlots.push({ date, startTime, endTime });
     await room.save();
 
-    return res.status(201).json({ message: "Booking created successfully", booking });
+    return res
+      .status(201)
+      .json({ message: "Booking created successfully", booking });
   } catch (error) {
     console.error("Error creating booking:", error.message);
     return res.status(500).json({ message: "Failed to create booking" });
@@ -111,7 +131,7 @@ async function deleteBooking(req, res) {
         (slot) =>
           slot.date !== booking.date ||
           slot.startTime !== booking.startTime ||
-          slot.endTime !== booking.endTime
+          slot.endTime !== booking.endTime,
       );
       await room.save();
     }

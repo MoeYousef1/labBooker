@@ -13,12 +13,13 @@ const Message = ({ message, onClose, type }) => {
 
   return (
     <div
-      className={`${messageType} border px-4 py-2 rounded mt-1 relative`}
+      className={`${messageType} border px-4 py-2 rounded mt-1 relative flex items-start min-w-0`}
       role="alert"
     >
-      <span>{message}</span>
+      <span className="flex-grow pr-10">{message}</span>{" "}
+      {/* Add padding-right for space */}
       {onClose && (
-        <button onClick={onClose} className="absolute top-0 right-0 px-4 py-3">
+        <button onClick={onClose} className="absolute top-0 right-0 px-3 py-3">
           <svg
             className={`fill-current h-6 w-6 ${closeButtonColor}`}
             role="button"
