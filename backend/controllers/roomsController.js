@@ -1,4 +1,6 @@
 const Room = require("../models/Room"); // Import the Room model
+const Booking = require("../models/Booking"); // Import the Booking model
+
 const uploadMulter = require("../middleware/multer");
 const cloudinary = require("../utils/cloudinary");
 const fs = require("fs");
@@ -56,7 +58,7 @@ async function createRoom(req, res) {
                     return { name: item.name, icon: item.icon };
                   }
                   throw new Error(
-                    "Each amenity must have a 'name' and 'icon' property.",
+                    "Each amenity must have a 'name' and 'icon' property."
                   );
                 });
               } else {
@@ -150,7 +152,7 @@ async function updateRoom(req, res) {
               room.amenities = JSON.parse(amenities).map((amenity) => {
                 if (!amenity.name || !amenity.icon) {
                   throw new Error(
-                    "Each amenity must have 'name' and 'icon' properties.",
+                    "Each amenity must have 'name' and 'icon' properties."
                   );
                 }
                 return { name: amenity.name, icon: amenity.icon };
@@ -222,9 +224,84 @@ async function deleteRoom(roomId) {
   }
 }
 
+const generateNext30Days = () => {
+  const dates = [];
+  const today = new Date();
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    dates.push(date.toISOString().split("T")[0]); // Format as YYYY-MM-DD
+  }
+  return dates;
+};
+
+function generateHalfHourlySlots() {
+  const slots = [];
+  for (let hour = 8; hour < 22; hour++) { // From 8:00 AM to 10:00 PM
+    const times = [`${String(hour).padStart(2, '0')}:00`, `${String(hour).padStart(2, '0')}:30`];
+    for (let i = 0; i < times.length - 1; i++) {
+      const startTime = times[i];
+      const endTime = hour === 21 && i === 1 ? "22:00" : times[i + 1]; // Special handling for the last slot
+      slots.push({ startTime, endTime });
+    }
+  }
+  return slots;
+}
+
+const getRoomAvailabilityForMonth = async (roomId) => {
+  // Ensure the room exists
+  const room = await Room.findById(roomId);
+  if (!room) {
+    throw new Error("Room not found.");
+  }
+
+  // Generate dates for the next 30 days
+  const dates = generateNext30Days();
+
+  // Fetch all bookings for the room for the next 30 days
+  const bookings = await Booking.find({
+    roomId,
+    date: { $in: dates },
+    status: "Confirmed", // Only consider confirmed bookings
+  });
+
+  // Prepare availability for each date
+  const availability = dates.map((date) => {
+    // Generate half-hourly slots for the day
+    const halfHourlySlots = generateHalfHourlySlots();
+
+    // Check each slot for conflicts
+    const slots = halfHourlySlots.map((slot) => {
+      const isOccupied = bookings.some(
+        (booking) =>
+          booking.date === date &&
+          ((slot.startTime >= booking.startTime && slot.startTime < booking.endTime) || // Slot starts during booking
+            (slot.endTime > booking.startTime && slot.endTime <= booking.endTime) || // Slot ends during booking
+            (slot.startTime <= booking.startTime && slot.endTime >= booking.endTime)) // Slot fully overlaps booking
+      );
+
+      return {
+        ...slot,
+        status: isOccupied ? "Occupied" : "Available",
+      };
+    });
+
+    return {
+      date,
+      slots,
+    };
+  });
+
+  return {
+    room: room.name,
+    availability,
+  };
+};
+
 module.exports = {
   getRooms,
   createRoom,
   updateRoom,
   deleteRoom,
+  getRoomAvailabilityForMonth,
 };

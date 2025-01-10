@@ -123,6 +123,7 @@ async function deleteBooking(req, res) {
   }
 }
 
+
 module.exports = {
   createBooking,
   getBookings,

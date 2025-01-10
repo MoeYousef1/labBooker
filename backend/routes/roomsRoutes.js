@@ -63,4 +63,16 @@ router.delete("/rooms/:id", async (req, res) => {
   }
 });
 
+router.get("/rooms/:roomId/monthly-availability", async (req, res) => {
+  const { roomId } = req.params;
+
+  try {
+    const response = await roomController.getRoomAvailabilityForMonth(roomId);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching room availability:", error.message);
+    return res.status(500).json({ message: "Failed to fetch room availability" });
+  }
+});
+
 module.exports = router;
