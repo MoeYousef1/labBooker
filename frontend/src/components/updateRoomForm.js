@@ -78,7 +78,10 @@ const UpdateRoomForm = ({
       setSelectedAmenities(room.amenities.map((amenity) => amenity.name)); // Set selected amenities
       setRoomDetails(room); // Store the room details
     } catch (err) {
-      setError("Error fetching room details. Please try again.");
+      setError(
+        err.response?.data?.message ||
+          "Error fetching room details. Please try again.",
+      );
     } finally {
       setFetchingRoom(false);
     }
@@ -89,26 +92,27 @@ const UpdateRoomForm = ({
     setLoading(true);
     setError("");
     setSuccessMessage(""); // Clear previous success message
-
+  
     if (!formData.name || !formData.type || !formData.capacity) {
       setError("Please fill in the name, type, and capacity fields.");
       setLoading(false);
       return;
     }
-
+  
     if (selectedAmenities.length < 3) {
       setError("Please select at least three amenities.");
       setLoading(false);
       return;
     }
-
+  
     const amenities = selectedAmenities.map((name) => ({
       name,
       icon: name, // Assuming the icon class name matches the amenity name
     }));
-
+  
     const formPayload = new FormData();
-    formPayload.append("name", formData.name);
+    formPayload.append("name", formData.name); // The updated room name
+    formPayload.append("originalName", roomDetails.name); // Pass the original name
     formPayload.append("type", formData.type);
     formPayload.append("capacity", formData.capacity);
     formPayload.append("description", formData.description);
@@ -116,10 +120,10 @@ const UpdateRoomForm = ({
     if (formData.image) {
       formPayload.append("image", formData.image);
     }
-
+  
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/room/rooms/${roomId}`,
+        `http://localhost:5000/api/room/rooms/${roomId}`, // Ensure this URL is correct
         formPayload,
         {
           headers: {
@@ -127,7 +131,7 @@ const UpdateRoomForm = ({
           },
         },
       );
-
+  
       if (response.status === 200) {
         setSuccessMessage("Room updated successfully!");
         onSuccess("Room updated successfully!");
@@ -152,12 +156,14 @@ const UpdateRoomForm = ({
       setLoading(false);
     }
   };
+  
+
 
   return (
     <div className="sm:flex-1 sm:pl-48 mb-4">
       {/* Room ID Form */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">Room ID</label>
+        <label className="block text-sm font-medium mb-2">Room Name</label>
         <input
           type="text"
           value={roomId}
@@ -196,7 +202,7 @@ const UpdateRoomForm = ({
       {roomDetails && (
         <form
           onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded-lg p-6 w-full sm:w-11/12 mx-auto space-y-6"
+          className="bg-white  shadow-md rounded-lg p-6 w-full mx-auto space-y-6"
         >
           <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-grayToRight mb-6 text-center">
             Update Room

@@ -16,10 +16,10 @@ const fs = require("fs");
 //   }
 // }
 
-async function getRooms(roomId = null) {
+async function getRooms(name = null) {
   try {
-    if (roomId) {
-      const room = await Room.findById(roomId);
+    if (name) {
+      const room = await Room.findOne({ name });
       if (!room) {
         throw new Error("Room not found");
       }
@@ -130,10 +130,16 @@ async function updateRoom(req, res) {
         reject({ status: 500, message: "Failed to upload file" });
       } else {
         try {
-          const { name, type, capacity, description, amenities } = req.body;
-          const roomId = req.params.id;
+          const { name, type, capacity, description, amenities } = req.body; // Original name passed in request body
+          const originalName = req.body.originalName; // Ensure the original name is passed for identification
 
-          const room = await Room.findById(roomId);
+          if (!originalName) {
+            reject({ status: 400, message: "Original room name is missing" });
+            return;
+          }
+
+          // Find the room by the original name
+          const room = await Room.findOne({ name: originalName });
           if (!room) {
             reject({ status: 404, message: "Room not found" });
             return;
@@ -143,10 +149,10 @@ async function updateRoom(req, res) {
           if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path);
             fs.unlinkSync(req.file.path);
-            room.imageUrl = result.secure_url;
+            room.imageUrl = result.secure_url; // Update image URL directly
           }
 
-          // Validate and parse amenities
+          // Validate and parse amenities if provided
           if (amenities) {
             try {
               room.amenities = JSON.parse(amenities).map((amenity) => {
@@ -167,13 +173,13 @@ async function updateRoom(req, res) {
             }
           }
 
-          // Update other fields
-          if (name) room.name = name;
+          // Update fields with the provided data
+          if(name) room.name = name;
           if (type) room.type = type;
           if (capacity) room.capacity = capacity;
           if (description) room.description = description;
 
-          // Save updated room
+          // Save updated room (using the original name for identification)
           await room.save();
 
           resolve({
@@ -194,9 +200,15 @@ async function updateRoom(req, res) {
   });
 }
 
-async function deleteRoom(roomId) {
+
+
+
+
+async function deleteRoom(name) {
   try {
-    const room = await Room.findById(roomId);
+    // Search for room by name instead of ID
+    const room = await Room.findOne({ name }); // Find room by name
+
     if (!room) {
       return {
         status: 404,
@@ -209,7 +221,8 @@ async function deleteRoom(roomId) {
       const publicId = imageUrl.split("/").slice(-1)[0].split(".")[0];
       await cloudinary.uploader.destroy(publicId);
     }
-    await Room.findByIdAndDelete(roomId);
+
+    await Room.findByIdAndDelete(room._id); // Use the room's ID to delete the document
 
     return {
       status: 200,

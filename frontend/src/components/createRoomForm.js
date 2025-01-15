@@ -99,7 +99,7 @@ const CreateRoomForm = ({ onSuccess }) => {
     <div className="sm:flex-1 sm:pl-48">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-lg p-6 w-full sm:w-11/12 mx-auto space-y-6 mb-4 overflow-hidden"
+        className="bg-white shadow-md rounded-lg p-6 w-full mx-auto space-y-6 mb-4 overflow-hidden"
       >
         <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-grayToRight mb-6 text-center">
           Create Room

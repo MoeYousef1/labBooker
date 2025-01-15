@@ -46,7 +46,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
 
   return (
     <div className="sm:flex-1 sm:pl-48">
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+      <div className="mx-auto p-6 w-full bg-white rounded-lg shadow-md">
         {operation === "delete" && (
           <div>
             <h3 className="text-xl font-semibold text-center mb-4">
@@ -58,12 +58,12 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                 htmlFor="roomId"
                 className="block text-sm font-medium text-gray-700"
               >
-                Room ID
+                Room Name
               </label>
               <input
                 id="roomId"
                 type="text"
-                placeholder="Enter room ID"
+                placeholder="Enter room name"
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
                 className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

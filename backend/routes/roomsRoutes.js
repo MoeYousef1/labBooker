@@ -14,10 +14,10 @@ router.get("/rooms", async (req, res) => {
   }
 });
 
-router.get("/rooms/:id", async (req, res) => {
+router.get("/rooms/:name", async (req, res) => {
   try {
     // Call the controller function to get the room by id
-    const response = await roomController.getRooms(req.params.id);
+    const response = await roomController.getRooms(req.params.name);
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching room:", error.message);
@@ -53,9 +53,9 @@ router.put("/rooms/:id", async (req, res) => {
   }
 });
 
-router.delete("/rooms/:id", async (req, res) => {
+router.delete("/rooms/:name", async (req, res) => {
   try {
-    const response = await roomController.deleteRoom(req.params.id);
+    const response = await roomController.deleteRoom(req.params.name);
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error deleting room:", error.message);

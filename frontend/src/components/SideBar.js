@@ -57,7 +57,7 @@ export function Sidebar() {
     <div className="flex h-full relative">
       {/* Sidebar */}
       <div
-        className={`sidebar-container fixed top-0 left-0 h-screen w-auto bg-gradient-primaryToRight text-white p-4 shadow-xl justify-between transition-all duration-300 
+        className={`sidebar-container fixed top-0 left-0 h-screen w-auto bg-blueMid text-white p-4 shadow-xl justify-between transition-all duration-300 
           ${isOpen ? "z-50" : "hidden sm:block"}`}
       >
         <div className="flex justify-between items-center mb-6">
@@ -140,7 +140,7 @@ export function Sidebar() {
 
       {/* Mobile Menu Toggle Button */}
       <button
-        className="sm:hidden p-4 text-white bg-gradient-primaryToRight shadow-lg rounded-md"
+        className="sm:hidden p-3 text-white bg-blueMid absolute"
         onClick={toggleSidebar} // Toggle sidebar visibility on mobile
       >
         <svg
