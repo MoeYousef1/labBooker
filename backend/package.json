@@ -30,6 +30,8 @@
     "nodemailer": "^6.9.16",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
+    "redis": "^4.7.0",
+    "speakeasy": "^2.0.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

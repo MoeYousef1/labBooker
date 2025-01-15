@@ -6,26 +6,28 @@ const userSchema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
-      unique: true, // Ensures no two users have the same username
+      unique: true,
     },
     email: {
       type: String,
       required: true,
-      unique: true, // Ensures no two users have the same email
-      match: /.+\@.+\..+/, // Ensures email has a valid format
-    },
-    password: {
-      type: String,
-      required: true, // Password must be provided
+      unique: true,
+      match: /.+\@.+\..+/,
     },
     role: {
       type: String,
-      required: false,
-      default: "user", // Optional: Set a default role
+      default: "user",
+    },
+    verificationCode: {
+      type: String,
+      default: null, // Optional: Store verification code temporarily
+    },
+    verificationExpires: {
+      type: Date,
+      default: null, // Optional: Store expiration time for the code
     },
   },
-  { timestamps: true }, // Automatically adds createdAt and updatedAt fields
+  { timestamps: true }
 );
 
-// Create and export the User model based on the schema
 module.exports = mongoose.model("User", userSchema);

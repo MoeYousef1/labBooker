@@ -1,106 +1,62 @@
 const User = require("../models/User");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { validatePassword } = require("../utils/validatePassword");
-const generateToken = (user) => {
-  const payload = {
-    id: user._id,
-    email: user.email,
-    role: user.role,
-  };
+const speakeasy = require("speakeasy");
+const sendVerificationEmail = require("../utils/emailService");
 
-  const secretKey = process.env.JWT_SECRET;
+// Request Verification Code - Controller Function
+const requestCode = async (req, res) => {
+  const { email } = req.body;
 
-  const token = jwt.sign(payload, secretKey, { expiresIn: "15m" });
+  // Check if the email exists in the database
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(400).json({ message: "User not found" });
+  }
 
-  return token;
-};
+  // Generate a verification code using speakeasy
+  const verificationCode = speakeasy.totp({
+    secret: process.env.JWT_SECRET,  // Ensure this is defined in your .env
+    encoding: "base32",
+  });
 
-// Generating refresh token
-const generateRefreshToken = (user) => {
-  const payload = {
-    id: user._id,
-    email: user.email,
-    role: user.role,
-  };
-
-  const secretKey = process.env.JWT_SECRET;
-
-  const refreshToken = jwt.sign(payload, secretKey, { expiresIn: "1d" });
-
-  return refreshToken;
-};
-
-// Refreshing access token
-const refreshAccessToken = (refreshToken) => {
+  // Send the verification code to the user's email
   try {
-    const secretKey = process.env.JWT_SECRET;
-    const decoded = jwt.verify(refreshToken, secretKey);
-
-    // Generate a new access token
-    return generateToken(decoded);
+    await sendVerificationEmail(email, verificationCode);
+    res.status(200).json({ message: "Verification code sent" });
   } catch (error) {
-    throw new Error("Invalid or expired refresh token");
+    console.error("Error sending verification email:", error);
+    res.status(500).json({ message: "Error sending verification email" });
   }
 };
 
-// Signup controller
-async function signupRegister(req) {
-  const { username, email, password } = req;
-  try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return { status: 409, message: "This e-mail is already in use!" };
-    }
-    const isValid = validatePassword(password);
-    if (isValid !== "Valid") {
-      return { status: 400, message: "Password is invalid " };
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword });
+// Verify the Code - Controller Function
+const verifyCode = async (req, res) => {
+  const { email, code } = req.body;
 
-    await newUser.save();
-    return { message: "User Created successfully." };
-  } catch (error) {
-    throw new Error("Error Creating User!");
+  // Check if the email exists in the database
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(400).json({ message: "User not found" });
   }
-}
 
-// Login controller
-async function loginRegister(userData) {
-  try {
-    const { email, password } = userData;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return { status: 404, message: "User does not exist!" };
-    }
+  // Retrieve the secret from the user (this should be securely stored in your user model)
+  const secret = process.env.JWT_SECRET;
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return { status: 401, message: "Incorrect password!" };
-    }
+  // Verify the code using speakeasy
+  const isVerified = speakeasy.totp.verify({
+    secret,
+    encoding: "base32",
+    token: code,  // The code entered by the user
+  });
 
-    const username = user.username;
-    const id = user._id.toString();
-    console.log(id);
-    const token = generateToken(user);
-    const refreshToken = generateRefreshToken(user);
-
-    return {
-      status: 200,
-      message: "Login successful!",
-      token,
-      refreshToken,
-      username,
-      id,
-    };
-  } catch (error) {
-    return { status: 500, message: "Internal Server Error: " + error.message };
+  if (isVerified) {
+    // Successfully verified, you can generate a JWT or do something else
+    res.status(200).json({ message: "Verification successful" });
+  } else {
+    res.status(400).json({ message: "Invalid verification code" });
   }
-}
+};
 
 module.exports = {
-  signupRegister,
-  loginRegister,
-  refreshAccessToken,
+  requestCode,
+  verifyCode,
 };
