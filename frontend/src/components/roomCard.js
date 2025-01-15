@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import RoomImg from "../assets/room.jpg"; // Placeholder image
 import iconMapping from "../utils/iconMapping"; // Centralized icon mapping utility
 import RoomCardBookingForm from "./roomCardBookingForm";
@@ -13,19 +12,12 @@ const RoomCard = ({
   visibleIconsCount,
   handleExtraClick,
   toggleDescription,
-  expandedRoom,
-  handleRulesNavigation,
   setVisibleIconsCount,
   activeRoom,
   setActiveRoom,
 }) => {
-  // Handle the card's "Book Now" button click
   const handleStartBooking = (roomId) => {
-    if (activeRoom === roomId) {
-      setActiveRoom(null); // Deactivate the room
-    } else {
-      setActiveRoom(roomId); // Activate the room
-    }
+    setActiveRoom((prevRoom) => (prevRoom === roomId ? null : roomId));
   };
 
   useEffect(() => {
@@ -43,61 +35,66 @@ const RoomCard = ({
     return () => {
       window.removeEventListener("resize", updateVisibleIcons);
     };
-  }, [rooms, containerRef, setVisibleIconsCount]); // Recalculate when rooms change
+  }, [rooms, containerRef, setVisibleIconsCount]);
 
   return (
+    <>
     <div
       key={room._id}
-      className="relative flex flex-col lg:flex-row w-full max-w-4xl rounded-xl bg-white text-gray-700 shadow-lg mx-auto mb-6"
+      className={`relative flex flex-col med:flex-row w-full sm:w-2/3 med:w-full max-w-4xl lg:max-w-screen-xl 2xl:max-w-screen-2xl rounded-xl bg-white  hadow-xl mx-auto 
+        p-4 space-y-4 med:p-6 med:space-y-0 med:space-x-4 lg:p-8 lg:space-x-6 2xl:p-10`}
     >
-      {/* Left Side: Room details */}
-      <div className="lg:w-2/3 w-full p-6 flex-1 flex flex-col justify-between">
-        <div className="relative mx-4 mt-4 overflow-hidden rounded-xl bg-gray-500 text-white shadow-lg mb-2">
-          <img
-            src={room.imageUrl || RoomImg}
-            alt={room.name}
-            className="w-full h-64 object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-black/60"></div>
-        </div>
-        <h5 className="text-xl md:text-3xl font-extrabold mb-4 relative text-center bg-gradient-grayMidToRight text-white rounded-lg inline-block">
-          {room.name}
-        </h5>
+      {/* Room Image */}
+      <div
+        className={`relative w-full h-[350px] med:w-1/2 med:h-[350px] overflow-hidden rounded-2xl`}
+      >
+        <img
+          src={room.imageUrl || RoomImg}
+          alt={room.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-        <div className="mt-4 text-md md:text-lg text-gray-600 dark:text-black">
-          <div className="flex justify-between mb-4 border-b border-gray-600 pb-2">
-            <div>
-              <strong>Type: </strong>
-              {room.type}
-            </div>
-            <div>
-              <strong>Capacity: </strong>
-              {room.capacity} people
+      {/* Room Details */}
+      <div className="w-full px-5 med:py-10 med:w-1/2 flex-1 flex flex-col justify-between relative">
+        <div>
+          <h5
+            className="text-2xl sm:text-3xl font-extrabold  med:text-3xl lg:text-4xl  text-left mb-6  text-grayDark font-littleone"
+          >
+            {room.name}
+          </h5>
+
+          <div className=" text-xs med:text-md lg:text-xl text-grayMid mb-2">
+            <div className="flex justify-between border-b border-grayMid pb-2">
+              <div>
+                <strong>Type: </strong>
+                {room.type}
+              </div>
+              <div>
+                <strong>Capacity: </strong>
+                {room.capacity} people
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Room Amenities */}
+        {/* Amenities */}
         <div
           ref={containerRef}
-          className="group mt-2 inline-flex flex-wrap items-center justify-center gap-3"
+          className="flex flex-wrap items-center gap-3 mt-4 med:mt-0  justify-center mb-2"
         >
-          {room.amenities
-            .slice(0, visibleIconsCount - 1)
-            .map((amenity, index) => (
-              <span
-                key={index}
-                title={amenity.name} // Display name on hover
-                className="cursor-pointer rounded-full bg-grayMid p-3 text-white transition-colors hover:bg-grayDark"
-              >
-                {iconMapping[amenity.icon]}
-              </span>
-            ))}
-
-          {/* Show +X more icon if there are extra icons */}
+          {room.amenities.slice(0, visibleIconsCount - 1).map((amenity, index) => (
+            <span
+              key={index}
+              title={amenity.name}
+              className="cursor-pointer rounded-full bg-tertiary p-2 sm:p-3 text-white hover:bg-grayMid"
+            >
+              {iconMapping[amenity.icon]}
+            </span>
+          ))}
           {extraCount > 0 && (
             <span
-              className="cursor-pointer rounded-full bg-grayMid p-3 text-white transition-colors hover:bg-grayDark"
+              className="cursor-pointer rounded-full bg-tertiary p-2 sm:p-3 text-white hover:bg-grayMid"
               onClick={() => handleExtraClick(room)}
               title={`+${extraCount} more`}
             >
@@ -106,61 +103,31 @@ const RoomCard = ({
           )}
         </div>
 
-        <div className="flex justify-center">
+        {/* Action Buttons */}
+        <div className="flex flex-col space-y-2 med:flex-row med:space-y-0 med:justify-between mt-4 med:mt-0">
           <button
             onClick={() => toggleDescription(room._id)}
-            className="mt-6 text-sm text-grayDark hover:text-grayExtraDark focus:outline-none transition duration-300 ease-in-out transform hover:scale-105 flex items-center"
-            title={
-              expandedRoom === room._id
-                ? "Click to collapse"
-                : "Click to expand description"
-            }
+            className="py-4 px-4 text-xs med:text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600"
           >
-            <span>{expandedRoom === room._id ? "Show Less" : "Show More"}</span>{" "}
-            {expandedRoom === room._id ? (
-              <IoIosArrowUp className="ml-2" />
-            ) : (
-              <IoIosArrowDown className="ml-2" />
-            )}
+            More about the room
           </button>
-        </div>
 
-        <div
-          className={`transition-all duration-500 ease-in-out overflow-hidden ${
-            expandedRoom === room._id
-              ? "max-h-full opacity-100"
-              : "max-h-0 opacity-0"
-          }`}
-        >
-          <p className="mt-4 text-sm text-tertiary">
-            {room.description || "No description available."}
-          </p>
-        </div>
-
-        <div className="flex justify-between">
           <button
-            className="mt-6 text-lg text-gray-800 font-semibold underline hover:text-gray-600 "
-            onClick={handleRulesNavigation}
-          >
-            Guidelines
-          </button>
-          <button
-            className="mt-6 py-3 px-6 bg-gradient-grayMidToRight text-white font-semibold text-lg rounded-lg focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105"
             onClick={() => handleStartBooking(room._id)}
+            className="py-4 px-4 text-xs med:text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600"
           >
             {activeRoom === room._id ? "Cancel" : "Book Now"}
           </button>
         </div>
       </div>
-
-      <div className="lg:w-px w-full bg-gray-300 lg:h-full h-px "></div>
-
-      <RoomCardBookingForm
-        room={room}
-        activeRoom={activeRoom}
-        userInfo={userInfo}
-      />
-    </div>
+        </div>
+          <RoomCardBookingForm
+            room={room}
+            activeRoom={activeRoom}
+            userInfo={userInfo}
+            handleStartBooking={handleStartBooking}
+          />
+    </>
   );
 };
 
