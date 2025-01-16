@@ -3,105 +3,86 @@ import collegeLogo from "../assets/azraileLogo.png";
 import Header from "../assets/header-bg.jpg";
 
 const HeroSection = ({ userInfo }) => {
-  // If userInfo is available (after login), display a personalized message
   const renderHeroContent = userInfo ? (
     <>
-      <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
+      <h1 className="text-5xl md:text-6xl xl:text-7xl 2xl:text-8xl font-extrabold leading-tight">
         <span className="bg-gradient-primaryToRight text-transparent bg-clip-text">
           Welcome,
         </span>{" "}
         {userInfo.username}!
       </h1>
-      <p className="mt-4 text-lg md:text-xl opacity-80">
+      <p className="mt-4 text-lg md:text-xl xl:text-2xl 2xl:text-3xl opacity-80">
         Simplify your study space planning with just a few clicks.
       </p>
-      <div className="mt-8 flex justify-center items-center space-x-4">
-        <div>
-          <button
-            className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => (window.location.href = "/labrooms")}
-          >
-            Book Now
-          </button>
-        </div>
-        <div>
-          <button
-            className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => (window.location.href = "/dashboard")}
-          >
-            Dashboard
-          </button>
-        </div>
+      <div className="mt-8 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-0">
+        <button
+          className="px-6 py-3 bg-gradient-primaryToRight text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 hover:bg-gradient-primaryToLeft transition-transform duration-300"
+          onClick={() => (window.location.href = "/labrooms")}
+        >
+          Book Now
+        </button>
+        <button
+          className="px-6 py-3 bg-gradient-primaryToRight text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 hover:bg-gradient-primaryToLeft transition-transform duration-300"
+          onClick={() => (window.location.href = "/dashboard")}
+        >
+          Dashboard
+        </button>
       </div>
     </>
   ) : (
-    // If userInfo is not available (before login), display a general message
     <>
-      <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
+      <h1 className="text-5xl md:text-6xl xl:text-7xl 2xl:text-8xl font-extrabold leading-tight">
         <span className="bg-gradient-primaryToRight text-transparent bg-clip-text">
           Book
         </span>{" "}
         Your Study Room with Ease
       </h1>
-      <p className="mt-4 text-lg md:text-xl opacity-80">
+      <p className="mt-4 text-lg md:text-xl xl:text-2xl 2xl:text-3xl opacity-80">
         Simplify your study space planning with just a few clicks.
       </p>
-      <div className="mt-8 flex justify-center items-center space-x-4">
-        <div>
-          <button
-            className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => (window.location.href = "/labrooms")}
-          >
-            Book Now
-          </button>
-        </div>
-        <div>
-          <button
-            className="px-6 py-4 bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft  text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 transition-transform"
-            onClick={() => (window.location.href = "/dashboard")}
-          >
-            Dashboard
-          </button>
-        </div>
+      <div className="mt-8 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-0">
+        <button
+          className="px-6 py-3 bg-gradient-primaryToRight text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 hover:bg-gradient-primaryToLeft transition-transform duration-300"
+          onClick={() => (window.location.href = "/labrooms")}
+        >
+          Book Now
+        </button>
+        <button
+          className="px-6 py-3 bg-gradient-primaryToRight text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 hover:bg-gradient-primaryToLeft transition-transform duration-300"
+          onClick={() => (window.location.href = "/dashboard")}
+        >
+          Dashboard
+        </button>
       </div>
     </>
   );
 
   return (
-    <div className="relative h-screen w-full pt-16">
-      <div
-        className="absolute inset-0 bg-cover bg-center w-full"
-        style={{
-          backgroundImage: `url(${Header})`,
-        }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-sm"></div>
+    <div
+      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-cover bg-center"
+      style={{ backgroundImage: `url(${Header})` }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm" />
 
-        <div className="relative z-10 flex flex-col md:flex-row items-center h-full w-full mt-8 pb-10">
-          {/* Left Div - Inner Frame */}
-          <div className="w-full md:w-1/2 h-1/2 flex justify-center items-center p-4">
-            <div
-              className="relative w-full md:w-4/5 h-4/5 bg-white shadow-xl rounded-3xl transform hover:scale-105 transition-all duration-300 ease-in-out"
-              style={{
-                boxShadow: `
-                  0 0 10px rgba(1, 84, 206, 0.7),
-                  0 0 20px rgba(0, 130, 180, 0.7),
-                  0 0 40px rgba(1, 156, 140, 0.7)
-                `,
-              }}
-            >
+      <div className="relative z-10 container mx-auto px-4 md:px-8 lg:px-16 min-h-screen flex flex-col items-center justify-center">
+        {/* Logo & Text side by side on medium+ screens */}
+        <div className="flex flex-col lg:flex-row items-center justify-center w-full gap-8 xl:gap-16">
+          {/* Logo Container */}
+          <div className="flex justify-center items-center transform hover:scale-105 transition duration-300">
+            <div className="relative w-64 h-64 md:w-80 md:h-80 xl:w-96 xl:h-96 bg-white shadow-2xl rounded-3xl overflow-hidden mt-20 sm:mt-0">
               <img
                 src={collegeLogo}
                 alt="College Logo"
                 className="w-full h-full object-contain rounded-3xl"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-black opacity-30 rounded-3xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-30 rounded-3xl" />
             </div>
           </div>
 
-          {/* Right Div - Text Content */}
-          <div className="w-full md:w-1/2 flex justify-center items-center text-white text-center p-4">
-            <div className="space-y-6">{renderHeroContent}</div>
+          {/* Hero Text */}
+          <div className="flex flex-col items-center text-center text-white max-w-2xl">
+            {renderHeroContent}
           </div>
         </div>
       </div>

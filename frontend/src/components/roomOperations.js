@@ -10,7 +10,7 @@ const RoomOperations = ({ setOperation, setRoomId, setRoomDetails }) => {
   };
 
   return (
-    <div className="sm:flex-1 sm:pl-48 grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div className="sm:flex-1 sm:pl-64 2xl:pl-0 grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <button
         onClick={() => handleOperationChange("create")}
         className="px-6 py-3 w-full sm:w-auto bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft text-white rounded-lg"

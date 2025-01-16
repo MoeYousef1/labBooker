@@ -23,7 +23,7 @@ const RoomPage = () => {
 
       {/* Content Area */}
       <div className="flex-1 px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto mt-4 sm:mt-6 overflow-hidden">
-        <h1 className="sm:flex-1 sm:pl-48 text-4xl font-extrabold text-center text-transparent bg-clip-text text-white mb-8 mt-8">
+        <h1 className="sm:flex-1 sm:pl-64 2xl:pl-0 text-4xl font-extrabold text-center text-transparent bg-clip-text text-white mb-8 mt-8">
           Room Management
         </h1>
 

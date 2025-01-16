@@ -15,6 +15,7 @@ import LabRooms from "./pages/LabRooms";
 import RoomGuidelines from "./pages/roomGuidelines ";
 import ContactPage from "./pages/contact";
 import RoomOperationpage from "./pages/roomOperationPage";
+import DashBoard from "./pages/dashboard";
 
 function App() {
   return (
@@ -55,6 +56,14 @@ function App() {
           element={
             <PrivateRoute>
               <LabRooms />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <DashBoard />
             </PrivateRoute>
           }
         />

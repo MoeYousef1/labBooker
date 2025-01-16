@@ -55,7 +55,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
           className="flex items-center space-x-3 rtl:space-x-reverse"
         >
           <span className="self-center text-2xl font-bold text-white tracking-wide">
-            LabBooker
+           LabBooker™
           </span>
         </Link>
 

@@ -143,10 +143,33 @@ async function deleteBooking(req, res) {
   }
 }
 
+async function getBookingCounts(req, res) {
+  try {
+    // Count all pending bookings
+    const pendingCount = await Booking.countDocuments({ status: "Pending" });
 
+    // Count all active/confirmed bookings
+    const activeCount = await Booking.countDocuments({ status: "Confirmed" });
+
+    // You can also count canceled if needed
+    // const canceledCount = await Booking.countDocuments({ status: "Canceled" });
+
+    return res.status(200).json({
+      pendingCount,
+      activeCount,
+      // canceledCount,
+    });
+  } catch (error) {
+    console.error("Error fetching booking counts:", error.message);
+    return res.status(500).json({ message: "Failed to fetch booking counts" });
+  }
+}
+
+// Then include it in the exports
 module.exports = {
   createBooking,
   getBookings,
   getBookingById,
   deleteBooking,
+  getBookingCounts, // <-- new function
 };

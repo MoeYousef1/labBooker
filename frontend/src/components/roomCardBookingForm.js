@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios for API requests
-import Message from "./Error_successMessage"; // Import the Message component
+import axios from "axios";
+import Message from "./Error_successMessage"; // For error/success messages
 
 const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking }) => {
-  const [formData, setFormData] = useState({
-    colleagues: [],
-    date: "",
-    startTime: "",
-    endTime: "",
-    reason: "",
-  });
+  const [formData, setFormData] = useState({ colleagues: [], date: "", startTime: "", endTime: "", reason: "" });
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,19 +20,17 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    setFormError(""); // Clear error on input change
+    setFormError("");
   };
 
   const handleTimeSlotChange = (e) => {
     const selectedTimeSlot = e.target.value;
     const [start, end] = selectedTimeSlot.split("-");
-
     if (start && end) {
       const formatTime = (time) => {
         const [hour, minute] = time.split(":").map(Number);
         return `${hour < 10 ? "0" + hour : hour}:${minute < 10 ? "0" + minute : minute}`;
       };
-
       setFormData((prev) => ({
         ...prev,
         startTime: formatTime(start.trim() + ":00"),
@@ -48,15 +40,9 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
   };
 
   const validateForm = () => {
-    if (
-      room.type !== "Open" &&
-      formData.colleagues.some((colleague) => !colleague)
-    ) {
-      return "Please enter all colleague emails.";
-    }
+    if (room.type !== "Open" && formData.colleagues.some((c) => !c)) return "Please enter all colleague emails.";
     if (!formData.date) return "Please choose a date.";
-    if (!formData.startTime || !formData.endTime)
-      return "Please select a time slot.";
+    if (!formData.startTime || !formData.endTime) return "Please select a time slot.";
     return "";
   };
 
@@ -64,99 +50,86 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
     const error = validateForm();
     if (error) {
       setFormError(error);
-      setSuccessMessage(""); // Clear success message
-    } else {
-      setFormError(""); // Clear error message
-      setIsSubmitting(true);
-      try {
-        const response = await axios.post(
-          "http://localhost:5000/api/book/booking",
-          {
-            roomId: room._id,
-            userId: userInfo.id,
-            date: formData.date,
-            startTime: formData.startTime,
-            endTime: formData.endTime,
-            additionalUsers: formData.colleagues,
-          }
-        );
+      setSuccessMessage("");
+      return;
+    }
+    setFormError("");
+    setIsSubmitting(true);
 
-        if (response.status === 201) {
-          setSuccessMessage(response.data.message);
-          setFormError(""); // Clear error message
-        } else {
-          setFormError(response.data.message);
-          setSuccessMessage(""); // Clear success message
-        }
-      } catch (error) {
-        console.error("Error booking the room:", error);
-        setFormError("An error occurred while processing your booking.");
-        setSuccessMessage(""); // Clear success message
+    try {
+      const response = await axios.post("http://localhost:5000/api/book/booking", {
+        roomId: room._id,
+        userId: userInfo.id,
+        date: formData.date,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        additionalUsers: formData.colleagues,
+      });
+      if (response.status === 201) {
+        setSuccessMessage(response.data.message);
+        setFormError("");
+      } else {
+        setFormError(response.data.message);
+        setSuccessMessage("");
       }
+    } catch (error) {
+      console.error("Error booking the room:", error);
+      setFormError("An error occurred while processing your booking.");
+      setSuccessMessage("");
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   useEffect(() => {
+    const initialColleagues =
+      room.type === "Large Seminar"
+        ? ["", "", ""]
+        : room.type === "Small Seminar"
+        ? ["", ""]
+        : [];
+    setFormData((prev) => ({ ...prev, colleagues: initialColleagues }));
+  }, [room.type]);
+
+  useEffect(() => {
+    if (activeRoom !== room._id) {
       const initialColleagues =
         room.type === "Large Seminar"
           ? ["", "", ""]
           : room.type === "Small Seminar"
           ? ["", ""]
           : [];
-      setFormData((prev) => ({ ...prev, colleagues: initialColleagues }));
-    }, [room.type]);
-  
-    useEffect(() => {
-      if (activeRoom !== room._id) {
+      setFormData({ colleagues: initialColleagues, date: "", startTime: "", endTime: "", reason: "" });
+      setFormError("");
+      setSuccessMessage("");
+    }
+  }, [activeRoom, room._id, room.type]);
+
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
         const initialColleagues =
           room.type === "Large Seminar"
             ? ["", "", ""]
             : room.type === "Small Seminar"
             ? ["", ""]
             : [];
-        setFormData({
-          colleagues: initialColleagues,
-          date: "",
-          startTime: "",
-          endTime: "",
-          reason: "",
-        });
-        setFormError("");
+        setFormData({ colleagues: initialColleagues, date: "", startTime: "", endTime: "", reason: "" });
         setSuccessMessage("");
-      }
-    }, [activeRoom, room._id, room.type]);
-
-  useEffect(() => {
-      if (successMessage) {
-        setTimeout(() => {
-          const initialColleagues =
-            room.type === "Large Seminar"
-              ? ["", "", ""]
-              : room.type === "Small Seminar"
-              ? ["", ""]
-              : [];
-          setFormData({
-            colleagues: initialColleagues,
-            date: "",
-            startTime: "",
-            endTime: "",
-            reason: "",
-          });
-          setSuccessMessage("");
-        }, 2000);
-      }
-    }, [successMessage, room.type]);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, room.type]);
 
   const closeModal = () => {
     handleStartBooking();
-    setFormData({
-      colleagues: room.type === "Large Seminar" ? ["", "", ""] : room.type === "Small Seminar" ? ["", ""] : [],
-      date: "",
-      startTime: "",
-      endTime: "",
-      reason: "",
-    });
+    const initialColleagues =
+      room.type === "Large Seminar"
+        ? ["", "", ""]
+        : room.type === "Small Seminar"
+        ? ["", ""]
+        : [];
+    setFormData({ colleagues: initialColleagues, date: "", startTime: "", endTime: "", reason: "" });
     setFormError("");
     setSuccessMessage("");
   };
@@ -164,68 +137,49 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
   if (activeRoom !== room._id) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="w-full max-w-xs sm:max-w-xl med:max-w-2xl lg:max-w-3xl p-6 bg-white rounded-lg shadow-lg">
-        <div className="flex justify-between items-center border-b pb-4 mb-4">
-          <h2 className="text-sm sm:text-lg med:text-xl font-bold text-gray-800">
-           Booking form for {room.name}
-          </h2>
-          <button
-            className="text-gray-500 hover:text-red-500 text-2xl"
-            onClick={closeModal}
-          >
-            &times;
-          </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+      <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-xl bg-white rounded-xl shadow-2xl p-6 sm:p-8 relative">
+        <div className="flex justify-between items-center border-b pb-2 mb-4">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">Booking: {room.name}</h2>
+          <button className="text-gray-400 hover:text-red-500 transition-colors text-2xl" onClick={closeModal}>&times;</button>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           {room.type !== "Open" &&
             formData.colleagues.map((colleague, index) => (
               <div key={`colleague_${index}`} className="flex flex-col">
-                <label className="text-sm font-medium text-gray-700 mb-1">
-                  Colleague {index + 1} Email
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Colleague {index + 1} Email</label>
                 <input
                   type="email"
                   name={`colleague_${index}`}
                   value={colleague}
                   onChange={handleInputChange}
-                  className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-700"
+                  className="p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                   required
                 />
               </div>
             ))}
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1">
-              Select Date
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Date</label>
             <input
               type="date"
               name="date"
               value={formData.date}
               onChange={handleInputChange}
-              className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-700"
+              className="p-2 sm:p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               required
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1">
-              Select Time Slot
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Time Slot</label>
             <select
-              value={
-                formData.startTime && formData.endTime
-                  ? `${formData.startTime}-${formData.endTime}`
-                  : ""
-              }
+              value={formData.startTime && formData.endTime ? `${formData.startTime}-${formData.endTime}` : ""}
               onChange={handleTimeSlotChange}
-              className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-700"
+              className="p-2 sm:p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
             >
-              <option value="" disabled>
-                Select Time Slot
-              </option>
+              <option value="" disabled>Choose time slot</option>
               <option value="8-10">8:00 AM - 10:00 AM</option>
               <option value="10-12">10:00 AM - 12:00 PM</option>
               <option value="12-2">12:00 PM - 2:00 PM</option>
@@ -236,41 +190,19 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
             </select>
           </div>
 
-          {/* <div>
-            <label className="text-sm font-medium text-gray-700 mb-1">
-              Why do you want to book this room?
-            </label>
-            <textarea
-              name="reason"
-              value={formData.reason}
-              onChange={handleInputChange}
-              className="p-3 w-full h-24 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-700"
-            />
-          </div> */}
-
-          <div className="text-center">
-            {formError && (
-              <Message
-                message={formError}
-                type="error"
-                onClose={() => setFormError("")}
-              />
-            )}
-            {successMessage && (
-              <Message
-                message={successMessage}
-                type="success"
-                onClose={() => setSuccessMessage("")}
-              />
-            )}
-          </div>
+          {(formError || successMessage) && (
+            <div className="text-center">
+              {formError && <Message message={formError} type="error" onClose={() => setFormError("")} />}
+              {successMessage && <Message message={successMessage} type="success" onClose={() => setSuccessMessage("")} />}
+            </div>
+          )}
 
           <button
-            className="py-4 px-4 text-xs med:text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             onClick={handleProceedBooking}
             disabled={isSubmitting}
           >
-            Proceed with booking
+            {isSubmitting ? "Booking..." : "Proceed with Booking"}
           </button>
         </div>
       </div>
