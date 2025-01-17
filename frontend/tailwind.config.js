@@ -8,6 +8,7 @@ module.exports = {
         "1800":"1800px",
         "xxl": "1200px",
         med: "900px",
+        h700: { raw: '(max-height: 700px)' }, // Add a custom media query for height
 
       },
       colors: {
