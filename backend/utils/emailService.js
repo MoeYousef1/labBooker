@@ -3,27 +3,24 @@
 const nodemailer = require("nodemailer");
 const User = require("../models/User");
 
-// Create transporter for sending emails
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // Set to true for port 465
+  secure: false,
   auth: {
-    user: process.env.EMAIL, // Your email address from the environment variable
-    pass: process.env.PASSWORD, // Your app password from the environment variable
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD,
   },
 });
 
-// Send email function
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: process.env.EMAIL, // Sender email address
-      to,                      // Recipient email address
-      subject,                 // Subject of the email
-      html,                    // HTML email body
+      from: process.env.EMAIL,
+      to,
+      subject,
+      html,
     });
-
     console.log(`Email sent to: ${to}`);
   } catch (error) {
     console.error(`Failed to send email to ${to}:`, error);
@@ -31,72 +28,164 @@ const sendEmail = async (to, subject, html) => {
   }
 };
 
-// Function to send verification email
 const sendVerificationEmail = async (email, code) => {
   try {
-    const subject = "Your Verification Code";
+    const subject = "Verify Your Email Address";
     const html = `
       <html>
         <head>
           <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            
             body {
-              font-family: Arial, sans-serif;
-              background-color: #f4f4f4;
+              font-family: 'Inter', Arial, sans-serif;
+              background-color: #f8fafc;
               margin: 0;
               padding: 0;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
             }
+            
             .email-container {
               background-color: #ffffff;
-              padding: 20px;
-              border-radius: 8px;
-              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-              width: 100%;
               max-width: 600px;
-              margin: 30px auto;
+              margin: 40px auto;
+              border-radius: 12px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+              overflow: hidden;
             }
+            
             .email-header {
-              background-color: #007BFF;
-              color: white;
+              background-color: #0f172a;
+              padding: 32px 0;
               text-align: center;
-              padding: 10px 0;
-              border-radius: 8px 8px 0 0;
             }
-            .email-body {
-              padding: 20px;
-              font-size: 16px;
-              line-height: 1.5;
-              color: #333;
-            }
-            .email-footer {
-              text-align: center;
-              margin-top: 20px;
-              font-size: 12px;
-              color: #888;
-            }
-            .verification-code {
+            
+            .company-logo {
               font-size: 24px;
-              font-weight: bold;
-              color: #DC3545;
-              padding: 10px;
-              background-color: #f8d7da;
-              border-radius: 5px;
-              display: inline-block;
+              font-weight: 700;
+              color: #ffffff;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            
+            .email-body {
+              padding: 40px;
+              color: #1e293b;
+            }
+            
+            .greeting {
+              font-size: 24px;
+              font-weight: 600;
+              margin: 0 0 24px 0;
+              color: #0f172a;
+            }
+            
+            .message {
+              font-size: 16px;
+              line-height: 1.6;
+              margin: 0 0 32px 0;
+              color: #475569;
+            }
+            
+            .verification-code-container {
+              background-color: #f1f5f9;
+              border-radius: 8px;
+              padding: 24px;
+              text-align: center;
+              margin-bottom: 32px;
+            }
+            
+            .verification-code {
+              font-family: 'Courier New', monospace;
+              font-size: 32px;
+              font-weight: 700;
+              color: #0f172a;
+              letter-spacing: 4px;
+              margin: 0;
+            }
+            
+            .verification-note {
+              font-size: 14px;
+              color: #64748b;
+              margin-top: 16px;
+            }
+            
+            .divider {
+              height: 1px;
+              background-color: #e2e8f0;
+              margin: 32px 0;
+            }
+            
+            .email-footer {
+              padding: 24px 40px;
+              background-color: #f8fafc;
+              text-align: center;
+            }
+            
+            .footer-text {
+              font-size: 14px;
+              color: #64748b;
+              margin: 0;
+              line-height: 1.5;
+            }
+            
+            .help-text {
+              margin-top: 16px;
+              padding: 16px;
+              background-color: #f8fafc;
+              border-radius: 8px;
+              font-size: 14px;
+              color: #64748b;
+            }
+            
+            .highlight {
+              color: #2563eb;
             }
           </style>
         </head>
         <body>
           <div class="email-container">
             <div class="email-header">
-              <h2>Your Verification Code</h2>
+              <div class="company-logo">Lab Booker</div>
             </div>
+            
             <div class="email-body">
-              <p>Hi there!</p>
-              <p>Thank you for requesting a verification code. Please find your code below:</p>
-              <p class="verification-code">${code}</p>
-              <p>This code is valid for the next 5 minutes. Please enter it to proceed.</p>
+              <h1 class="greeting">Verify your email address</h1>
+              
+              <p class="message">
+                Thanks for getting started with Lab Booker! To complete your registration, 
+                please enter the following verification code:
+              </p>
+              
+              <div class="verification-code-container">
+                <p class="verification-code">${code}</p>
+                <p class="verification-note">This code will expire in 5 minutes</p>
+              </div>
+              
+              <p class="message">
+                If you didn't request this code, you can safely ignore this email. Someone might have 
+                typed your email address by mistake.
+              </p>
+              
+              <div class="help-text">
+                Need help? Contact our support team at <span class="highlight">support@labbooker.com</span>
+              </div>
+              
+              <div class="divider"></div>
+              
+              <p class="message" style="font-size: 14px;">
+                This is an automated message, please do not reply to this email.
+              </p>
             </div>
+            
             <div class="email-footer">
-              <p>If you didn't request this, please ignore this email.</p>
+              <p class="footer-text">
+                © ${new Date().getFullYear()} YourCompany. All rights reserved.
+              </p>
+              <p class="footer-text">
+                Azrieli college Inc., Jerusalem, Israel
+              </p>
             </div>
           </div>
         </body>

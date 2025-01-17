@@ -1,11 +1,19 @@
+// auth.routes.js
 const express = require("express");
 const router = express.Router();
-const { requestCode, verifyCode } = require("../controllers/authController"); // Ensure correct path and function names
+const { 
+  signup, 
+  verifySignup,
+  requestCode, 
+  verifyCode 
+} = require("../controllers/authController");
 
-// POST request for requesting code
+// Signup routes
+router.post("/signup", signup);
+router.post("/verify-signup", verifySignup);
+
+// Existing routes
 router.post("/request-code", requestCode);
-
-// POST request for verifying code
 router.post("/verify-code", verifyCode);
 
 module.exports = router;
