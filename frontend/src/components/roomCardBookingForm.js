@@ -138,7 +138,7 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-      <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-xl bg-white rounded-xl shadow-2xl p-6 sm:p-8 relative">
+      <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-2xl h-auto max-h-[90vh] bg-white rounded-xl shadow-2xl p-6 sm:p-8 relative transform transition-all duration-300 scale-95 hover:scale-100 overflow-y-auto h700:mt-[80px] ">
         <div className="flex justify-between items-center border-b pb-2 mb-4">
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">Booking: {room.name}</h2>
           <button className="text-gray-400 hover:text-red-500 transition-colors text-2xl" onClick={closeModal}>&times;</button>
