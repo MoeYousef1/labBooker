@@ -1,3 +1,5 @@
+// ./utils/emailService.js
+
 const nodemailer = require("nodemailer");
 const User = require("../models/User");
 
@@ -15,12 +17,11 @@ const transporter = nodemailer.createTransport({
 // Send email function
 const sendEmail = async (to, subject, html) => {
   try {
-    // Send email using nodemailer transporter
     await transporter.sendMail({
       from: process.env.EMAIL, // Sender email address
       to,                      // Recipient email address
       subject,                 // Subject of the email
-      html,                    // HTML email body (styled with inline CSS)
+      html,                    // HTML email body
     });
 
     console.log(`Email sent to: ${to}`);
@@ -30,10 +31,9 @@ const sendEmail = async (to, subject, html) => {
   }
 };
 
-// Function to send verification email (called from your controller)
+// Function to send verification email
 const sendVerificationEmail = async (email, code) => {
   try {
-    // Create email content with HTML and inline CSS
     const subject = "Your Verification Code";
     const html = `
       <html>
@@ -55,7 +55,7 @@ const sendVerificationEmail = async (email, code) => {
               margin: 30px auto;
             }
             .email-header {
-              background-color: #007BFF; /* Blue */
+              background-color: #007BFF;
               color: white;
               text-align: center;
               padding: 10px 0;
@@ -76,9 +76,9 @@ const sendVerificationEmail = async (email, code) => {
             .verification-code {
               font-size: 24px;
               font-weight: bold;
-              color: #DC3545; /* Red */
+              color: #DC3545;
               padding: 10px;
-              background-color: #f8d7da; /* Light red */
+              background-color: #f8d7da;
               border-radius: 5px;
               display: inline-block;
             }
@@ -103,11 +103,10 @@ const sendVerificationEmail = async (email, code) => {
       </html>
     `;
 
-    // Send the email to the user
     await sendEmail(email, subject, html);
   } catch (error) {
     console.error("Error sending verification email:", error);
   }
 };
 
-module.exports = sendVerificationEmail;
+module.exports = { sendVerificationEmail };

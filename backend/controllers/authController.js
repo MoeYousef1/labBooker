@@ -1,62 +1,72 @@
-const User = require("../models/User");
-const speakeasy = require("speakeasy");
-const sendVerificationEmail = require("../utils/emailService");
+const redisClient = require("../config/redisClient");
+const { sendVerificationEmail } = require("../utils/emailService");
 
-// Request Verification Code - Controller Function
+// Request a verification code
 const requestCode = async (req, res) => {
   const { email } = req.body;
 
-  // Check if the email exists in the database
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(400).json({ message: "User not found" });
+  // Check if email is provided
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
   }
 
-  // Generate a verification code using speakeasy
-  const verificationCode = speakeasy.totp({
-    secret: process.env.JWT_SECRET,  // Ensure this is defined in your .env
-    encoding: "base32",
-  });
-
-  // Send the verification code to the user's email
   try {
-    await sendVerificationEmail(email, verificationCode);
-    res.status(200).json({ message: "Verification code sent" });
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log(`Requesting code for email: ${normalizedEmail}`);
+
+    // Generate a random 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+    console.log(`Generated code: ${verificationCode}`);
+
+    // Store the code in Redis with a 5-minute expiration time (300 seconds)
+    await redisClient.set(normalizedEmail, verificationCode, "EX", 300);
+
+    // Send the verification email
+    await sendVerificationEmail(normalizedEmail, verificationCode);
+
+    res.status(200).json({ message: "Verification code sent successfully" });
   } catch (error) {
-    console.error("Error sending verification email:", error);
-    res.status(500).json({ message: "Error sending verification email" });
+    console.error("Error requesting verification code:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// Verify the Code - Controller Function
+// Verify the entered code
 const verifyCode = async (req, res) => {
   const { email, code } = req.body;
 
-  // Check if the email exists in the database
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(400).json({ message: "User not found" });
+  // Check if email and code are provided
+  if (!email || !code) {
+    return res.status(400).json({ message: "Email and code are required" });
   }
 
-  // Retrieve the secret from the user (this should be securely stored in your user model)
-  const secret = process.env.JWT_SECRET;
+  try {
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log(`Verifying code for email: ${normalizedEmail}, entered code: ${code}`);
 
-  // Verify the code using speakeasy
-  const isVerified = speakeasy.totp.verify({
-    secret,
-    encoding: "base32",
-    token: code,  // The code entered by the user
-  });
+    // Retrieve the stored code from Redis
+    const storedCode = await redisClient.get(normalizedEmail);
+    console.log(`Stored code for ${normalizedEmail}: ${storedCode}`);
 
-  if (isVerified) {
-    // Successfully verified, you can generate a JWT or do something else
+    // Check if the code exists or has expired
+    if (!storedCode) {
+      return res.status(400).json({ message: "Code has expired or doesn't exist" });
+    }
+
+    // Compare the stored code with the entered code
+    if (storedCode !== code) {
+      return res.status(400).json({ message: "Invalid verification code" });
+    }
+
+    // Delete the code after successful verification
+    await redisClient.del(normalizedEmail);
+
+    // Send success response
     res.status(200).json({ message: "Verification successful" });
-  } else {
-    res.status(400).json({ message: "Invalid verification code" });
+  } catch (error) {
+    console.error("Error verifying code:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-module.exports = {
-  requestCode,
-  verifyCode,
-};
+module.exports = { requestCode, verifyCode };
