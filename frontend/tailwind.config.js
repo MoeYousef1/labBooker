@@ -4,8 +4,11 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        "2xl": "2400px",
+        "2xl": "2000px",
+        "1800":"1800px",
+        "xxl": "1200px",
         med: "900px",
+
       },
       colors: {
         primary: "#3B82F6",

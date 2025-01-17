@@ -48,11 +48,6 @@ const RoomsSection = ({ userInfo }) => {
     setShowPopup(true); // Open the popup modal
   };
 
-  const handleExtraClick = (room) => {
-    setPopupAmenities(room.amenities); // Set the amenities for the popup
-    setShowPopup(true); // Open the popup modal
-  };
-
   return (
     <div className="relative min-h-screen w-full pt-16 bg-gray-100">
       <div
@@ -62,7 +57,7 @@ const RoomsSection = ({ userInfo }) => {
         <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"></div>
       </div>
 
-      <div className="relative z-10 px-8 py-6 mx-auto">
+      <div className="relative z-10 px-4 sm:px-6 md:px-10 py-6 mx-auto">
         {loading && (
           <div className="text-center text-lg text-gray-700">
             Loading rooms...
@@ -72,7 +67,7 @@ const RoomsSection = ({ userInfo }) => {
           <div className="text-center text-lg text-red-500">{error}</div>
         )}
 
-        <div className="grid grid-cols-1 2xl:grid-cols-2 2xl:mx-20   gap-8 mt-16">
+        <div className="grid grid-cols-1 xxl:grid-cols-2 gap-6">
           {rooms.length > 0 ? (
             rooms.map((room) => {
               const extraCount = Math.max(
@@ -87,7 +82,6 @@ const RoomsSection = ({ userInfo }) => {
                   extraCount={extraCount}
                   containerRef={containerRef}
                   visibleIconsCount={visibleIconsCount}
-                  handleExtraClick={handleExtraClick}
                   toggleDescription={() => toggleDescription(room)} // Pass the full room data
                   setVisibleIconsCount={setVisibleIconsCount}
                   activeRoom={activeRoom} // Pass activeRoom to RoomCard

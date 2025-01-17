@@ -10,7 +10,6 @@ const RoomCard = ({
   extraCount,
   containerRef,
   visibleIconsCount,
-  handleExtraClick,
   toggleDescription,
   setVisibleIconsCount,
   activeRoom,
@@ -54,7 +53,7 @@ const RoomCard = ({
         {/* Room Image */}
         <div
           className="
-            relative w-full h-[350px] med:w-1/2 med:h-[350px]
+            relative w-full h-[350px] med:w-1/2 med:h-[330px]
             overflow-hidden rounded-2xl
           "
         >
@@ -66,19 +65,19 @@ const RoomCard = ({
         </div>
 
         {/* Room Details */}
-        <div className="w-full px-5 med:py-10 med:w-1/2 flex-1 flex flex-col justify-between relative">
+        <div className="w-full px-5 med:py-10 xxl:py-0 1800:py-10 med:w-1/2 flex-1 flex flex-col justify-between relative">
           {/* Title + Basic Info */}
           <div>
             <h5 className="
-              text-2xl sm:text-3xl med:text-3xl lg:text-4xl
+              text-2xl sm:text-3xl med:text-3xl xxl:text-2xl 1800:text-4xl
               font-extrabold text-grayDark font-littleone
               text-left mb-6
             ">
               {room.name}
             </h5>
 
-            <div className="text-sm med:text-lg lg:text-xl text-grayMid mb-2">
-              <div className="flex justify-between border-b border-grayMid pb-2">
+            <div className=" text-sm sm:text-base med:text-lg xxl:text-[14px] 1800:text-[16px] 2xl:text-xl text-grayMid mb-2">
+              <div className="flex justify-between xxl:flex-col 1800:flex-row border-b border-grayMid pb-2">
                 <div>
                   <strong>Type: </strong>
                   {room.type}
@@ -124,7 +123,7 @@ const RoomCard = ({
                   hover:bg-grayMid
                   transition
                 "
-                onClick={() => handleExtraClick(room)}
+                onClick={() => toggleDescription(room)}
                 title={`+${extraCount} more`}
               >
                 +{extraCount}
@@ -135,7 +134,7 @@ const RoomCard = ({
           {/* Action Buttons */}
           <div className="
             flex flex-col space-y-2
-            med:flex-row med:space-y-0 med:justify-between
+            med:flex-row xxl:flex-col xxl:space-y-2 1800:flex-row med:space-y-0 med:justify-between
             mt-4 med:mt-0
           ">
             <button
