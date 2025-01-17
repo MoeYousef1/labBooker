@@ -1,11 +1,11 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const authController = require('../controllers/authController'); // Make sure the path is correct
+const { requestCode, verifyCode } = require("../controllers/authController"); // Ensure correct path and function names
 
-// POST route to request the verification code
-router.post('/request-code', authController.requestCode);
+// POST request for requesting code
+router.post("/request-code", requestCode);
 
-// POST route to verify the code
-router.post('/verify-code', authController.verifyCode);
+// POST request for verifying code
+router.post("/verify-code", verifyCode);
 
 module.exports = router;
