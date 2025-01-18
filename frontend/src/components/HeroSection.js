@@ -1,61 +1,31 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { BookOpen, Users, Shield } from "lucide-react";
+
 import collegeLogo from "../assets/azraileLogo.png";
 import Header from "../assets/header-bg.jpg";
 
-const HeroSection = ({ userInfo }) => {
-  const renderHeroContent = userInfo ? (
-    <>
-      <h1 className="text-5xl md:text-6xl xl:text-7xl 2xl:text-8xl font-extrabold leading-tight">
-        <span className="bg-gradient-primaryToRight text-transparent bg-clip-text">
-          Welcome,
-        </span>{" "}
-        {userInfo.username}!
-      </h1>
-      <p className="mt-4 text-lg md:text-xl xl:text-2xl 2xl:text-3xl opacity-80">
-        Simplify your study space planning with just a few clicks.
-      </p>
-      <div className="mt-8 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-0">
-        <button
-          className="px-6 py-3 bg-gradient-primaryToRight text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 hover:bg-gradient-primaryToLeft transition-transform duration-300"
-          onClick={() => (window.location.href = "/labrooms")}
-        >
-          Book Now
-        </button>
-        <button
-          className="px-6 py-3 bg-gradient-primaryToRight text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 hover:bg-gradient-primaryToLeft transition-transform duration-300"
-          onClick={() => (window.location.href = "/dashboard")}
-        >
-          Dashboard
-        </button>
-      </div>
-    </>
-  ) : (
-    <>
-      <h1 className="text-5xl md:text-6xl xl:text-7xl 2xl:text-8xl font-extrabold leading-tight">
-        <span className="bg-gradient-primaryToRight text-transparent bg-clip-text">
-          Book
-        </span>{" "}
-        Your Study Room with Ease
-      </h1>
-      <p className="mt-4 text-lg md:text-xl xl:text-2xl 2xl:text-3xl opacity-80">
-        Simplify your study space planning with just a few clicks.
-      </p>
-      <div className="mt-8 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-0">
-        <button
-          className="px-6 py-3 bg-gradient-primaryToRight text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 hover:bg-gradient-primaryToLeft transition-transform duration-300"
-          onClick={() => (window.location.href = "/labrooms")}
-        >
-          Book Now
-        </button>
-        <button
-          className="px-6 py-3 bg-gradient-primaryToRight text-white font-medium text-lg rounded-lg shadow-lg hover:scale-105 hover:bg-gradient-primaryToLeft transition-transform duration-300"
-          onClick={() => (window.location.href = "/dashboard")}
-        >
-          Dashboard
-        </button>
-      </div>
-    </>
-  );
+const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const features = [
+    {
+      icon: <BookOpen className="w-8 h-8 text-primary" />,
+      title: "Easy Booking",
+      description: "Seamless room reservation in just a few clicks",
+    },
+    {
+      icon: <Users className="w-8 h-8 text-primary" />,
+      title: "Collaborative Spaces",
+      description: "Find the perfect study environment",
+    },
+    {
+      icon: <Shield className="w-8 h-8 text-primary" />,
+      title: "Secure Access",
+      description: "Verified and controlled room management",
+    },
+  ];
 
   return (
     <div
@@ -63,27 +33,116 @@ const HeroSection = ({ userInfo }) => {
       style={{ backgroundImage: `url(${Header})` }}
     >
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" />
 
       <div className="relative z-10 container mx-auto px-4 md:px-8 lg:px-16 min-h-screen flex flex-col items-center justify-center">
-        {/* Logo & Text side by side on medium+ screens */}
-        <div className="flex flex-col lg:flex-row items-center justify-center w-full gap-8 xl:gap-16">
-          {/* Logo Container */}
-          <div className="flex justify-center items-center transform hover:scale-105 transition duration-300">
-            <div className="relative w-64 h-64 md:w-80 md:h-80 xl:w-96 xl:h-96 bg-white shadow-2xl rounded-3xl overflow-hidden mt-20 sm:mt-0">
-              <img
-                src={collegeLogo}
-                alt="College Logo"
-                className="w-full h-full object-contain rounded-3xl"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-30 rounded-3xl" />
-            </div>
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left Column - Content */}
+          <div className="text-white text-center md:text-left">
+            <motion.h1
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+            >
+              <span className="bg-gradient-primaryToRight text-transparent bg-clip-text">
+                LabBooker
+              </span>{" "}
+              Revolutionizing Study Spaces
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-lg md:text-xl mb-8 text-grayLight"
+            >
+              Simplify your lab room booking experience with our intuitive
+              platform designed for Azrieli College of Engineering students.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+              className="flex flex-col sm:flex-row justify-center md:justify-start gap-4"
+            >
+              <button
+                onClick={() => navigate("/signup")}
+                className="
+                  px-6 py-3 
+                  bg-gradient-primaryToRight 
+                  text-white 
+                  rounded-lg 
+                  font-semibold 
+                  hover:bg-gradient-primaryToLeft 
+                  transition-all 
+                  duration-300 
+                  transform hover:scale-105
+                  flex items-center justify-center
+                  gap-2
+                "
+              >
+                <BookOpen className="w-5 h-5" />
+                Create Account
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="
+                  px-6 py-3 
+                  border border-white 
+                  text-white 
+                  rounded-lg 
+                  font-semibold 
+                  hover:bg-white hover:text-grayDark 
+                  transition-all 
+                  duration-300 
+                  transform hover:scale-105
+                  flex items-center justify-center
+                  gap-2
+                "
+              >
+                <Shield className="w-5 h-5" />
+                Login
+              </button>
+            </motion.div>
           </div>
 
-          {/* Hero Text */}
-          <div className="flex flex-col items-center text-center text-white max-w-2xl">
-            {renderHeroContent}
+          {/* Right Column - Features */}
+          <div className="grid grid-cols-1 gap-6">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 * (index + 1) }}
+                className="
+                  bg-white/10 backdrop-blur-sm 
+                  p-6 rounded-xl 
+                  border border-white/20
+                  hover:border-primary
+                  transition-all duration-300
+                "
+              >
+                <div className="flex items-center mb-4">
+                  {feature.icon}
+                  <h3 className="ml-4 text-xl font-semibold text-white">
+                    {feature.title}
+                  </h3>
+                </div>
+                <p className="text-grayLight">{feature.description}</p>
+              </motion.div>
+            ))}
           </div>
+        </div>
+        
+        {/* College Logo */}
+        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2">
+          <img
+            src={collegeLogo}
+            alt="Azrieli College Logo"
+            className="w-32 h-32 object-contain opacity-70 hover:opacity-100 transition-opacity"
+          />
         </div>
       </div>
     </div>

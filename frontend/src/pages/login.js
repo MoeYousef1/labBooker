@@ -1,24 +1,88 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
+import { useNavigate, useLocation } from "react-router-dom";
+
+// Import assets
+import lapLogo from "../assets/laptop.png";
+import headerImage from "../assets/header-bg.jpg";
+import collegeLogoWhite from "../assets/collegeLogoWhite.png";
+
+// Import components
 import AuthLayout from "../components/AuthLayout";
 import FormInput from "../components/FormInput";
 import ErrorMessage from "../components/Error_successMessage";
 import AuthButton from "../components/AuthButton";
 import AuthFooter from "../components/AuthFooter";
-import lapLogo from "../assets/laptop.png";
-import headerImage from "../assets/header-bg.jpg";
-import collegeLogoWhite from "../assets/collegeLogoWhite.png";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+
+// Create a more robust axios instance
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api/auth',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add interceptors for comprehensive logging
+api.interceptors.request.use(
+  config => {
+    console.log('Request URL:', config.url);
+    console.log('Request Data:', config.data);
+    return config;
+  },
+  error => {
+    console.error('Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  response => {
+    console.log('Response Data:', response.data);
+    return response;
+  },
+  error => {
+    console.error('Full Error Object:', error);
+    console.error('Error Response:', error.response?.data);
+    console.error('Error Status:', error.response?.status);
+    return Promise.reject(error);
+  }
+);
 
 const LogInPage = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Used to capture the location
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const location = useLocation();
+  const [stage, setStage] = useState('email');
+  const [formData, setFormData] = useState({
+    email: "",
+    verificationCode: ""
+  });
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Added password visibility toggle
+
+  // Comprehensive error handler
+  const handleError = (error) => {
+    console.error('Login Error:', error);
+    
+    if (error.response) {
+      const errorMessage = error.response.data.message || 
+                           "An unexpected error occurred";
+      setGeneralError(errorMessage);
+      
+      console.error('Error Response:', {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+    } else if (error.request) {
+      setGeneralError("No response received from server. Please check your network connection.");
+      console.error('No response received:', error.request);
+    } else {
+      setGeneralError("Error setting up the request. Please try again.");
+      console.error('Error:', error.message);
+    }
+  };
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -34,36 +98,67 @@ const LogInPage = () => {
     setGeneralError("");
   };
 
-  const handleSubmit = async (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setGeneralError("");
+
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        formData,
-      );
-      console.log("Success:", response.data);
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setGeneralError("Please enter a valid email address");
+        setIsSubmitting(false);
+        return;
+      }
 
-      localStorage.setItem("token", response.data.token);
-      const user = {
-        email: formData.email,
-        username: response.data.username,
-        id: response.data.id,
-      };
-      localStorage.setItem("user", JSON.stringify(user));
+      // Attempt to request code
+      const response = await api.post('/request-code', { 
+        email: formData.email 
+      });
 
-      // Redirect to the page the user came from or default to /homepage
-      const from = location.state?.from || "/homepage";
-      navigate(from);
+      console.log("Code request successful:", response.data);
+
+      // Move to verification stage
+      setStage('verification');
+      setGeneralError("");
     } catch (error) {
-      const backendError =
-        error.response?.data?.message || "An unexpected error occurred.";
-      setGeneralError(backendError);
+      handleError(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleVerificationSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setGeneralError("");
+
+    try {
+      const response = await api.post('/verify-code', { 
+        email: formData.email, 
+        code: formData.verificationCode 
+      });
+
+      // Store user data
+      const user = response.data.user;
+      localStorage.setItem("user", JSON.stringify(user));
+      
+      // Store token (adjust based on your backend response)
+      const token = response.data.token || Math.random().toString(36).substr(2);
+      localStorage.setItem("token", token);
+
+      // Redirect to homepage
+      const from = location.state?.from || "/homepage";
+      navigate(from);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Right side content for AuthLayout
   const rightContent = (
     <>
       <div className="text-center">
@@ -76,9 +171,76 @@ const LogInPage = () => {
         </p>
       </div>
       <div className="mt-2">
-        <img src={collegeLogoWhite} alt="collegeLogoWhite" />
+        <img 
+          src={collegeLogoWhite} 
+          alt="College Logo" 
+          className="mx-auto max-h-20"
+        />
       </div>
     </>
+  );
+
+  // Email input form
+  const renderEmailForm = () => (
+    <form onSubmit={handleEmailSubmit}>
+      <p className="mb-4 text-white font-semibold">Login to your account</p>
+      <FormInput
+        type="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        label="Email"
+        error={errors.email}
+      />
+      <div className="mb-6 text-center">
+        <AuthButton 
+          isSubmitting={isSubmitting} 
+          label="Continue" 
+        />
+        <ErrorMessage
+          message={generalError}
+          onClose={() => setGeneralError("")}
+        />
+      </div>
+    </form>
+  );
+
+  // Verification code form
+  const renderVerificationForm = () => (
+    <form onSubmit={handleVerificationSubmit}>
+      <p className="mb-4 text-white font-semibold">
+        Enter Verification Code
+      </p>
+      <p className="mb-4 text-gray-300 text-sm">
+        A verification code has been sent to {formData.email}
+      </p>
+      <FormInput
+        type="text"
+        name="verificationCode"
+        value={formData.verificationCode}
+        onChange={handleChange}
+        label="Verification Code"
+        error={errors.verificationCode}
+        maxLength={6}
+      />
+      <div className="mb-6 text-center">
+        <AuthButton 
+          isSubmitting={isSubmitting} 
+          label="Verify" 
+        />
+        <button
+          type="button"
+          className="text-sm text-blue-300 hover:text-blue-200 mt-2 block mx-auto"
+          onClick={() => setStage('email')}
+        >
+          Back to Email
+        </button>
+        <ErrorMessage
+          message={generalError}
+          onClose={() => setGeneralError("")}
+        />
+      </div>
+    </form>
   );
 
   return (
@@ -89,41 +251,11 @@ const LogInPage = () => {
           LabBooker
         </h4>
       </div>
-      <form onSubmit={handleSubmit}>
-        <p className="mb-4 text-white font-semibold">login to your account</p>
-        <FormInput
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          label="Email"
-          error={errors.email}
-        />
-        <div className="relative">
-          <FormInput
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            label="Password"
-            error={errors.password}
-          />
-          <button
-            type="button"
-            className="absolute top-3 right-3 text-gray-500"
-            onClick={() => setShowPassword((prev) => !prev)}
-          >
-            {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-          </button>
-        </div>
-        <div className="mb-6 text-center">
-          <AuthButton isSubmitting={isSubmitting} label="Log In" />
-          <ErrorMessage
-            message={generalError}
-            onClose={() => setGeneralError("")}
-          />
-        </div>
-      </form>
+      
+      {stage === 'email' 
+        ? renderEmailForm() 
+        : renderVerificationForm()}
+
       <AuthFooter
         isLoginPage={true}
         onLoginRedirect={() => navigate("/signup")}

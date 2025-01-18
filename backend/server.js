@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
+const rateLimit = require('express-rate-limit');
 require("dotenv").config();
 
 const userRoutes = require("./routes/userRoutes");
@@ -15,11 +16,52 @@ const configRoutes = require("./routes/configRoutes");
 
 const app = express();
 
+// Logging Middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  
+  const originalEnd = res.end;
+  res.end = function(chunk, encoding) {
+    const duration = Date.now() - start;
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - ${res.statusCode} (${duration}ms)`);
+    originalEnd.call(this, chunk, encoding);
+  };
+  
+  next();
+});
+
 // Middleware
-app.use(cors());
-app.use(helmet());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"]
+    }
+  }
+}));
+
 app.use(express.json());
 app.use(morgan("dev"));
+
+// Rate Limiting
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many login attempts, please try again later'
+});
+app.use('/api/auth/', authLimiter);
 
 // Database Connection
 mongoose
@@ -56,10 +98,31 @@ app.use("/api/config", configRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal Server Error",
-  });
+  console.error('Unhandled Error:', err);
+  
+  const statusCode = err.status || 500;
+  const errorResponse = {
+    message: err.message || 'Internal Server Error',
+    ...(process.env.NODE_ENV === 'development' && { 
+      stack: err.stack,
+      details: err.toString() 
+    })
+  };
+
+  res.status(statusCode).json(errorResponse);
+});
+
+// Graceful Shutdown
+process.on('SIGINT', async () => {
+  console.log('Received SIGINT. Closing server and database connection...');
+  
+  try {
+    await mongoose.connection.close(false);
+    process.exit(0);
+  } catch (err) {
+    console.error('Error during graceful shutdown:', err);
+    process.exit(1);
+  }
 });
 
 // Start Server

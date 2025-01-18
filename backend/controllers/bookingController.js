@@ -171,5 +171,5 @@ module.exports = {
   getBookings,
   getBookingById,
   deleteBooking,
-  getBookingCounts, // <-- new function
+  getBookingCounts, 
 };

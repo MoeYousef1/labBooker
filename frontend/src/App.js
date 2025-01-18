@@ -1,5 +1,9 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+
+// Import all your pages
 import LandingPage from "./pages/landingPage";
 import LoginPage from "./pages/login";
 import SignUpPage from "./pages/signUp";
@@ -17,29 +21,132 @@ import ContactPage from "./pages/contact";
 import RoomOperationpage from "./pages/roomOperationPage";
 import DashBoard from "./pages/dashboard";
 
-function App() {
+// Page Transition Wrapper
+const PageTransition = ({ children }) => {
   return (
-    <Router>
-      <Routes>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ 
+        type: "tween",
+        duration: 0.3 
+      }}
+      style={{ 
+        position: 'absolute', 
+        width: '100%' 
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Wrapper component to handle animations
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route path="/changepassword" element={<ChangePasswordPage />} />
-        <Route path="/resetpassword" element={<ResetPasswordPage />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/about" element={<ABOUT />} />
-        <Route path="/roomguidelines" element={<RoomGuidelines />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/roomOperationpage" element={<RoomOperationpage />} />
+        <Route 
+          path="/" 
+          element={
+            <PageTransition>
+              <LandingPage />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/login" 
+          element={
+            <PageTransition>
+              <LoginPage />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/signup" 
+          element={
+            <PageTransition>
+              <SignUpPage />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/forgotpassword" 
+          element={
+            <PageTransition>
+              <ForgotPassword />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/changepassword" 
+          element={
+            <PageTransition>
+              <ChangePasswordPage />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/resetpassword" 
+          element={
+            <PageTransition>
+              <ResetPasswordPage />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/faq" 
+          element={
+            <PageTransition>
+              <FAQ />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/about" 
+          element={
+            <PageTransition>
+              <ABOUT />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/roomguidelines" 
+          element={
+            <PageTransition>
+              <RoomGuidelines />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/contact" 
+          element={
+            <PageTransition>
+              <ContactPage />
+            </PageTransition>
+          } 
+        />
+        <Route 
+          path="/roomOperationpage" 
+          element={
+            <PageTransition>
+              <RoomOperationpage />
+            </PageTransition>
+          } 
+        />
 
         {/* Protected Routes */}
         <Route
           path="/homepage"
           element={
             <PrivateRoute>
-              <HomePage />
+              <PageTransition>
+                <HomePage />
+              </PageTransition>
             </PrivateRoute>
           }
         />
@@ -47,7 +154,9 @@ function App() {
           path="/accountsettings"
           element={
             <PrivateRoute>
-              <AccountSettingsPage />
+              <PageTransition>
+                <AccountSettingsPage />
+              </PageTransition>
             </PrivateRoute>
           }
         />
@@ -55,7 +164,9 @@ function App() {
           path="/labrooms"
           element={
             <PrivateRoute>
-              <LabRooms />
+              <PageTransition>
+                <LabRooms />
+              </PageTransition>
             </PrivateRoute>
           }
         />
@@ -63,11 +174,23 @@ function App() {
           path="/dashboard"
           element={
             <PrivateRoute>
-              <DashBoard />
+              <PageTransition>
+                <DashBoard />
+              </PageTransition>
             </PrivateRoute>
           }
         />
       </Routes>
+    </AnimatePresence>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <div style={{ position: 'relative' }}>
+        <AnimatedRoutes />
+      </div>
     </Router>
   );
 }

@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import RoomImg from "../assets/room.jpg"; // Placeholder image
-import iconMapping from "../utils/iconMapping"; // Centralized icon mapping utility
+import React, { useEffect, useMemo, useCallback } from "react";
+import RoomImg from "../assets/room.jpg";
+import iconMapping from "../utils/iconMapping";
 import RoomCardBookingForm from "./roomCardBookingForm";
 
 const RoomCard = ({
@@ -15,158 +15,107 @@ const RoomCard = ({
   activeRoom,
   setActiveRoom,
 }) => {
-  const handleStartBooking = (roomId) => {
+  const handleStartBooking = useCallback((roomId) => {
     setActiveRoom((prevRoom) => (prevRoom === roomId ? null : roomId));
-  };
+  }, [setActiveRoom]);
+
+  const handleResize = useCallback(() => {
+    if (containerRef.current) {
+      const containerWidth = containerRef.current.offsetWidth;
+      const iconWidth = 60;
+      const visibleIcons = Math.floor(containerWidth / iconWidth);
+      setVisibleIconsCount(visibleIcons);
+    }
+  }, [containerRef, setVisibleIconsCount]);
 
   useEffect(() => {
-    const updateVisibleIcons = () => {
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const iconWidth = 60; // Approximate width per icon
-        const visibleIcons = Math.floor(containerWidth / iconWidth);
-        setVisibleIconsCount(visibleIcons);
-      }
-    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
 
-    window.addEventListener("resize", updateVisibleIcons);
-    updateVisibleIcons(); // Initial calculation
-
-    return () => {
-      window.removeEventListener("resize", updateVisibleIcons);
-    };
-  }, [rooms, containerRef, setVisibleIconsCount]);
+  const visibleAmenities = useMemo(() => 
+    room.amenities.slice(0, visibleIconsCount - 1),
+    [room.amenities, visibleIconsCount]
+  );
 
   return (
     <>
-      {/* Outer Card Container */}
-      <div
-        key={room._id}
-        className={`
-          relative flex flex-col med:flex-row w-full sm:w-2/3 med:w-full
-          max-w-4xl lg:max-w-screen-xl 2xl:max-w-screen-2xl rounded-xl
-          bg-white shadow-xl mx-auto p-4 space-y-4 med:p-6 med:space-y-0
-          med:space-x-4 lg:p-8 lg:space-x-6 2xl:p-10
-          transform transition hover:-translate-y-1 hover:shadow-2xl
-        `}
-      >
+      <div className="relative flex flex-col med:flex-row w-full rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
         {/* Room Image */}
-        <div
-          className="
-            relative w-full h-[350px] med:w-1/2 med:h-[330px]
-            overflow-hidden rounded-2xl
-          "
-        >
+        <div className="relative w-full med:w-1/2 h-[300px] overflow-hidden">
           <img
             src={room.imageUrl || RoomImg}
             alt={room.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
           />
+          
+          {/* Room Type Tag */}
+          <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+            {room.type}
+          </div>
         </div>
 
         {/* Room Details */}
-        <div className="w-full px-5 med:py-10 xxl:py-0 1800:py-10 med:w-1/2 flex-1 flex flex-col justify-between relative">
-          {/* Title + Basic Info */}
+        <div className="w-full med:w-1/2 p-5 flex flex-col justify-between">
+          {/* Title and Capacity */}
           <div>
-            <h5 className="
-              text-2xl sm:text-3xl med:text-3xl xxl:text-2xl 1800:text-4xl
-              font-extrabold text-grayDark font-littleone
-              text-left mb-6
-            ">
-              {room.name}
-            </h5>
-
-            <div className=" text-sm sm:text-base med:text-lg xxl:text-[14px] 1800:text-[16px] 2xl:text-xl text-grayMid mb-2">
-              <div className="flex justify-between xxl:flex-col 1800:flex-row border-b border-grayMid pb-2">
-                <div>
-                  <strong>Type: </strong>
-                  {room.type}
-                </div>
-                <div>
-                  <strong>Capacity: </strong>
-                  {room.capacity} people
-                </div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-bold text-gray-800">{room.name}</h3>
+              <div className="flex items-center text-gray-600">
+                <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                </svg>
+                {room.capacity}
               </div>
+            </div>
+
+            {/* Amenities */}
+            <div ref={containerRef} className="flex flex-wrap gap-2 mb-4">
+              {visibleAmenities.map((amenity, index) => (
+                <div 
+                  key={`${amenity.name}-${index}`} 
+                  className="bg-gray-100 text-gray-700 p-2 rounded-md text-sm flex items-center"
+                >
+                  <span className="mr-2">{iconMapping[amenity.icon]}</span>
+                  {amenity.name}
+                </div>
+              ))}
+              {extraCount > 0 && (
+                <button 
+                  onClick={() => toggleDescription(room)}
+                  className="bg-blue-50 text-blue-600 p-2 rounded-md text-sm"
+                >
+                  +{extraCount} more
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Amenities */}
-          <div
-            ref={containerRef}
-            className="
-              flex flex-wrap items-center justify-center
-              gap-3 mt-4 med:mt-0 mb-2
-            "
-          >
-            {room.amenities
-              .slice(0, visibleIconsCount - 1)
-              .map((amenity, index) => (
-                <span
-                  key={index}
-                  title={amenity.name}
-                  className="
-                    cursor-pointer rounded-full bg-tertiary
-                    p-2 sm:p-3 text-white
-                    hover:bg-grayMid
-                    transition
-                  "
-                >
-                  {iconMapping[amenity.icon]}
-                </span>
-              ))}
-
-            {extraCount > 0 && (
-              <span
-                className="
-                  cursor-pointer rounded-full bg-tertiary
-                  p-2 sm:p-3 text-white
-                  hover:bg-grayMid
-                  transition
-                "
-                onClick={() => toggleDescription(room)}
-                title={`+${extraCount} more`}
-              >
-                +{extraCount}
-              </span>
-            )}
-          </div>
-
           {/* Action Buttons */}
-          <div className="
-            flex flex-col space-y-2
-            med:flex-row xxl:flex-col xxl:space-y-2 1800:flex-row med:space-y-0 med:justify-between
-            mt-4 med:mt-0
-          ">
+          <div className="flex space-x-3">
             <button
               onClick={() => toggleDescription(room._id)}
-              className="
-                py-4 px-4 text-xs med:text-sm
-                bg-gray-500 text-white
-                rounded-lg hover:bg-gray-600
-                transition
-              "
+              className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-md hover:bg-gray-200 transition-colors"
             >
-              More about the room
+              Details
             </button>
-
             <button
               onClick={() => handleStartBooking(room._id)}
-              className="
-                py-4 px-4 text-xs med:text-sm
-                bg-blue-600 text-white
-                font-semibold
-                rounded-lg
-                hover:bg-blue-700
-                transition
-              "
+              className={`
+                flex-1 py-2 rounded-md transition-colors
+                ${activeRoom === room._id 
+                  ? 'bg-red-500 text-white hover:bg-red-600' 
+                  : 'bg-blue-500 text-white hover:bg-blue-600'}
+              `}
             >
-              {activeRoom === room._id ? "Cancel" : "Book Now"}
+              {activeRoom === room._id ? "Cancel" : "Book"}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Booking Form (Conditionally Rendered) */}
       <RoomCardBookingForm
         room={room}
         activeRoom={activeRoom}
@@ -177,4 +126,4 @@ const RoomCard = ({
   );
 };
 
-export default RoomCard;
+export default React.memo(RoomCard);
