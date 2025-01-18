@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import { MdDashboard } from "react-icons/md";
-import { FaUser, FaHome } from "react-icons/fa";
-import { IoIosSettings, IoIosArrowDown } from "react-icons/io";
-import { RiLogoutBoxLine } from "react-icons/ri";
+import { 
+  LayoutDashboard, 
+  User, 
+  Home, 
+  Settings, 
+  LogOut, 
+  ChevronDown 
+} from 'lucide-react';
 import { useNavigate, useLocation } from "react-router-dom";
 
-/** 
- * Define dashboardPaths outside the component so 
- * it doesn't change on every render. This prevents 
- * the “missing dependency” warning in useEffect. 
- */
 const DASHBOARD_PATHS = [
   "/dashboard",
   "/usermanagement",
@@ -19,7 +18,7 @@ const DASHBOARD_PATHS = [
 ];
 
 export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false); // mobile sidebar open/close
+  const [isOpen, setIsOpen] = useState(false);
   const [showDashboardSubmenu, setShowDashboardSubmenu] = useState(false);
   const [userHasManuallyClosed, setUserHasManuallyClosed] = useState(false);
 
@@ -27,7 +26,7 @@ export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 1. Check user on mount
+  // Authentication and user check
   useEffect(() => {
     const user = localStorage.getItem("user");
     if (!user) {
@@ -45,45 +44,29 @@ export function Sidebar() {
     }
   }, [navigate]);
 
-  // 2. On route change, decide if we auto-open or close the submenu
+  // Route-based submenu management
   useEffect(() => {
     const userIsOnDashboardRoute = DASHBOARD_PATHS.includes(location.pathname);
 
     if (userIsOnDashboardRoute) {
-      // If the user is on a dashboard route but has NOT manually closed
       if (!userHasManuallyClosed) {
         setShowDashboardSubmenu(true);
       }
     } else {
-      // If user left the dashboard route, close submenu & reset
       setShowDashboardSubmenu(false);
       setUserHasManuallyClosed(false);
     }
   }, [location.pathname, userHasManuallyClosed]);
 
-  // Toggle entire sidebar (mobile only)
   const toggleSidebar = () => {
     setIsOpen((prev) => !prev);
   };
 
-  // Close sidebar if clicking outside (mobile)
-  const handleOutsideClick = (e) => {
-    if (e.target.closest(".sidebar-container") === null) {
-      setIsOpen(false);
-    }
-  };
-
-  // 3. Toggling the dashboard submenu manually
   const handleToggleDashboardSubmenu = () => {
-    if (showDashboardSubmenu) {
-      // If it’s open, user is manually closing it
-      setShowDashboardSubmenu(false);
-      setUserHasManuallyClosed(true);
-    } else {
-      // If it’s closed, user is manually opening it
-      setShowDashboardSubmenu(true);
-      setUserHasManuallyClosed(false);
-    }
+    setShowDashboardSubmenu(prev => {
+      setUserHasManuallyClosed(!prev);
+      return !prev;
+    });
   };
 
   const handleLogout = () => {
@@ -93,20 +76,24 @@ export function Sidebar() {
     navigate("/login");
   };
 
-  // Active check
   const isActive = (path) => location.pathname === path;
 
   return (
     <div className="flex h-full relative">
-      {/* Sidebar */}
       <div
-        className={`sidebar-container fixed top-0 left-0 h-screen w-auto bg-blueMid text-white p-4 shadow-xl transition-all duration-300 
-          ${isOpen ? "z-50" : "hidden sm:block"}`}
+        className={`
+          fixed top-0 left-0 h-screen w-64 
+          bg-white border-r border-gray-200 
+          shadow-xl 
+          transition-all duration-300 
+          z-40
+          ${isOpen ? "block" : "hidden sm:block"}
+        `}
       >
         {/* Header / Brand */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">LabBooker™</h2>
-          <button className="sm:hidden p-2 text-white" onClick={toggleSidebar}>
+        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-800">LabBooker</h2>
+          <button className="sm:hidden p-2 text-gray-600" onClick={toggleSidebar}>
             <svg
               className="w-6 h-6"
               xmlns="http://www.w3.org/2000/svg"
@@ -125,138 +112,135 @@ export function Sidebar() {
         </div>
 
         {/* NAV LINKS */}
-        <ul className="space-y-1">
+        <ul className="py-4">
           {/* Dashboard w/ Submenu */}
           <li className="relative">
             <div
-              className={`flex items-center justify-between py-2 px-4 rounded cursor-pointer hover:bg-blueExtraDark 
-                ${showDashboardSubmenu ? "bg-blueExtraDark" : ""}`}
+              className={`
+                flex items-center justify-between 
+                py-3 px-6 
+                cursor-pointer 
+                hover:bg-gray-100
+                ${showDashboardSubmenu ? "bg-gray-100" : ""}
+              `}
               onClick={handleToggleDashboardSubmenu}
             >
               <div className="flex items-center space-x-3">
-                <MdDashboard className="w-5 h-5" />
-                <span>Dashboard</span>
+                <LayoutDashboard className="w-5 h-5 text-green-500" />
+                <span className="text-gray-800">Dashboard</span>
               </div>
-              <IoIosArrowDown
-                className={`ml-2 w-4 h-4 transition-transform ${
-                  showDashboardSubmenu ? "rotate-180" : ""
-                }`}
+              <ChevronDown
+                className={`
+                  w-4 h-4 
+                  text-gray-500 
+                  transition-transform 
+                  ${showDashboardSubmenu ? "rotate-180" : ""}
+                `}
               />
             </div>
 
             {/* Submenu */}
             {showDashboardSubmenu && (
-              <ul className="mt-1 ml-6 space-y-1">
-                <li
-                  className={`py-2 px-4 rounded cursor-pointer hover:bg-blueExtraDark ${
-                    isActive("/dashboard") ? "bg-blueExtraDark" : ""
-                  }`}
-                  onClick={() => navigate("/dashboard")}
-                >
-                  Overview
-                </li>
-                <li
-                  className={`py-2 px-4 rounded cursor-pointer hover:bg-blueExtraDark ${
-                    isActive("/usermanagement") ? "bg-blueExtraDark" : ""
-                  }`}
-                  onClick={() => navigate("/usermanagement")}
-                >
-                  Manage Users
-                </li>
-                <li
-                  className={`py-2 px-4 rounded cursor-pointer hover:bg-blueExtraDark ${
-                    isActive("/roomOperationpage") ? "bg-blueExtraDark" : ""
-                  }`}
-                  onClick={() => navigate("/roomOperationpage")}
-                >
-                  Manage Rooms
-                </li>
-                <li
-                  className={`py-2 px-4 rounded cursor-pointer hover:bg-blueExtraDark ${
-                    isActive("/bookingmanagement") ? "bg-blueExtraDark" : ""
-                  }`}
-                  onClick={() => navigate("/bookingmanagement")}
-                >
-                  Manage Bookings
-                </li>
-                <li
-                  className={`py-2 px-4 rounded cursor-pointer hover:bg-blueExtraDark ${
-                    isActive("/configmanagement") ? "bg-blueExtraDark" : ""
-                  }`}
-                  onClick={() => navigate("/configmanagement")}
-                >
-                  Configurations
-                </li>
+              <ul className="space-y-1 bg-gray-50 py-2">
+                {[
+                  { path: "/dashboard", label: "Overview" },
+                  { path: "/usermanagement", label: "Manage Users" },
+                  { path: "/roomOperationpage", label: "Manage Rooms" },
+                  { path: "/bookingmanagement", label: "Manage Bookings" },
+                  { path: "/configmanagement", label: "Configurations" }
+                ].map((item) => (
+                  <li
+                    key={item.path}
+                    className={`
+                      py-2 px-12 
+                      cursor-pointer 
+                      hover:bg-gray-100
+                      ${isActive(item.path) ? "bg-green-50 text-green-600" : "text-gray-700"}
+                    `}
+                    onClick={() => navigate(item.path)}
+                  >
+                    {item.label}
+                  </li>
+                ))}
               </ul>
             )}
           </li>
 
-          {/* My Profile */}
-          <li
-            className={`py-2 px-4 hover:bg-blueExtraDark cursor-pointer rounded ${
-              isActive("/myprofile") ? "bg-blueExtraDark" : ""
-            }`}
-            onClick={() => navigate("/myprofile")}
-          >
-            <div className="flex items-center space-x-3">
-              <FaUser className="w-5 h-5" />
-              <span>My Profile</span>
-            </div>
-          </li>
-
-          {/* Settings */}
-          <li
-            className={`py-2 px-4 hover:bg-blueExtraDark cursor-pointer rounded ${
-              isActive("/accountsettings") ? "bg-blueExtraDark" : ""
-            }`}
-            onClick={() => navigate("/accountsettings")}
-          >
-            <div className="flex items-center space-x-3">
-              <IoIosSettings className="w-5 h-5" />
-              <span>Settings</span>
-            </div>
-          </li>
-
-          {/* Home */}
-          <li
-            className={`py-2 px-4 hover:bg-blueExtraDark cursor-pointer rounded ${
-              isActive("/homepage") ? "bg-blueExtraDark" : ""
-            }`}
-            onClick={() => navigate("/homepage")}
-          >
-            <div className="flex items-center space-x-3">
-              <FaHome className="w-5 h-5" />
-              <span>Home</span>
-            </div>
-          </li>
+          {/* Other Menu Items */}
+          {[
+            { 
+              icon: User, 
+              label: "My Profile", 
+              path: "/myprofile" 
+            },
+            { 
+              icon: Settings, 
+              label: "Settings", 
+              path: "/accountsettings" 
+            },
+            { 
+              icon: Home, 
+              label: "Home", 
+              path: "/homepage" 
+            }
+          ].map((item) => (
+            <li
+              key={item.path}
+              className={`
+                py-3 px-6 
+                hover:bg-gray-100 
+                cursor-pointer 
+                flex items-center 
+                space-x-3
+                ${isActive(item.path) ? "bg-green-50 text-green-600" : "text-gray-800"}
+              `}
+              onClick={() => navigate(item.path)}
+            >
+              <item.icon className="w-5 h-5 text-green-500" />
+              <span>{item.label}</span>
+            </li>
+          ))}
         </ul>
 
         {/* Logout */}
-        <ul>
-          <li className="py-2 px-4 hover:bg-blueExtraDark cursor-pointer rounded absolute bottom-10">
-            <div className="flex items-center space-x-3" onClick={handleLogout}>
-              <RiLogoutBoxLine className="w-5 h-5" />
-              <span>Log Out</span>
-            </div>
-          </li>
-        </ul>
+        <div className="absolute bottom-0 w-full border-t border-gray-200">
+          <div
+            className="
+              py-4 px-6 
+              flex items-center 
+              space-x-3 
+              cursor-pointer 
+              hover:bg-gray-100
+              text-gray-800
+            "
+            onClick={handleLogout}
+          >
+            <LogOut className="w-5 h-5 text-red-500" />
+            <span>Log Out</span>
+          </div>
+        </div>
       </div>
 
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 sm:hidden"
-          onClick={handleOutsideClick}
+          className="
+            fixed inset-0 
+            bg-black bg-opacity-50 
+            sm:hidden 
+            z-30
+          "
+          onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Mobile Toggle Button */}
       <button
-        className="sm:hidden p-3 text-white bg-blueMid absolute"
+        className="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md"
         onClick={toggleSidebar}
       >
         <svg
-          className="w-6 h-6"
+          className="w-6 h-6 text-gray-600"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

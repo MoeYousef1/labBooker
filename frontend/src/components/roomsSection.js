@@ -1,25 +1,26 @@
+// RoomsSection.jsx
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import Header from "../assets/header-bg.jpg"; // Background image
 import { useNavigate } from "react-router-dom";
-import MoreAboutRoomPopup from "./amenitiesPopup"; // New component for combined popup
+import MoreAboutRoomPopup from "./amenitiesPopup";
 import RoomCard from "./roomCard";
+import { BookOpen } from 'lucide-react';
 
 const RoomsSection = ({ userInfo }) => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [popupRoomDetails, setPopupRoomDetails] = useState(null); // Store the selected room's details
-  const [popupAmenities, setPopupAmenities] = useState([]); // Store room amenities
-  const [showPopup, setShowPopup] = useState(false); // Controls the popup visibility
-  const [activeRoom, setActiveRoom] = useState(null); // Declare activeRoom here
+  const [popupRoomDetails, setPopupRoomDetails] = useState(null);
+  const [popupAmenities, setPopupAmenities] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [activeRoom, setActiveRoom] = useState(null);
   const navigate = useNavigate();
 
   const handleRulesNavigation = () => {
-    navigate("/roomguidelines"); // Navigate to the rules page
+    navigate("/roomguidelines");
   };
 
-  const containerRef = useRef(null); // Reference to the container holding icons
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -38,70 +39,89 @@ const RoomsSection = ({ userInfo }) => {
     fetchRooms();
   }, []);
 
-  // Calculate the number of visible icons based on the container width
   const [visibleIconsCount, setVisibleIconsCount] = useState(0);
 
-  // Handle the modal open/close
   const toggleDescription = (room) => {
-    setPopupRoomDetails(room); // Set room details to display in the popup
-    setPopupAmenities(room.amenities); // Set the amenities for the popup
-    setShowPopup(true); // Open the popup modal
+    setPopupRoomDetails(room);
+    setPopupAmenities(room.amenities);
+    setShowPopup(true);
   };
 
   return (
-    <div className="relative min-h-screen w-full pt-16 bg-gray-100">
-      <div
-        className="absolute inset-0 bg-cover bg-center w-full h-full"
-        style={{ backgroundImage: `url(${Header})` }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"></div>
-      </div>
+    <div className="
+      w-full 
+      flex flex-col 
+      px-4 sm:px-6 md:px-10 
+      py-6
+    ">
+      {/* Loading and Error States */}
+      {loading && (
+        <div className="
+          flex-grow 
+          flex justify-center items-center 
+          text-center text-lg text-gray-700
+        ">
+          <BookOpen className="mr-2 animate-pulse" />
+          Loading rooms...
+        </div>
+      )}
+      
+      {error && (
+        <div className="
+          flex-grow 
+          flex justify-center items-center 
+          text-center text-lg text-red-500
+        ">
+          {error}
+        </div>
+      )}
 
-      <div className="relative z-10 px-4 sm:px-6 md:px-10 py-6 mx-auto">
-        {loading && (
-          <div className="text-center text-lg text-gray-700">
-            Loading rooms...
+      {/* Rooms Grid */}
+      <div className="
+        grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 
+        gap-6 
+        w-full
+        max-w-screen-xl 
+        mx-auto
+      ">
+        {rooms.length > 0 ? (
+          rooms.map((room) => {
+            const extraCount = Math.max(
+              0,
+              room.amenities.length - visibleIconsCount
+            );
+            return (
+              <RoomCard
+                key={room._id}
+                room={room}
+                userInfo={userInfo}
+                extraCount={extraCount}
+                containerRef={containerRef}
+                visibleIconsCount={visibleIconsCount}
+                toggleDescription={() => toggleDescription(room)}
+                setVisibleIconsCount={setVisibleIconsCount}
+                activeRoom={activeRoom}
+                setActiveRoom={setActiveRoom}
+              />
+            );
+          })
+        ) : (
+          <div className="
+            text-center text-lg text-gray-700 
+            col-span-full 
+            flex justify-center items-center
+          ">
+            <BookOpen className="mr-2" />
+            No rooms available.
           </div>
         )}
-        {error && (
-          <div className="text-center text-lg text-red-500">{error}</div>
-        )}
-
-        <div className="grid grid-cols-1 xxl:grid-cols-2 gap-6">
-          {rooms.length > 0 ? (
-            rooms.map((room) => {
-              const extraCount = Math.max(
-                0,
-                room.amenities.length - visibleIconsCount
-              );
-              return (
-                <RoomCard
-                  key={room._id}
-                  room={room}
-                  userInfo={userInfo}
-                  extraCount={extraCount}
-                  containerRef={containerRef}
-                  visibleIconsCount={visibleIconsCount}
-                  toggleDescription={() => toggleDescription(room)} // Pass the full room data
-                  setVisibleIconsCount={setVisibleIconsCount}
-                  activeRoom={activeRoom} // Pass activeRoom to RoomCard
-                  setActiveRoom={setActiveRoom} // Pass setActiveRoom to RoomCard
-                />
-              );
-            })
-          ) : (
-            <div className="text-center text-lg text-gray-700">
-              No rooms available.
-            </div>
-          )}
-        </div>
       </div>
 
       <MoreAboutRoomPopup
         showPopup={showPopup}
         setShowPopup={setShowPopup}
-        roomDetails={popupRoomDetails} // Pass the room details to the popup
-        amenities={popupAmenities} // Pass the amenities to the popup
+        roomDetails={popupRoomDetails}
+        amenities={popupAmenities}
         handleRulesNavigation={handleRulesNavigation}
       />
     </div>

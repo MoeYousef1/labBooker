@@ -24,25 +24,11 @@ const Navbar = ({ userInfo, setUserInfo }) => {
   const [state, setState] = useState({
     mobileMenuOpen: false,
     profileDropdownOpen: false,
-    scrolled: false,
     activeHover: null
   });
 
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setState(prev => ({
-        ...prev,
-        scrolled: window.scrollY > 50
-      }));
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -249,13 +235,10 @@ const Navbar = ({ userInfo, setUserInfo }) => {
 
   return (
     <nav 
-      className={`
+      className="
         fixed top-0 left-0 right-0 z-50 
-        ${state.scrolled 
-          ? 'bg-gray-900/90 backdrop-blur-md' 
-          : 'bg-transparent'
-        }
-      `}
+        bg-gray-900 // Solid background
+      "
     >
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo with hover effect */}

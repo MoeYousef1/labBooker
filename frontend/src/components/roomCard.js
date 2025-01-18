@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useCallback } from "react";
 import RoomImg from "../assets/room.jpg";
 import iconMapping from "../utils/iconMapping";
 import RoomCardBookingForm from "./roomCardBookingForm";
+import { Users, MapPin } from 'lucide-react';
 
 const RoomCard = ({
   rooms,
@@ -41,70 +42,105 @@ const RoomCard = ({
 
   return (
     <>
-      <div className="relative flex flex-col med:flex-row w-full rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+      <div className="
+        flex flex-col 
+        bg-white 
+        rounded-2xl 
+        shadow-lg hover:shadow-xl 
+        transition-all duration-300 
+        overflow-hidden
+        border border-gray-200
+        h-full
+      ">
         {/* Room Image */}
-        <div className="relative w-full med:w-1/2 h-[300px] overflow-hidden">
+        <div className="relative h-64 overflow-hidden">
           <img
             src={room.imageUrl || RoomImg}
             alt={room.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             loading="lazy"
           />
           
           {/* Room Type Tag */}
-          <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+          <div className="
+            absolute top-4 left-4 
+            bg-blue-500 text-white 
+            px-3 py-1 rounded-full 
+            text-sm shadow-md
+          ">
             {room.type}
           </div>
         </div>
 
         {/* Room Details */}
-        <div className="w-full med:w-1/2 p-5 flex flex-col justify-between">
+        <div className="p-5 flex flex-col flex-grow">
           {/* Title and Capacity */}
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-bold text-gray-800">{room.name}</h3>
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-xl font-bold text-gray-800">{room.name}</h3>
               <div className="flex items-center text-gray-600">
-                <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                </svg>
-                {room.capacity}
+                <Users className="w-4 h-4 mr-1 text-blue-500" />
+                <span className="text-sm">{room.capacity}</span>
               </div>
-            </div>
-
-            {/* Amenities */}
-            <div ref={containerRef} className="flex flex-wrap gap-2 mb-4">
-              {visibleAmenities.map((amenity, index) => (
-                <div 
-                  key={`${amenity.name}-${index}`} 
-                  className="bg-gray-100 text-gray-700 p-2 rounded-md text-sm flex items-center"
-                >
-                  <span className="mr-2">{iconMapping[amenity.icon]}</span>
-                  {amenity.name}
-                </div>
-              ))}
-              {extraCount > 0 && (
-                <button 
-                  onClick={() => toggleDescription(room)}
-                  className="bg-blue-50 text-blue-600 p-2 rounded-md text-sm"
-                >
-                  +{extraCount} more
-                </button>
-              )}
             </div>
           </div>
 
+          {/* Amenities */}
+          <div ref={containerRef} className="flex flex-wrap gap-2 mb-4 mt-auto">
+            {visibleAmenities.map((amenity, index) => (
+              <div 
+                key={`${amenity.name}-${index}`} 
+                className="
+                  bg-blue-50 text-blue-700 
+                  px-2 py-1 rounded-md text-xs 
+                  flex items-center 
+                  shadow-sm
+                "
+              >
+                <span className="mr-1 text-sm">{iconMapping[amenity.icon]}</span>
+                {amenity.name}
+              </div>
+            ))}
+            {extraCount > 0 && (
+              <button 
+                onClick={() => toggleDescription(room)}
+                className="
+                  bg-blue-100 text-blue-700 
+                  px-2 py-1 rounded-md text-xs
+                  hover:bg-blue-200
+                  transition-colors
+                "
+              >
+                +{extraCount} more
+              </button>
+            )}
+          </div>
+
           {/* Action Buttons */}
-          <div className="flex space-x-3">
+          <div className="flex space-x-2 mt-auto">
             <button
               onClick={() => toggleDescription(room._id)}
-              className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-md hover:bg-gray-200 transition-colors"
+              className="
+                flex-1 
+                bg-gray-100 text-gray-700 
+                py-2 rounded-md 
+                text-sm
+                hover:bg-gray-200 
+                transition-colors
+                shadow-sm
+                hover:shadow-md
+              "
             >
               Details
             </button>
             <button
               onClick={() => handleStartBooking(room._id)}
               className={`
-                flex-1 py-2 rounded-md transition-colors
+                flex-1 py-2 rounded-md 
+                text-sm
+                transition-all duration-300
+                shadow-md hover:shadow-lg
+                transform hover:-translate-y-1
                 ${activeRoom === room._id 
                   ? 'bg-red-500 text-white hover:bg-red-600' 
                   : 'bg-blue-500 text-white hover:bg-blue-600'}
