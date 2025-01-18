@@ -44,6 +44,7 @@ const RoomPage = () => {
             setOperation={setOperation}
             setRoomId={setRoomId}
             setRoomDetails={setRoomDetails}
+            operation={operation}
           />
         </div>
 

@@ -260,7 +260,7 @@ const CreateRoomForm = ({ onSuccess }) => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-3 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 focus:ring-2 focus:ring-green-400"
+            className="px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
             disabled={loading}
           >
             {loading ? "Creating..." : "Create Room"}

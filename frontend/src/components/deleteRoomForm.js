@@ -71,32 +71,22 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
           >
             Select a Room to Delete
           </label>
-          <select
-            id="roomDropdown"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-red-500"
-          >
-            <option value="">Choose Room</option>
-            {roomsList.map((room) => (
-              <option key={room._id} value={room.name}>
-                {room.name}
-              </option>
-            ))}
-          </select>
-        </div>
 
-        {/* Delete Button */}
-        <div className="flex justify-center">
-          <button
-            onClick={handleDelete}
-            disabled={loading}
-            className={`px-6 py-2 bg-red-600 text-white font-semibold rounded-md shadow-md transition duration-300 focus:ring-2 focus:ring-red-400 ${
-              loading ? "bg-gray-400 cursor-not-allowed" : "hover:bg-red-700"
-            }`}
-          >
-            {loading ? "Deleting..." : "Delete Room"}
-          </button>
+          <select
+          value={roomId}
+          onChange={(e) => setRoomId(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+        >
+          <option value="" disabled>
+            Choose a Room
+          </option>
+          {roomsList.map((room) => (
+            <option key={room._id} value={room.name}>
+              {room.name}
+            </option>
+          ))}
+        </select>
+
         </div>
 
         {/* Messages */}
@@ -116,6 +106,21 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
             />
           )}
         </div>
+
+        {/* Delete Button */}
+        <div className="flex justify-center">
+          <button
+            onClick={handleDelete}
+            disabled={loading}
+            className={`px-6 py-2 bg-red-600 text-white font-semibold rounded-md shadow-md transition duration-300 focus:ring-2 focus:ring-red-400 ${
+              loading ? "bg-gray-400 cursor-not-allowed" : "hover:bg-red-700"
+            }`}
+          >
+            {loading ? "Deleting..." : "Delete Room"}
+          </button>
+        </div>
+
+        
       </div>
     </motion.div>
   );
