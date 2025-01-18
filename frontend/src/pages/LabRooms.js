@@ -1,58 +1,73 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/footer";
 import RoomsSection from "../components/roomsSection";
+import { BookOpen } from 'lucide-react';
 
 const LabRooms = () => {
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    email: "",
-    username: "",
-    id: "",
-  });
+  const [userInfo, setUserInfo] = useState(null);
+  const navigate = useNavigate();
 
-  const navigate = useNavigate(); // Use navigate for redirection
-
+  // Authentication check
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
+    const checkAuthentication = () => {
       try {
-        const parsedUser = JSON.parse(user);
-        setUserInfo({
-          email: parsedUser.email || "",
-          username: parsedUser.username || "", // Get the username
-          id: parsedUser.id || "",
-        });
+        const storedUser = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+
+        if (storedUser && token) {
+          const parsedUser = JSON.parse(storedUser);
+          setUserInfo({
+            email: parsedUser.email || "",
+            username: parsedUser.username || "",
+            id: parsedUser.id || "",
+          });
+        } else {
+          navigate("/login");
+        }
       } catch (error) {
-        console.error("Error parsing user data:", error);
+        console.error("Authentication error:", error);
+        navigate("/login");
       }
-    } else {
-      navigate("/login"); // Redirect to login if no user data is found
-    }
+    };
+
+    checkAuthentication();
   }, [navigate]);
 
-  const toggleProfileDropdown = () =>
-    setProfileDropdownOpen(!profileDropdownOpen);
-
-  const handleLogout = () => {
-    // Clear user data from localStorage
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    setUserInfo({ email: "", username: "" });
-    navigate("/login"); // Redirect to login page after logout
-  };
+  // Prevent rendering if not authenticated
+  if (!userInfo) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden">
-      <Navbar
-        profileDropdownOpen={profileDropdownOpen}
-        toggleProfileDropdown={toggleProfileDropdown}
-        userInfo={userInfo}
-        setUserInfo={setUserInfo}
-        handleLogout={handleLogout} // Pass logout function to Navbar
+    <div className="min-h-screen flex flex-col bg-white">
+      <Navbar 
+        userInfo={userInfo} 
+        setUserInfo={setUserInfo} 
       />
-      <RoomsSection userInfo={userInfo} />
+
+      {/* Main content with increased top padding and bottom margin */}
+      <main className="flex-grow pt-24 pb-16 container mx-auto px-4">
+        {/* Welcome Section */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 flex items-center">
+                <BookOpen className="mr-3 text-blue-500" />
+                Lab Rooms
+              </h1>
+              <p className="text-gray-600 text-lg mt-2">
+                Browse and book available laboratory spaces
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Rooms Section */}
+        <RoomsSection userInfo={userInfo} />
+      </main>
+
       <Footer />
     </div>
   );

@@ -151,7 +151,7 @@ const HomePage = () => {
         </div>
 
         {/* Quick Stats Section with more spacing */}
-        <section className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <section className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
           {[
             { 
               title: "Active Bookings", 
@@ -164,12 +164,6 @@ const HomePage = () => {
               value: 0, 
               color: "text-green-500",
               icon: <Activity className="w-8 h-8 text-green-500" />
-            },
-            { 
-              title: "Upcoming Sessions", 
-              value: 0, 
-              color: "text-purple-500",
-              icon: <Calendar className="w-8 h-8 text-purple-500" />
             }
           ].map((stat, index) => (
             <div 
