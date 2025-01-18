@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 import Message from "./Error_successMessage";
 
 const DeleteRoomForm = ({ operation, onSuccess }) => {
-  // We'll fetch all rooms to populate our dropdown
   const [roomsList, setRoomsList] = useState([]);
-
-  // This is what the user selects from the dropdown; 
-  // your existing code calls it "roomId," but we'll store the room's name here
   const [roomId, setRoomId] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // 1) On mount, fetch all rooms so we can display their names in the dropdown
+  // Fetch all rooms for the dropdown
   useEffect(() => {
     const fetchAllRooms = async () => {
       try {
-        // Adjust this endpoint if your backend route is different
         const response = await axios.get("http://localhost:5000/api/room/rooms");
-        // Expect response.data to be an array of room objects, each with at least a 'name'
         setRoomsList(response.data);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load rooms list.");
@@ -29,7 +23,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
     fetchAllRooms();
   }, []);
 
-  // 2) The delete logic, same as before, but we do a DELETE with the selected room name
+  // Handle room deletion
   const handleDelete = async () => {
     if (!roomId) {
       setError("Please select a room first.");
@@ -39,71 +33,91 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
     setError("");
     setSuccessMessage("");
     try {
-      // This calls DELETE /api/room/rooms/:roomName
-      // Make sure your backend supports a route that accepts the name as a parameter
-      const response = await axios.delete(`http://localhost:5000/api/room/rooms/${roomId}`);
-      if (response.data.status === 200) {
-        setSuccessMessage(response.data.message);
+      const response = await axios.delete(
+        `http://localhost:5000/api/room/rooms/${roomId}`
+      );
+      if (response.status === 200) {
+        setSuccessMessage("Room deleted successfully!");
         onSuccess();
-      } else if (response.data.status === 404) {
-        setError(response.data.message);
+        setRoomId("");
+        setRoomsList((prev) => prev.filter((room) => room.name !== roomId));
       } else {
         setError("An unexpected error occurred.");
       }
     } catch (err) {
-      setError("Error deleting room.");
+      setError(err.response?.data?.message || "Error deleting room.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="sm:flex-1 sm:pl-64 2xl:pl-0">
-      <div className="mx-auto p-6 w-full bg-white rounded-lg shadow-lg transition">
-        {operation === "delete" && (
-          <div>
-            <h3 className="text-xl font-semibold text-center mb-4">Delete Room</h3>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-6xl mx-auto p-10 bg-gray-50 rounded-lg shadow-xl mb-4"
+    >
+      <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">
+        Delete Room
+      </h2>
 
-            {/* Dropdown to select the room name instead of typing it */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="roomDropdown">
-                Choose a Room
-              </label>
-              <select
-                id="roomDropdown"
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">-- Select a Room --</option>
-                {roomsList.map((room) => (
-                  <option key={room._id} value={room.name}>
-                    {room.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+      <div className="space-y-6">
+        {/* Room Dropdown */}
+        <div>
+          <label
+            className="block text-sm font-medium text-gray-700 mb-2"
+            htmlFor="roomDropdown"
+          >
+            Select a Room to Delete
+          </label>
+          <select
+            id="roomDropdown"
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-red-500"
+          >
+            <option value="">Choose Room</option>
+            {roomsList.map((room) => (
+              <option key={room._id} value={room.name}>
+                {room.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-            <div className="flex justify-center">
-              <button
-                onClick={handleDelete}
-                disabled={loading}
-                className={`w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-md transition duration-300 ${
-                  loading ? "bg-gray-400 cursor-not-allowed" : "hover:bg-red-700"
-                }`}
-              >
-                {loading ? "Deleting..." : "Delete Room"}
-              </button>
-            </div>
+        {/* Delete Button */}
+        <div className="flex justify-center">
+          <button
+            onClick={handleDelete}
+            disabled={loading}
+            className={`px-6 py-2 bg-red-600 text-white font-semibold rounded-md shadow-md transition duration-300 focus:ring-2 focus:ring-red-400 ${
+              loading ? "bg-gray-400 cursor-not-allowed" : "hover:bg-red-700"
+            }`}
+          >
+            {loading ? "Deleting..." : "Delete Room"}
+          </button>
+        </div>
 
-            <div className="text-center mt-4">
-              {error && <Message message={error} type="error" onClose={() => setError("")} />}
-              {successMessage && <Message message={successMessage} type="success" onClose={() => setSuccessMessage("")} />}
-            </div>
-          </div>
-        )}
+        {/* Messages */}
+        <div className="text-center">
+          {error && (
+            <Message
+              message={error}
+              type="error"
+              onClose={() => setError("")}
+            />
+          )}
+          {successMessage && (
+            <Message
+              message={successMessage}
+              type="success"
+              onClose={() => setSuccessMessage("")}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
