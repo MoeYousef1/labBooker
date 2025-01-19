@@ -52,7 +52,7 @@ const Navbar = ({ userInfo, setUserInfo }) => {
     },
     { 
       label: 'Settings', 
-      path: '/settings', 
+      path: '/accountSettings', 
       icon: <Settings className="w-5 h-5 mr-3" /> 
     }
   ], []);

@@ -1,35 +1,51 @@
 import React from "react";
+import { motion } from "framer-motion";
 
-const RoomOperations = ({ setOperation, setRoomId, setRoomDetails }) => {
-  const handleOperationChange = (operation) => {
-    setOperation(operation);
-    if (operation !== "create") {
+const RoomOperations = ({ setOperation, setRoomId, setRoomDetails, operation }) => {
+  const handleOperationChange = (newOperation) => {
+    setOperation(newOperation);
+    if (newOperation !== "create") {
       setRoomId("");
       setRoomDetails(null);
     }
   };
 
+  const buttonVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    hover: { scale: 1.05 },
+    tap: { scale: 0.95 },
+  };
+
   return (
-    <div className="sm:flex-1 sm:pl-64 2xl:pl-0 grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-      <button
-        onClick={() => handleOperationChange("create")}
-        className="px-6 py-3 w-full sm:w-auto bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft text-white rounded-lg"
-      >
-        Create Room
-      </button>
-      <button
-        onClick={() => handleOperationChange("update")}
-        className="px-6 py-3 w-full sm:w-auto bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft text-white rounded-lg"
-      >
-        Update Room
-      </button>
-      <button
-        onClick={() => handleOperationChange("delete")}
-        className="px-6 py-3 w-full sm:w-auto bg-gradient-primaryToRight hover:bg-gradient-primaryToLeft text-white rounded-lg"
-      >
-        Delete Room
-      </button>
-    </div>
+    <motion.div
+      initial="initial"
+      animate="animate"
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.6, ease: "easeInOut" }}
+      className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
+    >
+      {[
+        { label: "Create Room", operation: "create" },
+        { label: "Update Room", operation: "update" },
+        { label: "Delete Room", operation: "delete" },
+      ].map(({ label, operation: currentOperation }) => (
+        <motion.button
+          key={currentOperation}
+          variants={buttonVariants}
+          whileHover="hover"
+          whileTap="tap"
+          onClick={() => handleOperationChange(currentOperation)}
+          className={`px-6 py-4 text-green-500 bg-white rounded-lg shadow-md transition-all duration-300 ${
+            operation === currentOperation
+              ? "ring-2 ring-green-500 bg-green-50 text-green-700"
+              : ""
+          }`}
+        >
+          {label}
+        </motion.button>
+      ))}
+    </motion.div>
   );
 };
 

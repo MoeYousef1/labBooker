@@ -1,16 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import iconMapping from "../utils/iconMapping";
-import FormInput from "./FormInput";
 import Message from "./Error_successMessage";
+import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 
 const CreateRoomForm = ({ onSuccess }) => {
-  const [formData, setFormData] = useState({ name: "", type: "", capacity: "", description: "", amenities: [], image: null });
+  const [formData, setFormData] = useState({
+    name: "",
+    type: "",
+    capacity: "",
+    description: "",
+    amenities: [],
+    image: null,
+  });
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showAmenitiesDropdown, setShowAmenitiesDropdown] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // List of amenities based on iconMapping
   const availableAmenities = Object.keys(iconMapping);
 
   const handleInputChange = (e) => {
@@ -18,8 +29,12 @@ const CreateRoomForm = ({ onSuccess }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAmenityChange = (amenity) => {
-    setSelectedAmenities((prev) => (prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]));
+  const handleAmenityToggle = (amenity) => {
+    setSelectedAmenities((prev) =>
+      prev.includes(amenity)
+        ? prev.filter((a) => a !== amenity)
+        : [...prev, amenity]
+    );
   };
 
   const handleImageChange = (e) => {
@@ -54,74 +69,205 @@ const CreateRoomForm = ({ onSuccess }) => {
     if (formData.image) formPayload.append("image", formData.image);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/room/rooms", formPayload, { headers: { "Content-Type": "multipart/form-data" } });
+      const response = await axios.post(
+        "http://localhost:5000/api/room/rooms",
+        formPayload,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
       if (response.status === 201) {
         setSuccessMessage("Room created successfully!");
         onSuccess("Room created successfully!");
-        setFormData({ name: "", type: "", capacity: "", description: "", amenities: [], image: null });
+        setFormData({
+          name: "",
+          type: "",
+          capacity: "",
+          description: "",
+          amenities: [],
+          image: null,
+        });
         setSelectedAmenities([]);
       }
     } catch (err) {
-      setErrors(err.response?.data?.message || "An error occurred while creating the room");
+      setErrors(
+        err.response?.data?.message ||
+          "An error occurred while creating the room"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="sm:flex-1 sm:pl-64 2xl:pl-0">
-      <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-lg p-6 w-full mx-auto space-y-6 mb-4 overflow-hidden transition">
-        <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-grayToRight mb-6 text-center">Create Room</h2>
-
-        <FormInput type="text" name="name" value={formData.name} onChange={handleInputChange} label="Room Name" error={errors.name} />
-
-        <div className="mb-4 relative">
-          <label htmlFor="type" className="block mb-2 text-sm font-medium text-grayMid">Type</label>
-          <select id="type" name="type" value={formData.type} onChange={handleInputChange} className="bg-white text-grayDark text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3">
-            <option value="" disabled>Select a Room Type</option>
-            <option value="Open">Open</option>
-            <option value="Small Seminar">Small Seminar</option>
-            <option value="Large Seminar">Large Seminar</option>
-          </select>
-          {errors.type && <p className="text-red-500 text-xs">{errors.type}</p>}
-        </div>
-
-        <FormInput type="number" name="capacity" value={formData.capacity} onChange={handleInputChange} label="Capacity" error={errors.capacity} />
-
-        <FormInput type="textarea" name="description" value={formData.description} onChange={handleInputChange} label="Description" error={errors.description} />
-
-        <div className="mb-4 mt-4">
-          <label className="block text-sm font-medium mb-2">Amenities</label>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {availableAmenities.map((amenity) => (
-              <label key={amenity} className="flex items-center space-x-2">
-                <input type="checkbox" checked={selectedAmenities.includes(amenity)} onChange={() => handleAmenityChange(amenity)} className="form-checkbox text-primary" />
-                <div className="flex items-center space-x-1">
-                  {iconMapping[amenity]}
-                  <span className="capitalize">{amenity}</span>
-                </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-6xl mx-auto p-10 bg-gray-50 rounded-lg shadow-xl mb-4"
+    >
+      <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
+      Create a New Room
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-10">
+        {/* Section: Basic Details */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+            Basic Details
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Room Name <span className="text-red-500">*</span>
               </label>
-            ))}
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                placeholder="Enter room name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Room Type <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              >
+                <option value="" disabled>
+                  Select Room Type
+                </option>
+                <option value="Open">Open</option>
+                <option value="Small Seminar">Small Seminar</option>
+                <option value="Large Seminar">Large Seminar</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Capacity <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="capacity"
+                value={formData.capacity}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                placeholder="Enter capacity"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                placeholder="Enter room description"
+              ></textarea>
+            </div>
           </div>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Upload Image</label>
-          <input type="file" onChange={handleImageChange} className="form-input w-full p-3 border border-grayMid rounded-lg" />
+        {/* Section: Amenities */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+            Amenities
+          </h3>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowAmenitiesDropdown((prev) => !prev)}
+              className="w-full p-3 border border-gray-300 rounded-lg flex justify-between items-center focus:ring-2 focus:ring-green-500"
+            >
+              Select Amenities
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            </button>
+            {showAmenitiesDropdown && (
+              <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-h-60 overflow-y-auto">
+                <input
+                  type="text"
+                  placeholder="Search amenities..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+                />
+                <div className="grid grid-cols-1 gap-2">
+                  {availableAmenities
+                    .filter((amenity) =>
+                      amenity.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((amenity) => (
+                      <label
+                        key={amenity}
+                        className="flex items-center space-x-2"
+                      >
+                        {iconMapping[amenity]}
+                        <span className="capitalize">{amenity}</span>
+                        <input
+                          type="checkbox"
+                          checked={selectedAmenities.includes(amenity)}
+                          onChange={() => handleAmenityToggle(amenity)}
+                          className="form-checkbox text-green-500"
+                        />
+                      </label>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
+        {/* Section: Image Upload */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+            Upload Image
+          </h3>
+          <input
+            type="file"
+            onChange={handleImageChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        {/* Error and Success Messages */}
         <div className="text-center">
-          {errors && <Message message={errors} type="error" onClose={() => setErrors("")} />}
-          {successMessage && <Message message={successMessage} type="success" onClose={() => setSuccessMessage("")} />}
+          {errors && (
+            <Message
+              message={errors}
+              type="error"
+              onClose={() => setErrors("")}
+            />
+          )}
+          {successMessage && (
+            <Message
+              message={successMessage}
+              type="success"
+              onClose={() => setSuccessMessage("")}
+            />
+          )}
         </div>
 
-        <div className="flex justify-center">
-          <button type="submit" className="px-6 py-3 bg-gradient-grayToRight text-white rounded-md hover:bg-gradient-grayToLeft transition duration-300" disabled={loading}>
+        {/* Submit Button */}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
+            disabled={loading}
+          >
             {loading ? "Creating..." : "Create Room"}
           </button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 
