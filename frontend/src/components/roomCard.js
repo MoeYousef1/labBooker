@@ -43,7 +43,7 @@ const RoomCard = ({
   return (
     <>
       <div className="
-        flex flex-col 
+        flex flex-col md:flex-row
         bg-white 
         rounded-2xl 
         shadow-lg hover:shadow-xl 
@@ -53,7 +53,7 @@ const RoomCard = ({
         h-full
       ">
         {/* Room Image */}
-        <div className="relative h-64 overflow-hidden">
+        <div className="relative md:w-1/2 h-64 overflow-hidden">
           <img
             src={room.imageUrl || RoomImg}
             alt={room.name}
@@ -73,7 +73,7 @@ const RoomCard = ({
         </div>
 
         {/* Room Details */}
-        <div className="p-5 flex flex-col flex-grow">
+        <div className="p-5 flex flex-col flex-grow md:w-1/2">
           {/* Title and Capacity */}
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
