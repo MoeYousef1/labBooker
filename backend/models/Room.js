@@ -1,68 +1,83 @@
 const mongoose = require("mongoose");
 
-// Define the room schema
 const roomSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true, // Room name is required
-      unique: true, // Room name should be unique
+      required: true,
+      unique: true,
+      trim: true,
     },
     type: {
       type: String,
-      enum: ["Open", "Small Seminar", "Large Seminar"], // Types of rooms available
+      enum: ["Open", "Small Seminar", "Large Seminar"],
       required: true,
     },
     capacity: {
       type: Number,
-      required: true, // Room capacity is required
-      min: 1, // Minimum capacity of 1
+      required: true,
+      min: [1, "Capacity must be at least 1"],
     },
     description: {
       type: String,
-      required: false, // Description is optional
+      trim: true,
     },
     imageUrl: {
       type: String,
-      required: false, // Image URL is optional
+      validate: {
+        validator: function(v) {
+          // Optional URL validation
+          return !v || /^https?:\/\/.+/.test(v);
+        },
+        message: props => `${props.value} is not a valid URL!`
+      }
     },
     amenities: [
       {
         name: {
           type: String,
-          required: true, // Amenity name is required
+          required: true,
         },
         icon: {
           type: String,
           enum: [
-            "wifi",
-            "tv",
-            "projector",
-            "coffee",
-            "chargingstation",
-            "chair",
-            "whiteboard",
-            "ac",
-            "printer",
-            "speakers",
-          ], // Predefined list of allowed icons
-          required: false, // Icon class is optional, use if you want to show icons in the UI
+            "wifi", "tv", "projector", "coffee", "chargingstation", 
+            "chair", "whiteboard", "ac", "printer", "speakers"
+          ],
         },
       },
-    ], // Array to store multiple amenities
+    ],
     occupiedTimeSlots: [
       {
         date: String,
         slot: String,
       },
-    ], // Array to store occupied time slots
+    ],
     bookingConfirmationRequired: {
       type: Boolean,
-      default: false, // Indicates if booking confirmation is required
+      default: false,
     },
   },
-  { timestamps: true }, // Automatically adds createdAt and updatedAt fields
+  { 
+    timestamps: true 
+  }
 );
 
-// Create and export the Room model based on the schema
+// Method to check time slot availability
+roomSchema.methods.isTimeSlotAvailable = function(date, startTime, endTime) {
+  return !this.occupiedTimeSlots.some(
+    slot => slot.date === date && 
+            slot.slot === `${startTime}-${endTime}`
+  );
+};
+
+// Method to add occupied time slot
+roomSchema.methods.addOccupiedTimeSlot = function(date, startTime, endTime) {
+  this.occupiedTimeSlots.push({
+    date,
+    slot: `${startTime}-${endTime}`
+  });
+  return this.save();
+};
+
 module.exports = mongoose.model("Room", roomSchema);

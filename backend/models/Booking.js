@@ -1,34 +1,54 @@
 const mongoose = require("mongoose");
 
-// Define the booking schema
 const bookingSchema = new mongoose.Schema(
   {
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Room", // Reference to the Room model
-      required: true, // Room must be specified for the booking
+      ref: "Room",
+      required: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to the User model
-      required: true, // User must be specified for the booking
+      ref: "User",
+      required: true,
     },
     date: {
       type: String,
-      required: true, // Date is required for the booking
+      required: true,
+      validate: {
+        validator: function(v) {
+          // Validate date format (YYYY-MM-DD)
+          return /^\d{4}-\d{2}-\d{2}$/.test(v);
+        },
+        message: props => `${props.value} is not a valid date format!`
+      }
     },
     startTime: {
       type: String,
-      required: true, // Start time is required for the booking
+      required: true,
+      validate: {
+        validator: function(v) {
+          // Validate time format (HH:MM)
+          return /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
+        },
+        message: props => `${props.value} is not a valid time format!`
+      }
     },
     endTime: {
       type: String,
-      required: true, // End time is required for the booking
+      required: true,
+      validate: {
+        validator: function(v) {
+          // Validate time format (HH:MM)
+          return /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
+        },
+        message: props => `${props.value} is not a valid time format!`
+      }
     },
     status: {
       type: String,
       enum: ["Pending", "Confirmed", "Canceled"],
-      default: "Pending", // Booking is initially pending
+      default: "Pending",
     },
     additionalUsers: [
       {
@@ -37,8 +57,33 @@ const bookingSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }, // Automatically adds createdAt and updatedAt fields
+  { 
+    timestamps: true,
+    // Add a pre-save hook for additional validation
+    validateBeforeSave: true 
+  }
 );
 
-// Create and export the Booking model based on the schema
+// Add a pre-save validation hook
+bookingSchema.pre('save', function(next) {
+  // Validate start and end times
+  const startTime = new Date(`1970-01-01T${this.startTime}`);
+  const endTime = new Date(`1970-01-01T${this.endTime}`);
+
+  if (endTime <= startTime) {
+    next(new Error('End time must be after start time'));
+  }
+
+  // Validate booking is for a future date
+  const bookingDate = new Date(this.date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (bookingDate < today) {
+    next(new Error('Booking date must be in the future'));
+  }
+
+  next();
+});
+
 module.exports = mongoose.model("Booking", bookingSchema);

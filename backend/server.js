@@ -6,6 +6,8 @@ const helmet = require("helmet");
 const rateLimit = require('express-rate-limit');
 require("dotenv").config();
 
+// Verbose logging for route imports
+console.log("[IMPORT] Starting route imports");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
@@ -13,10 +15,30 @@ const roomRoutes = require("./routes/roomsRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const configRoutes = require("./routes/configRoutes");
+console.log("[IMPORT] Route imports completed");
+
+// Debugging function for route registration
+function debugRouteRegistration(app, path, routes) {
+  try {
+    console.log(`[ROUTE] Registering routes for path: ${path}`);
+    // Log the methods available in the routes
+    if (routes && typeof routes === 'function') {
+      console.log(`[ROUTE] Routes type: function`);
+    } else if (routes && typeof routes === 'object') {
+      console.log(`[ROUTE] Routes methods:`, Object.keys(routes));
+    } else {
+      console.warn(`[ROUTE] Unexpected routes type for ${path}:`, typeof routes);
+    }
+    app.use(path, routes);
+    console.log(`[ROUTE] Successfully registered routes for path: ${path}`);
+  } catch (error) {
+    console.error(`[ROUTE] Error registering routes for path ${path}:`, error);
+  }
+}
 
 const app = express();
 
-// Logging Middleware
+// Extensive Logging Middleware
 app.use((req, res, next) => {
   const start = Date.now();
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -88,13 +110,32 @@ app.get("/health", async (req, res) => {
   }
 });
 
-app.use("/api/user", userRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/settings/", settingsRoutes);
-app.use("/api/room", roomRoutes);
-app.use("/api/book", bookingRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/config", configRoutes);
+// Detailed Route Registration with Debugging
+try {
+  console.log("[ROUTE] Attempting to register routes");
+  
+  // Verify each route before registration
+  const routesToRegister = [
+    { path: "/api/user", routes: userRoutes },
+    { path: "/api/auth", routes: authRoutes },
+    { path: "/api/settings", routes: settingsRoutes },
+    { path: "/api/room", routes: roomRoutes },
+    { path: "/api/book", routes: bookingRoutes },
+    { path: "/api/upload", routes: uploadRoutes },
+    { path: "/api/config", routes: configRoutes }
+  ];
+
+  routesToRegister.forEach(({ path, routes }) => {
+    debugRouteRegistration(app, path, routes);
+  });
+
+  console.log("[ROUTE] All routes registered successfully");
+} catch (error) {
+  console.error("[ROUTE] Critical error registering routes:", error);
+}
+
+// Specific Booking Routes Debugging
+console.log("[DEBUG] Booking Routes Content:", require('./routes/bookingRoutes'));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -127,4 +168,9 @@ process.on('SIGINT', async () => {
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log("[SERVER] Startup Complete");
+});
+
+module.exports = app;

@@ -1,21 +1,47 @@
+// routes/bookingRoutes.js
 const express = require("express");
 const router = express.Router();
 const bookingController = require("../controllers/bookingController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Get all bookings
-router.get("/bookings", bookingController.getBookings);
+// Debugging middleware
+const debugMiddleware = (req, res, next) => {
+  console.log(`[DEBUG] Route called: ${req.method} ${req.path}`);
+  console.log('[DEBUG] Booking Controller Methods:', Object.keys(bookingController));
+  next();
+};
 
-// Get booking by ID
-router.get("/booking/:id", bookingController.getBookingById);
+// Routes
+router.get("/bookings", 
+  debugMiddleware,
+  bookingController.getBookings
+);
 
-// Create a new booking
-router.post("/booking", bookingController.createBooking);
+router.get("/booking/:id", 
+  debugMiddleware,
+  bookingController.getBookingById
+);
 
-// Delete booking by ID
-router.delete("/booking/:id", bookingController.deleteBooking);
+router.post("/booking", 
+  debugMiddleware,
+  bookingController.createBooking
+);
 
-router.get("/bookings/count", bookingController.getBookingCounts);
+router.delete("/booking/:id", 
+  debugMiddleware,
+  bookingController.deleteBooking
+);
 
+router.get("/bookings/count", 
+  debugMiddleware,
+  bookingController.getBookingCounts
+);
 
+router.get("/user/:userId/bookings", 
+  debugMiddleware,
+  bookingController.getUserUpcomingBookings
+);
+
+console.log("[ROUTES] Booking routes configured");
 
 module.exports = router;

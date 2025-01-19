@@ -1,48 +1,53 @@
-const redis = require("redis");
+const redis = require('redis');
+const { promisify } = require('util');
 
-let redisClient;
-
-(async () => {
-  try {
-    redisClient = redis.createClient();
-
-    redisClient.on("error", (err) => {
-      console.error("Redis error:", err);
+class RedisClient {
+  constructor() {
+    this.client = redis.createClient({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+      // Optional: password if required
+      // password: process.env.REDIS_PASSWORD
     });
 
-    await redisClient.connect();
-    console.log("Connected to Redis.");
-  } catch (err) {
-    console.error("Failed to connect to Redis:", err);
-  }
-})();
+    this.client.on('error', (err) => {
+      console.error('Redis Client Error', err);
+    });
 
-// Wrapper functions for better validation
-const setWithExpiry = async (key, value, options = {}) => {
-  const { EX } = options;
-  try {
-    await redisClient.set(key, value, { EX });
-  } catch (err) {
-    console.error("Error setting key in Redis:", err);
-    throw new Error("Failed to store data in Redis.");
+    // Promisify methods for easier async/await usage
+    this.get = promisify(this.client.get).bind(this.client);
+    this.set = promisify(this.client.set).bind(this.client);
+    this.del = promisify(this.client.del).bind(this.client);
+    this.expire = promisify(this.client.expire).bind(this.client);
   }
-};
 
-const get = async (key) => {
-  try {
-    const value = await redisClient.get(key);
-    if (!value) {
-      throw new Error("Key not found or expired.");
-    }
-    return value;
-  } catch (err) {
-    console.error("Error retrieving key from Redis:", err);
-    throw new Error("Failed to retrieve data from Redis.");
+  // Store token with expiration
+  async storeToken(key, value, expirationInSeconds = 86400) { // 1 day default
+    await this.set(key, value);
+    await this.expire(key, expirationInSeconds);
   }
-};
 
-module.exports = {
-  redisClient,
-  setWithExpiry,
-  get,
-};
+  // Get token
+  async getToken(key) {
+    return await this.get(key);
+  }
+
+  // Delete token
+  async deleteToken(key) {
+    return await this.del(key);
+  }
+
+  // Blacklist token (for logout)
+  async blacklistToken(token, expirationInSeconds = 86400) {
+    await this.set(`blacklist:${token}`, 'true');
+    await this.expire(`blacklist:${token}`, expirationInSeconds);
+  }
+
+  // Check if token is blacklisted
+  async isTokenBlacklisted(token) {
+    const isBlacklisted = await this.get(`blacklist:${token}`);
+    return isBlacklisted === 'true';
+  }
+}
+
+module.exports = new RedisClient();
