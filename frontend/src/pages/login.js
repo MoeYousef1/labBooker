@@ -135,7 +135,7 @@ const LogInPage = () => {
     setGeneralError("");
 
     try {
-      const response = await api.post('/verify-code', { 
+      const response = await api.post('/verify-login', { 
         email: formData.email, 
         code: formData.verificationCode 
       });

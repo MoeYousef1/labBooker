@@ -59,7 +59,7 @@ const DashBoard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        "http://localhost:5000/api/user/users/count",
+        "http://localhost:5000/api/user/count",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -67,7 +67,7 @@ const DashBoard = () => {
         }
       );
       if (response.status === 200) {
-        setUserCount(response.data.userCount);
+        setUserCount(response.data.count);
       }
     } catch (error) {
       setErrors(
