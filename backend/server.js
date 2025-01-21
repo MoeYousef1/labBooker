@@ -7,7 +7,6 @@ const rateLimit = require('express-rate-limit');
 require("dotenv").config();
 
 // Verbose logging for route imports
-console.log("[IMPORT] Starting route imports");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");

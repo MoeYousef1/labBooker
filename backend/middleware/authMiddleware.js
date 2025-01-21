@@ -1,180 +1,223 @@
 const jwt = require('jsonwebtoken');
+const redisClient = require('../config/redisClient');
 const User = require('../models/User');
-const RedisClient = require('../utils/redisClient');
 
 class AuthMiddleware {
+  // Generate access and refresh tokens
   async generateTokens(user) {
-    // Access token
-    const accessToken = jwt.sign(
-      { userId: user._id }, 
-      process.env.JWT_ACCESS_SECRET, 
-      { expiresIn: '15m' }
-    );
-
-    // Refresh token
-    const refreshToken = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    // Store refresh token in Redis
-    await RedisClient.storeToken(`refresh:${user._id}`, refreshToken, 7 * 24 * 60 * 60);
-
-    return { accessToken, refreshToken };
-  }
-
-  async requireAuth(req, res, next) {
     try {
-      const authHeader = req.headers.authorization;
-      
-      if (!authHeader) {
-        return res.status(401).json({ 
-          message: 'No token provided',
-          error: 'Unauthorized' 
-        });
+      if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+        throw new Error('JWT secrets not configured');
       }
 
-      const parts = authHeader.split(' ');
-      if (parts.length !== 2 || parts[0] !== 'Bearer') {
-        return res.status(401).json({ 
-          message: 'Token format is invalid',
-          error: 'Unauthorized'
-        });
+      const accessToken = jwt.sign(
+        {
+          userId: user._id,
+          email: user.email,
+          role: user.role
+        },
+        process.env.JWT_ACCESS_SECRET,
+        { expiresIn: '15m' } // 15 minutes
+      );
+
+      const refreshToken = jwt.sign(
+        {
+          userId: user._id
+        },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: '7d' } // 7 days
+      );
+
+      // Store refresh token in Redis
+      try {
+        await redisClient.storeToken(
+          user._id.toString(),
+          refreshToken,
+          7 * 24 * 60 * 60 // 7 days in seconds
+        );
+      } catch (redisError) {
+        console.error('Redis token storage error:', redisError);
+        // Continue even if Redis storage fails
       }
 
-      const token = parts[1];
-
-      // Check if token is blacklisted
-      const isBlacklisted = await RedisClient.isTokenBlacklisted(token);
-      if (isBlacklisted) {
-        return res.status(401).json({ 
-          message: 'Token is no longer valid',
-          error: 'Unauthorized' 
-        });
-      }
-
-      // Verify access token
-      const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-
-      // Find user
-      const user = await User.findById(decoded.userId);
-
-      if (!user) {
-        return res.status(401).json({ 
-          message: 'User not found',
-          error: 'Unauthorized' 
-        });
-      }
-
-      // Attach user to request object
-      req.user = user;
-      req.token = token;
-
-      next();
+      return { accessToken, refreshToken };
     } catch (error) {
-      if (error.name === 'JsonWebTokenError') {
-        return res.status(401).json({ 
-          message: 'Invalid token',
-          error: 'Unauthorized' 
-        });
-      }
-
-      if (error.name === 'TokenExpiredError') {
-        return res.status(401).json({ 
-          message: 'Token expired',
-          error: 'Token Expired',
-          code: 'TOKEN_EXPIRED'
-        });
-      }
-
-      console.error('Authentication error:', error);
-      return res.status(500).json({ 
-        message: 'Authentication failed',
-        error: error.message 
-      });
+      console.error('Token generation error:', error);
+      throw error;
     }
   }
 
-  // Refresh token endpoint handler
-  async refreshTokens(req, res) {
+  // Middleware to verify JWT token
+  requireAuth = async (req, res, next) => {
+    try {
+      const authHeader = req.headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Authorization token required' });
+      }
+
+      const token = authHeader.split(' ')[1];
+
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+        
+        // Find user and attach to request
+        const user = await User.findById(decoded.userId).select('-password');
+        if (!user) {
+          return res.status(401).json({ message: 'User not found' });
+        }
+
+        req.user = user;
+        next();
+      } catch (error) {
+        console.error('Token verification error:', error);
+        if (error.name === 'TokenExpiredError') {
+          return res.status(401).json({ message: 'Token expired' });
+        }
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+    } catch (error) {
+      console.error('Auth middleware error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  // Middleware to check user role
+  requireRole = (roles) => {
+    return (req, res, next) => {
+      if (!req.user) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+
+      if (!roles.includes(req.user.role)) {
+        return res.status(403).json({ 
+          message: 'You do not have permission to perform this action' 
+        });
+      }
+
+      next();
+    };
+  }
+
+  // Refresh token handler
+  refreshTokens = async (req, res) => {
     try {
       const { refreshToken } = req.body;
 
       if (!refreshToken) {
-        return res.status(400).json({ 
-          message: 'Refresh token is required',
-          error: 'Bad Request' 
-        });
+        return res.status(400).json({ message: 'Refresh token required' });
       }
 
-      // Verify refresh token
-      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      try {
+        // Verify refresh token
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-      // Check if refresh token is stored in Redis
-      const storedRefreshToken = await RedisClient.getToken(`refresh:${decoded.userId}`);
-      
-      if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
-        return res.status(401).json({ 
-          message: 'Invalid refresh token',
-          error: 'Unauthorized' 
-        });
+        // Check if token exists in Redis
+        const storedToken = await redisClient.get(`token:${decoded.userId}`);
+        if (!storedToken || storedToken !== refreshToken) {
+          return res.status(401).json({ message: 'Invalid refresh token' });
+        }
+
+        // Find user
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+          return res.status(401).json({ message: 'User not found' });
+        }
+
+        // Generate new tokens
+        const tokens = await this.generateTokens(user);
+
+        res.json(tokens);
+      } catch (error) {
+        console.error('Token refresh error:', error);
+        if (error.name === 'TokenExpiredError') {
+          return res.status(401).json({ message: 'Refresh token expired' });
+        }
+        return res.status(401).json({ message: 'Invalid refresh token' });
       }
-
-      // Find user
-      const user = await User.findById(decoded.userId);
-
-      if (!user) {
-        return res.status(401).json({ 
-          message: 'User not found',
-          error: 'Unauthorized' 
-        });
-      }
-
-      // Generate new tokens
-      const { 
-        accessToken: newAccessToken, 
-        refreshToken: newRefreshToken 
-      } = await this.generateTokens(user);
-
-      // Optional: Invalidate old refresh token
-      await RedisClient.deleteToken(`refresh:${user._id}`);
-
-      return res.status(200).json({
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken
-      });
     } catch (error) {
-      console.error('Token refresh error:', error);
-      return res.status(500).json({ 
-        message: 'Token refresh failed',
-        error: error.message 
-      });
+      console.error('Refresh token error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   }
 
   // Logout handler
-  async logout(req, res) {
+  logout = async (req, res) => {
     try {
-      // Blacklist current access token
-      if (req.token) {
-        await RedisClient.blacklistToken(req.token);
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Authorization token required' });
       }
 
-      // Remove refresh token from Redis
-      if (req.user) {
-        await RedisClient.deleteToken(`refresh:${req.user._id}`);
-      }
+      const token = authHeader.split(' ')[1];
+      
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+        
+        // Remove refresh token from Redis
+        await redisClient.del(`token:${decoded.userId}`);
 
-      return res.status(200).json({ 
-        message: 'Logged out successfully' 
-      });
+        res.json({ message: 'Logged out successfully' });
+      } catch (error) {
+        // Even if token verification fails, we'll consider it a successful logout
+        res.json({ message: 'Logged out successfully' });
+      }
     } catch (error) {
       console.error('Logout error:', error);
-      return res.status(500).json({ 
-        message: 'Logout failed',
-        error: error.message 
-      });
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  // Verify email token
+  verifyEmailToken = async (token) => {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET);
+      return decoded;
+    } catch (error) {
+      console.error('Email verification token error:', error);
+      throw error;
+    }
+  }
+
+  // Generate password reset token
+  generatePasswordResetToken = async (userId) => {
+    try {
+      const token = jwt.sign(
+        { userId },
+        process.env.JWT_RESET_SECRET,
+        { expiresIn: '1h' }
+      );
+      
+      // Store token in Redis
+      await redisClient.set(
+        `reset:${userId}`,
+        token,
+        'EX',
+        3600 // 1 hour
+      );
+
+      return token;
+    } catch (error) {
+      console.error('Password reset token generation error:', error);
+      throw error;
+    }
+  }
+
+  // Verify password reset token
+  verifyPasswordResetToken = async (token) => {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET);
+      
+      // Check if token exists in Redis
+      const storedToken = await redisClient.get(`reset:${decoded.userId}`);
+      if (!storedToken || storedToken !== token) {
+        throw new Error('Invalid or expired reset token');
+      }
+
+      return decoded;
+    } catch (error) {
+      console.error('Password reset token verification error:', error);
+      throw error;
     }
   }
 }

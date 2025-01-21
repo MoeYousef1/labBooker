@@ -1,150 +1,87 @@
+// controllers/userController.js
 const User = require("../models/User");
-const bcrypt = require("bcrypt");
 const authMiddleware = require('../middleware/authMiddleware');
 const RedisClient = require('../utils/redisClient');
+const crypto = require('crypto');
 
 class UserController {
-  // Fetch all users (protected route)
-  async fetchUsers(req, res) {
-    try {
-      // Optional: Add pagination and filtering
-      const { 
-        page = 1, 
-        limit = 10, 
-        search = '' 
-      } = req.query;
-
-      // Build query
-      const query = search 
-        ? { 
-            $or: [
-              { username: { $regex: search, $options: 'i' } },
-              { email: { $regex: search, $options: 'i' } }
-            ] 
-          } 
-        : {};
-
-      // Fetch users with pagination
-      const users = await User.find(query)
-        .select('-password') // Exclude password
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
-        .sort({ createdAt: -1 });
-
-      // Count total users
-      const total = await User.countDocuments(query);
-
-      return res.status(200).json({
-        users,
-        totalPages: Math.ceil(total / limit),
-        currentPage: page,
-        totalUsers: total
-      });
-    } catch (error) {
-      console.error('Fetch users error:', error);
-      return res.status(500).json({ 
-        message: "Failed fetching users", 
-        error: error.message 
-      });
-    }
+  constructor() {
+    // Bind methods to ensure proper 'this' context
+    this.sendVerificationCode = this.sendVerificationCode.bind(this);
+    this.verifyCodeAndLogin = this.verifyCodeAndLogin.bind(this);
+    this.resendVerificationCode = this.resendVerificationCode.bind(this);
+    this.fetchUsers = this.fetchUsers.bind(this);
+    this.getUserCount = this.getUserCount.bind(this);
+    this.getUserProfile = this.getUserProfile.bind(this);
+    this.updateUserProfile = this.updateUserProfile.bind(this);
   }
 
-  // Get total user count
-  async getUserCount(req, res) {
+  // Send verification code
+  async sendVerificationCode(req, res) {
     try {
-      const count = await User.countDocuments({});
-      return res.status(200).json({ userCount: count });
-    } catch (error) {
-      console.error('Get user count error:', error);
-      return res.status(500).json({ 
-        message: "Failed fetching user count", 
-        error: error.message 
-      });
-    }
-  }
+      const { email } = req.body;
 
-  // User registration
-  async register(req, res) {
-    try {
-      const { username, email, password, role = 'user' } = req.body;
-
-      // Validate input
-      if (!username || !email || !password) {
-        return res.status(400).json({ 
-          message: "All fields are required" 
-        });
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
       }
 
-      // Check if user already exists
-      const existingUser = await User.findOne({ 
-        $or: [{ email }, { username }] 
-      });
-
-      if (existingUser) {
-        return res.status(409).json({ 
-          message: "User already exists",
-          field: existingUser.email === email ? 'email' : 'username'
-        });
-      }
-
-      // Hash password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
-      // Create new user
-      const newUser = new User({
-        username,
-        email,
-        password: hashedPassword,
-        role
-      });
-
-      await newUser.save();
-
-      // Remove sensitive information
-      const userResponse = newUser.toObject();
-      delete userResponse.password;
-
-      return res.status(201).json({
-        message: "User registered successfully",
-        user: userResponse
-      });
-    } catch (error) {
-      console.error('Registration error:', error);
-      return res.status(500).json({ 
-        message: "Registration failed", 
-        error: error.message 
-      });
-    }
-  }
-
-  // User login
-  async login(req, res) {
-    try {
-      const { email, password } = req.body;
-
-      // Validate input
-      if (!email || !password) {
-        return res.status(400).json({ 
-          message: "Email and password are required" 
-        });
-      }
-
-      // Find user
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(401).json({ 
-          message: "Invalid credentials" 
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Generate verification code
+      const verificationCode = crypto.randomInt(100000, 999999).toString();
+      const codeExpiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+      // Update user with verification code
+      user.verificationCode = verificationCode;
+      user.verificationExpires = codeExpiration;
+      await user.save();
+
+      // In a real application, you would send this via email
+      // For testing, we'll just return it
+      return res.status(200).json({
+        message: "Verification code sent",
+        verificationCode, // Remove this in production
+        codeExpiration: codeExpiration.toISOString()
+      });
+    } catch (error) {
+      console.error('Send verification code error:', error);
+      return res.status(500).json({ 
+        message: "Failed to send verification code", 
+        error: error.message 
+      });
+    }
+  }
+
+  // Verify code and login
+  async verifyCodeAndLogin(req, res) {
+    try {
+      const { email, verificationCode } = req.body;
+
+      if (!email || !verificationCode) {
+        return res.status(400).json({ 
+          message: "Email and verification code are required" 
         });
       }
 
-      // Verify password
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
+      const user = await User.findOne({ 
+        email,
+        verificationCode,
+        verificationExpires: { $gt: new Date() }
+      });
+
+      if (!user) {
         return res.status(401).json({ 
-          message: "Invalid credentials" 
+          message: "Invalid or expired verification code" 
         });
       }
+
+      // Clear verification code
+      user.verificationCode = null;
+      user.verificationExpires = null;
+      await user.save();
 
       // Generate tokens
       const { accessToken, refreshToken } = await authMiddleware.generateTokens(user);
@@ -161,9 +98,74 @@ class UserController {
         refreshToken
       });
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Verify code error:', error);
       return res.status(500).json({ 
-        message: "Login failed", 
+        message: "Verification failed", 
+        error: error.message 
+      });
+    }
+  }
+
+  // Resend verification code
+  async resendVerificationCode(req, res) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Generate new verification code
+      const verificationCode = crypto.randomInt(100000, 999999).toString();
+      const codeExpiration = new Date(Date.now() + 15 * 60 * 1000);
+
+      user.verificationCode = verificationCode;
+      user.verificationExpires = codeExpiration;
+      await user.save();
+
+      // In production, send via email
+      return res.status(200).json({
+        message: "New verification code sent",
+        verificationCode, // Remove in production
+        codeExpiration: codeExpiration.toISOString()
+      });
+    } catch (error) {
+      console.error('Resend code error:', error);
+      return res.status(500).json({ 
+        message: "Failed to resend code", 
+        error: error.message 
+      });
+    }
+  }
+
+  // Fetch users (protected route)
+  async fetchUsers(req, res) {
+    try {
+      const users = await User.find().select('-verificationCode -verificationExpires');
+      return res.status(200).json(users);
+    } catch (error) {
+      console.error('Fetch users error:', error);
+      return res.status(500).json({ 
+        message: "Failed to fetch users", 
+        error: error.message 
+      });
+    }
+  }
+
+  // Get user count
+  async getUserCount(req, res) {
+    try {
+      const count = await User.countDocuments();
+      return res.status(200).json({ count });
+    } catch (error) {
+      console.error('Get user count error:', error);
+      return res.status(500).json({ 
+        message: "Failed to get user count", 
         error: error.message 
       });
     }
@@ -172,21 +174,18 @@ class UserController {
   // Get user profile
   async getUserProfile(req, res) {
     try {
-      // req.user is set by authMiddleware
       const user = await User.findById(req.user._id)
-        .select('-password -__v');
-
+        .select('-verificationCode -verificationExpires');
+      
       if (!user) {
-        return res.status(404).json({ 
-          message: "User not found" 
-        });
+        return res.status(404).json({ message: "User not found" });
       }
 
       return res.status(200).json(user);
     } catch (error) {
       console.error('Get profile error:', error);
       return res.status(500).json({ 
-        message: "Failed to retrieve profile", 
+        message: "Failed to get profile", 
         error: error.message 
       });
     }
@@ -197,41 +196,17 @@ class UserController {
     try {
       const { username, email } = req.body;
 
-      // Validate input
       if (!username && !email) {
         return res.status(400).json({ 
-          message: "At least one field to update is required" 
+          message: "Nothing to update" 
         });
       }
 
-      // Check for existing users with same username/email
-      const existingUser = await User.findOne({
-        $or: [
-          { username: username },
-          { email: email }
-        ],
-        _id: { $ne: req.user._id } // Exclude current user
-      });
-
-      if (existingUser) {
-        return res.status(409).json({ 
-          message: "Username or email already in use",
-          field: existingUser.username === username ? 'username' : 'email'
-        });
-      }
-
-      // Update user
       const updatedUser = await User.findByIdAndUpdate(
-        req.user._id, 
-        { 
-          ...(username && { username }),
-          ...(email && { email }) 
-        }, 
-        { 
-          new: true, 
-          runValidators: true 
-        }
-      ).select('-password');
+        req.user._id,
+        { $set: { username, email } },
+        { new: true }
+      ).select('-verificationCode -verificationExpires');
 
       return res.status(200).json({
         message: "Profile updated successfully",
@@ -245,52 +220,7 @@ class UserController {
       });
     }
   }
-
-  // Change password
-  async changePassword(req, res) {
-    try {
-      const { currentPassword, newPassword } = req.body;
-
-      // Validate input
-      if (!currentPassword || !newPassword) {
-        return res.status(400).json({ 
-          message: "Current and new passwords are required" 
-        });
-      }
-
-      // Find user
-      const user = await User.findById(req.user._id);
-
-      // Verify current password
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ 
-          message: "Current password is incorrect" 
-        });
-      }
-
-      // Hash new password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-      // Update password
-      user.password = hashedPassword;
-      await user.save();
-
-      // Invalidate all existing tokens
-      await RedisClient.deleteToken(`refresh:${user._id}`);
-
-      return res.status(200).json({ 
-        message: "Password changed successfully" 
-      });
-    } catch (error) {
-      console.error('Change password error:', error);
-      return res.status(500).json({ 
-        message: "Failed to change password", 
-        error: error.message 
-      });
-    }
-  }
 }
 
+// Export a single instance
 module.exports = new UserController();

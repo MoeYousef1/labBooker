@@ -1,15 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const authController = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
-const userController = require('../controllers/userController');
 
-// Login route
-router.post('/login', userController.login);
+// Debug route (remove in production)
+router.get('/debug-verification/:email', authController.debugVerification);
 
-// Refresh token route
+// Auth routes
+router.post('/signup', authController.signup);
+router.post('/verify-signup', authController.verifySignup); // Fixed this line
+router.post('/login', authController.login);
+router.post('/verify-login', authController.verifyLoginCode);
+router.post('/request-code', authController.requestCode);
+
+// Token management
 router.post('/refresh-token', authMiddleware.refreshTokens);
-
-// Logout route (requires authentication)
 router.post('/logout', 
   authMiddleware.requireAuth, 
   authMiddleware.logout

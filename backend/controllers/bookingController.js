@@ -5,6 +5,28 @@ const User = require("../models/User");
 const Config = require("../models/Config");
 
 class BookingController {
+  constructor() {
+    // Bind methods to the instance
+    this.getBookings = this.getBookings.bind(this);
+    this.getBookingById = this.getBookingById.bind(this);
+    this.createBooking = this.createBooking.bind(this);
+    this.updateBookingStatus = this.updateBookingStatus.bind(this);
+    this.deleteBooking = this.deleteBooking.bind(this);
+    this.getBookingCounts = this.getBookingCounts.bind(this);
+    this.getUserUpcomingBookings = this.getUserUpcomingBookings.bind(this);
+  }
+
+  // Static helper method for calculating duration
+  static calculateDurationInHours(startTime, endTime) {
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    
+    const startInMinutes = startHour * 60 + startMinute;
+    const endInMinutes = endHour * 60 + endMinute;
+    
+    return (endInMinutes - startInMinutes) / 60;
+  }
+
   // Fetch all bookings with advanced filtering and pagination
   async getBookings(req, res) {
     try {
@@ -117,6 +139,23 @@ class BookingController {
       if (!roomId || !userId || !date || !startTime || !endTime) {
         return res.status(400).json({ 
           message: "Missing required booking fields" 
+        });
+      }
+
+      // Check booking duration using static method
+      const duration = BookingController.calculateDurationInHours(startTime, endTime);
+      if (duration > 3) {
+        return res.status(400).json({
+          message: "Booking duration cannot exceed 3 hours",
+          requestedDuration: `${duration} hours`,
+          maximumDuration: "3 hours"
+        });
+      }
+
+      // Validate start time is before end time
+      if (duration <= 0) {
+        return res.status(400).json({
+          message: "Invalid time range: End time must be after start time"
         });
       }
 

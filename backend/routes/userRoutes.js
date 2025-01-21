@@ -1,11 +1,13 @@
+// routes/userRoutes.js
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const authMiddleware = require('../middleware/authMiddleware');
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Public routes
-router.post('/register', userController.register);
-router.post('/login', userController.login);
+// Authentication routes
+router.post("/send-code", userController.sendVerificationCode);
+router.post("/verify", userController.verifyCodeAndLogin);
+router.post("/resend-code", userController.resendVerificationCode);
 
 // Protected routes
 router.get("/users", 
@@ -13,7 +15,7 @@ router.get("/users",
   userController.fetchUsers
 );
 
-router.get("/users/count", 
+router.get("/count", 
   authMiddleware.requireAuth, 
   userController.getUserCount
 );
@@ -28,9 +30,5 @@ router.put("/profile",
   userController.updateUserProfile
 );
 
-router.post("/change-password", 
-  authMiddleware.requireAuth, 
-  userController.changePassword
-);
-
+// Export router
 module.exports = router;
