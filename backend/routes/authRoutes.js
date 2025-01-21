@@ -1,19 +1,24 @@
 // auth.routes.js
 const express = require("express");
 const router = express.Router();
-const { 
-  signup, 
-  verifySignup,
-  requestCode, 
-  verifyCode 
-} = require("../controllers/authController");
+const authController = require('../controllers/authController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Signup routes
-router.post("/signup", signup);
-router.post("/verify-signup", verifySignup);
+// Debug route (remove in production)
+router.get('/debug-verification/:email', authController.debugVerification);
 
-// Existing routes
-router.post("/request-code", requestCode);
-router.post("/verify-code", verifyCode);
+// Auth routes
+router.post('/signup', authController.signup);
+router.post('/verify-signup', authController.verifySignup); // Fixed this line
+router.post('/login', authController.login);
+router.post('/verify-login', authController.verifyLoginCode);
+router.post('/request-code', authController.requestCode);
+
+// Token management
+router.post('/refresh-token', authMiddleware.refreshTokens);
+router.post('/logout', 
+  authMiddleware.requireAuth, 
+  authMiddleware.logout
+);
 
 module.exports = router;

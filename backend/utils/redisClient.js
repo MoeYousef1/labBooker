@@ -1,52 +1,82 @@
-const redis = require('redis');
-const { promisify } = require('util');
+const Redis = require('redis');
 
 class RedisClient {
   constructor() {
-    this.client = redis.createClient({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      // Optional: password if required
-      // password: process.env.REDIS_PASSWORD
-    });
-
-    this.client.on('error', (err) => {
-      console.error('Redis Client Error', err);
-    });
-
-    // Promisify methods for easier async/await usage
-    this.get = promisify(this.client.get).bind(this.client);
-    this.set = promisify(this.client.set).bind(this.client);
-    this.del = promisify(this.client.del).bind(this.client);
-    this.expire = promisify(this.client.expire).bind(this.client);
+    this.client = null;
+    this.connect();
   }
 
-  // Store token with expiration
-  async storeToken(key, value, expirationInSeconds = 86400) { // 1 day default
-    await this.set(key, value);
-    await this.expire(key, expirationInSeconds);
+  async connect() {
+    try {
+      this.client = Redis.createClient({
+        url: process.env.REDIS_URL || 'redis://localhost:6379'
+      });
+
+      this.client.on('error', (err) => {
+        console.error('Redis Client Error:', err);
+      });
+
+      this.client.on('connect', () => {
+        console.log('Connected to Redis.');
+      });
+
+      this.client.on('disconnect', () => {
+        console.log('Disconnected from Redis. Attempting to reconnect...');
+        this.connect();
+      });
+
+      await this.client.connect();
+    } catch (error) {
+      console.error('Redis connection error:', error);
+    }
   }
 
-  // Get token
-  async getToken(key) {
-    return await this.get(key);
+  async get(key) {
+    try {
+      if (!this.client.isOpen) {
+        await this.connect();
+      }
+      return await this.client.get(key);
+    } catch (error) {
+      console.error('Redis get error:', error);
+      throw error;
+    }
   }
 
-  // Delete token
-  async deleteToken(key) {
-    return await this.del(key);
+  async set(key, value, ...args) {
+    try {
+      if (!this.client.isOpen) {
+        await this.connect();
+      }
+      return await this.client.set(key, value, ...args);
+    } catch (error) {
+      console.error('Redis set error:', error);
+      throw error;
+    }
   }
 
-  // Blacklist token (for logout)
-  async blacklistToken(token, expirationInSeconds = 86400) {
-    await this.set(`blacklist:${token}`, 'true');
-    await this.expire(`blacklist:${token}`, expirationInSeconds);
+  async del(key) {
+    try {
+      if (!this.client.isOpen) {
+        await this.connect();
+      }
+      return await this.client.del(key);
+    } catch (error) {
+      console.error('Redis del error:', error);
+      throw error;
+    }
   }
 
-  // Check if token is blacklisted
-  async isTokenBlacklisted(token) {
-    const isBlacklisted = await this.get(`blacklist:${token}`);
-    return isBlacklisted === 'true';
+  async storeToken(userId, token, expiryTime) {
+    try {
+      if (!this.client.isOpen) {
+        await this.connect();
+      }
+      return await this.client.set(`token:${userId}`, token, 'EX', expiryTime);
+    } catch (error) {
+      console.error('Redis store token error:', error);
+      throw error;
+    }
   }
 }
 
