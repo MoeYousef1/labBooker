@@ -94,8 +94,8 @@ const DashBoard = () => {
         }
       );
       if (response.status === 200) {
-        setPendingBookings(response.data.pendingCount);
-        setActiveBookings(response.data.activeCount);
+        setPendingBookings(response.data.pending);
+        setActiveBookings(response.data.confirmed);
       }
     } catch (error) {
       setErrors(
@@ -108,10 +108,10 @@ const DashBoard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col sm:pl-64 2xl:pl-0 px-4 py-10 sm:px-8 max-w-screen-xl mx-auto mt-4">
+      <div className="flex-1 flex flex-col px-6 sm:px-8 md:px-12 mt-16 sm:mt-0 sm:ml-64 py-10 mx-auto  ">
         {/* Header Section */}
         <div className="mb-8 flex flex-col justify-between sm:flex-row sm:items-center">
           <h1 className="text-3xl font-bold text-gray-800 flex items-center">

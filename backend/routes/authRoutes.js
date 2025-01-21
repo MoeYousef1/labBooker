@@ -1,18 +1,19 @@
-const express = require('express');
+// auth.routes.js
+const express = require("express");
 const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware');
-const userController = require('../controllers/userController');
+const { 
+  signup, 
+  verifySignup,
+  requestCode, 
+  verifyCode 
+} = require("../controllers/authController");
 
-// Login route
-router.post('/login', userController.login);
+// Signup routes
+router.post("/signup", signup);
+router.post("/verify-signup", verifySignup);
 
-// Refresh token route
-router.post('/refresh-token', authMiddleware.refreshTokens);
-
-// Logout route (requires authentication)
-router.post('/logout', 
-  authMiddleware.requireAuth, 
-  authMiddleware.logout
-);
+// Existing routes
+router.post("/request-code", requestCode);
+router.post("/verify-code", verifyCode);
 
 module.exports = router;

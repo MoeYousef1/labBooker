@@ -24,14 +24,14 @@ const AccountSettings = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-grayLight to-grayDark flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <Sidebar />
       {/* Main Content */}
-      <div className="flex-1 sm:pl-64 2xl:pl-0 px-4 py-10 sm:px-8 max-w-screen-xl mx-auto mt-4">
+      <div className="flex-1 flex flex-col px-6 sm:px-8 md:px-12 mt-16 sm:mt-0 sm:ml-64 py-10 mx-auto ">
         <div className="grid grid-cols-1 gap-4">
           {/* Main Content */}
-          <div className="overflow-hidden rounded-xl bg-gray-50 px-4 py-6 sm:px-8 sm:shadow">
+          <div className="p-10 bg-gray-50 rounded-lg shadow-xl mb-4">
             <h1 className="text-2xl font-semibold">Account Settings</h1>
             <hr className="my-4" />
 

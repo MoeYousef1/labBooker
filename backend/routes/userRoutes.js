@@ -14,7 +14,7 @@ router.get("/users",
 );
 
 router.get("/users/count", 
-  authMiddleware.requireAuth, 
+  // authMiddleware.requireAuth, 
   userController.getUserCount
 );
 
