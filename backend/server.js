@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
-const rateLimit = require('express-rate-limit');
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 // Verbose logging for route imports
@@ -21,12 +21,15 @@ function debugRouteRegistration(app, path, routes) {
   try {
     console.log(`[ROUTE] Registering routes for path: ${path}`);
     // Log the methods available in the routes
-    if (routes && typeof routes === 'function') {
+    if (routes && typeof routes === "function") {
       console.log(`[ROUTE] Routes type: function`);
-    } else if (routes && typeof routes === 'object') {
+    } else if (routes && typeof routes === "object") {
       console.log(`[ROUTE] Routes methods:`, Object.keys(routes));
     } else {
-      console.warn(`[ROUTE] Unexpected routes type for ${path}:`, typeof routes);
+      console.warn(
+        `[ROUTE] Unexpected routes type for ${path}:`,
+        typeof routes
+      );
     }
     app.use(path, routes);
     console.log(`[ROUTE] Successfully registered routes for path: ${path}`);
@@ -41,37 +44,44 @@ const app = express();
 app.use((req, res, next) => {
   const start = Date.now();
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  
+
   const originalEnd = res.end;
-  res.end = function(chunk, encoding) {
+  res.end = function (chunk, encoding) {
     const duration = Date.now() - start;
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - ${res.statusCode} (${duration}ms)`);
+    console.log(
+      `[${new Date().toISOString()}] ${req.method} ${req.url} - ${
+        res.statusCode
+      } (${duration}ms)`
+    );
     originalEnd.call(this, chunk, encoding);
   };
-  
+
   next();
 });
 
 // Middleware
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"]
-    }
-  }
-}));
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+  })
+);
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -80,9 +90,9 @@ app.use(morgan("dev"));
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: 'Too many login attempts, please try again later'
+  message: "Too many login attempts, please try again later",
 });
-app.use('/api/auth/', authLimiter);
+app.use("/api/auth/", authLimiter);
 
 // Database Connection
 mongoose
@@ -112,7 +122,7 @@ app.get("/health", async (req, res) => {
 // Detailed Route Registration with Debugging
 try {
   console.log("[ROUTE] Attempting to register routes");
-  
+
   // Verify each route before registration
   const routesToRegister = [
     { path: "/api/user", routes: userRoutes },
@@ -121,7 +131,7 @@ try {
     { path: "/api/room", routes: roomRoutes },
     { path: "/api/book", routes: bookingRoutes },
     { path: "/api/upload", routes: uploadRoutes },
-    { path: "/api/config", routes: configRoutes }
+    { path: "/api/config", routes: configRoutes },
   ];
 
   routesToRegister.forEach(({ path, routes }) => {
@@ -134,33 +144,36 @@ try {
 }
 
 // Specific Booking Routes Debugging
-console.log("[DEBUG] Booking Routes Content:", require('./routes/bookingRoutes'));
+console.log(
+  "[DEBUG] Booking Routes Content:",
+  require("./routes/bookingRoutes")
+);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.error('Unhandled Error:', err);
-  
+  console.error("Unhandled Error:", err);
+
   const statusCode = err.status || 500;
   const errorResponse = {
-    message: err.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { 
+    message: err.message || "Internal Server Error",
+    ...(process.env.NODE_ENV === "development" && {
       stack: err.stack,
-      details: err.toString() 
-    })
+      details: err.toString(),
+    }),
   };
 
   res.status(statusCode).json(errorResponse);
 });
 
 // Graceful Shutdown
-process.on('SIGINT', async () => {
-  console.log('Received SIGINT. Closing server and database connection...');
-  
+process.on("SIGINT", async () => {
+  console.log("Received SIGINT. Closing server and database connection...");
+
   try {
     await mongoose.connection.close(false);
     process.exit(0);
   } catch (err) {
-    console.error('Error during graceful shutdown:', err);
+    console.error("Error during graceful shutdown:", err);
     process.exit(1);
   }
 });

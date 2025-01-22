@@ -20,6 +20,7 @@ import RoomGuidelines from "./pages/roomGuidelines ";
 import ContactPage from "./pages/contact";
 import RoomOperationpage from "./pages/roomOperationPage";
 import DashBoard from "./pages/dashboard";
+import MyBookingsPage from "./pages/MyBookingsPage";
 
 // Page Transition Wrapper
 const PageTransition = ({ children }) => {
@@ -149,6 +150,16 @@ const AnimatedRoutes = () => {
               </PageTransition>
             </PrivateRoute>
           }
+        />
+        <Route
+        path="/bookings"
+        element={
+          <PrivateRoute>
+            <PageTransition>
+              <MyBookingsPage />
+            </PageTransition>
+          </PrivateRoute>
+        } 
         />
         <Route
           path="/accountsettings"

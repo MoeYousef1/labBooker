@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import api from '../utils/axiosConfig';
 
 // Import assets
 import lapLogo from "../assets/laptop.png";
@@ -14,41 +14,6 @@ import ErrorMessage from "../components/Error_successMessage";
 import AuthButton from "../components/AuthButton";
 import AuthFooter from "../components/AuthFooter";
 
-// Create a more robust axios instance
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api/auth',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
-// Add interceptors for comprehensive logging
-api.interceptors.request.use(
-  config => {
-    console.log('Request URL:', config.url);
-    console.log('Request Data:', config.data);
-    return config;
-  },
-  error => {
-    console.error('Request Error:', error);
-    return Promise.reject(error);
-  }
-);
-
-api.interceptors.response.use(
-  response => {
-    console.log('Response Data:', response.data);
-    return response;
-  },
-  error => {
-    console.error('Full Error Object:', error);
-    console.error('Error Response:', error.response?.data);
-    console.error('Error Status:', error.response?.status);
-    return Promise.reject(error);
-  }
-);
-
 const LogInPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,36 +25,72 @@ const LogInPage = () => {
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resendDisabled, setResendDisabled] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
 
-  // Comprehensive error handler
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      const user = localStorage.getItem("user");
+
+      if (token && user) {
+        try {
+          await api.get('/auth/verify-token');
+          navigate("/homepage");
+        } catch (error) {
+          console.error('Session validation failed:', error);
+          localStorage.clear();
+        }
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
+
+  // Handle resend timer
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else {
+      setResendDisabled(false);
+    }
+
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
   const handleError = (error) => {
-    console.error('Login Error:', error);
+    console.error('Operation failed:', {
+      error: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
     
     if (error.response) {
-      const errorMessage = error.response.data.message || 
-                           "An unexpected error occurred";
-      setGeneralError(errorMessage);
-      
-      console.error('Error Response:', {
-        status: error.response.status,
-        data: error.response.data,
-        headers: error.response.headers
-      });
+      switch (error.response.status) {
+        case 401:
+          setGeneralError("Invalid verification code");
+          break;
+        case 404:
+          setGeneralError("Email not found");
+          break;
+        case 429:
+          setGeneralError("Too many attempts. Please try again later");
+          setResendDisabled(true);
+          setResendTimer(60);
+          break;
+        default:
+          setGeneralError(error.response.data.message || "An unexpected error occurred");
+      }
     } else if (error.request) {
-      setGeneralError("No response received from server. Please check your network connection.");
-      console.error('No response received:', error.request);
+      setGeneralError("Network error. Please check your connection.");
     } else {
-      setGeneralError("Error setting up the request. Please try again.");
-      console.error('Error:', error.message);
+      setGeneralError("An unexpected error occurred");
     }
   };
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      navigate("/homepage");
-    }
-  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -104,24 +105,23 @@ const LogInPage = () => {
     setGeneralError("");
 
     try {
-      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
         setGeneralError("Please enter a valid email address");
-        setIsSubmitting(false);
         return;
       }
 
-      // Attempt to request code
-      const response = await api.post('/request-code', { 
+      console.log('Requesting login code for:', formData.email);
+
+      const response = await api.post('/auth/login', { 
         email: formData.email 
       });
 
-      console.log("Code request successful:", response.data);
-
-      // Move to verification stage
+      console.log('Login request response:', response.data);
+      
       setStage('verification');
-      setGeneralError("");
+      setResendDisabled(true);
+      setResendTimer(30);
     } catch (error) {
       handleError(error);
     } finally {
@@ -135,21 +135,44 @@ const LogInPage = () => {
     setGeneralError("");
 
     try {
-      const response = await api.post('/verify-login', { 
+      console.log('Submitting verification with:', {
+        email: formData.email,
+        code: formData.verificationCode
+      });
+
+      const response = await api.post('/auth/verify-login', { 
         email: formData.email, 
         code: formData.verificationCode 
       });
 
-      // Store user data
-      const user = response.data.user;
-      localStorage.setItem("user", JSON.stringify(user));
-      
-      // Store token (adjust based on your backend response)
-      const token = response.data.token || Math.random().toString(36).substr(2);
-      localStorage.setItem("token", token);
+      console.log('Verification response:', response.data);
 
-      // Redirect to homepage
-      const from = location.state?.from || "/homepage";
+      const { user, accessToken, refreshToken } = response.data;
+
+      if (!accessToken || !refreshToken) {
+        throw new Error('Invalid server response - missing tokens');
+      }
+
+      // Store authentication data
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+      console.log('Authentication data stored:', {
+        user: user.email,
+        tokenPreview: `${accessToken.substring(0, 10)}...`,
+        refreshTokenPreview: `${refreshToken.substring(0, 10)}...`
+      });
+
+      // Test authentication
+      try {
+        const testResponse = await api.get('/auth/test');
+        console.log('Authentication test:', testResponse.data);
+      } catch (testError) {
+        console.error('Authentication test failed:', testError);
+      }
+
+      const from = location.state?.from?.pathname || "/homepage";
       navigate(from);
     } catch (error) {
       handleError(error);
@@ -158,7 +181,29 @@ const LogInPage = () => {
     }
   };
 
-  // Right side content for AuthLayout
+  const handleResendCode = async () => {
+    if (resendDisabled) return;
+
+    setIsSubmitting(true);
+    setGeneralError("");
+
+    try {
+      console.log('Requesting new code for:', formData.email);
+
+      await api.post('/auth/request-code', { 
+        email: formData.email 
+      });
+
+      setResendDisabled(true);
+      setResendTimer(30);
+      setGeneralError("New verification code sent!");
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const rightContent = (
     <>
       <div className="text-center">
@@ -180,9 +225,8 @@ const LogInPage = () => {
     </>
   );
 
-  // Email input form
   const renderEmailForm = () => (
-    <form onSubmit={handleEmailSubmit}>
+    <form onSubmit={handleEmailSubmit} className="space-y-4">
       <p className="mb-4 text-white font-semibold">Login to your account</p>
       <FormInput
         type="email"
@@ -191,23 +235,26 @@ const LogInPage = () => {
         onChange={handleChange}
         label="Email"
         error={errors.email}
+        placeholder="Enter your email"
+        required
       />
       <div className="mb-6 text-center">
         <AuthButton 
           isSubmitting={isSubmitting} 
           label="Continue" 
         />
-        <ErrorMessage
-          message={generalError}
-          onClose={() => setGeneralError("")}
-        />
+        {generalError && (
+          <ErrorMessage
+            message={generalError}
+            onClose={() => setGeneralError("")}
+          />
+        )}
       </div>
     </form>
   );
 
-  // Verification code form
   const renderVerificationForm = () => (
-    <form onSubmit={handleVerificationSubmit}>
+    <form onSubmit={handleVerificationSubmit} className="space-y-4">
       <p className="mb-4 text-white font-semibold">
         Enter Verification Code
       </p>
@@ -222,23 +269,41 @@ const LogInPage = () => {
         label="Verification Code"
         error={errors.verificationCode}
         maxLength={6}
+        placeholder="Enter 6-digit code"
+        required
       />
-      <div className="mb-6 text-center">
+      <div className="mb-6 text-center space-y-2">
         <AuthButton 
           isSubmitting={isSubmitting} 
           label="Verify" 
         />
         <button
           type="button"
-          className="text-sm text-blue-300 hover:text-blue-200 mt-2 block mx-auto"
+          className="text-sm text-blue-300 hover:text-blue-200 block mx-auto"
           onClick={() => setStage('email')}
         >
           Back to Email
         </button>
-        <ErrorMessage
-          message={generalError}
-          onClose={() => setGeneralError("")}
-        />
+        <button
+          type="button"
+          className={`text-sm ${
+            resendDisabled 
+              ? 'text-gray-400 cursor-not-allowed' 
+              : 'text-blue-300 hover:text-blue-200'
+          } block mx-auto`}
+          onClick={handleResendCode}
+          disabled={resendDisabled}
+        >
+          {resendTimer > 0 
+            ? `Resend code in ${resendTimer}s` 
+            : 'Resend code'}
+        </button>
+        {generalError && (
+          <ErrorMessage
+            message={generalError}
+            onClose={() => setGeneralError("")}
+          />
+        )}
       </div>
     </form>
   );
