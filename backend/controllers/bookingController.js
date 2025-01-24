@@ -1,8 +1,19 @@
 // controllers/bookingController.js
+const mongoose = require('mongoose');
 const Booking = require("../models/Booking");
 const Room = require("../models/Room");
 const User = require("../models/User");
 const Config = require("../models/Config");
+
+const BOOKING_CONSTANTS = {
+  STATUSES: {
+    PENDING: 'Pending',
+    CONFIRMED: 'Confirmed',
+    CANCELED: 'Canceled'
+  },
+  MAX_DURATION: 3,
+  MIN_DURATION: 0
+};
 
 class BookingController {
   // Helper methods
@@ -17,6 +28,11 @@ class BookingController {
     const [hours, minutes] = endTime.split(':');
     bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0);
     return bookingDateTime < new Date();
+  }
+
+  static validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   // GET /bookings
@@ -101,6 +117,9 @@ class BookingController {
 
   // POST /booking
   createBooking = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
       const { 
         roomId, 
@@ -119,12 +138,48 @@ class BookingController {
         });
       }
 
-      // Duration check
-      const duration = BookingController.calculateDurationInHours(startTime, endTime);
-      if (duration <= 0 || duration > 3) {
+      // Validate date
+      if (new Date(date) < new Date().setHours(0,0,0,0)) {
         return res.status(400).json({
           success: false,
-          message: "Invalid booking duration. Must be between 0 and 3 hours"
+          message: "Cannot book for past dates"
+        });
+      }
+
+      // Validate email format
+      const invalidEmails = additionalUsers.filter(email => !BookingController.validateEmail(email));
+      if (invalidEmails.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid email format",
+          invalidEmails
+        });
+      }
+
+      // Look up additional users by email
+      let additionalUserIds = [];
+      if (additionalUsers.length > 0) {
+        const users = await User.find({ 
+          email: { $in: additionalUsers }
+        }).select('_id');
+        
+        additionalUserIds = users.map(user => user._id);
+
+        // Check if all emails were found
+        if (additionalUserIds.length !== additionalUsers.length) {
+          return res.status(400).json({
+            success: false,
+            message: "One or more additional users were not found"
+          });
+        }
+      }
+
+      // Duration check
+      const duration = BookingController.calculateDurationInHours(startTime, endTime);
+      if (duration <= BOOKING_CONSTANTS.MIN_DURATION || duration > BOOKING_CONSTANTS.MAX_DURATION) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid booking duration. Must be between ${BOOKING_CONSTANTS.MIN_DURATION} and ${BOOKING_CONSTANTS.MAX_DURATION} hours`
         });
       }
 
@@ -132,7 +187,7 @@ class BookingController {
       const conflictingBooking = await Booking.findOne({
         roomId,
         date,
-        status: { $ne: "Canceled" },
+        status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED },
         $or: [
           {
             startTime: { $lt: endTime },
@@ -154,24 +209,40 @@ class BookingController {
         date,
         startTime,
         endTime,
-        additionalUsers,
-        status: "Pending"
+        additionalUsers: additionalUserIds,
+        status: BOOKING_CONSTANTS.STATUSES.PENDING
       });
 
-      await booking.save();
+      await booking.save({ session });
+
+      // Populate the response data
+      const populatedBooking = await Booking.findById(booking._id)
+        .populate("roomId", "name type")
+        .populate("userId", "username email")
+        .populate("additionalUsers", "username email");
+
+      await session.commitTransaction();
 
       res.status(201).json({
         success: true,
         message: "Booking created successfully",
-        booking
+        booking: populatedBooking
       });
+
     } catch (error) {
-      console.error("createBooking - Error:", error);
+      await session.abortTransaction();
+      console.error("createBooking - Error:", {
+        error: error.message,
+        stack: error.stack,
+        requestData: req.body
+      });
       res.status(500).json({
         success: false,
         message: "Failed to create booking",
         error: error.message
       });
+    } finally {
+      session.endSession();
     }
   }
 
@@ -226,7 +297,7 @@ class BookingController {
       const { status } = req.body;
       const userId = req.user.id;
 
-      const validStatuses = ["Pending", "Confirmed", "Canceled"];
+      const validStatuses = Object.values(BOOKING_CONSTANTS.STATUSES);
       if (!validStatuses.includes(status)) {
         return res.status(400).json({
           success: false,
@@ -266,34 +337,54 @@ class BookingController {
   }
 
   // DELETE /booking/:id
-  deleteBooking = async (req, res) => {
-    try {
-      const booking = await Booking.findById(req.params.id);
-      
-      if (!booking) {
-        return res.status(404).json({
-          success: false,
-          message: "Booking not found"
-        });
-      }
-
-      await Booking.findByIdAndDelete(req.params.id);
-
-      res.status(200).json({
-        success: true,
-        message: "Booking deleted successfully",
-        deletedBooking: booking
-      });
-    } catch (error) {
-      console.error("deleteBooking - Error:", error);
-      res.status(500).json({
+  // DELETE /booking/:id
+deleteBooking = async (req, res) => {
+  try {
+    // First check if the booking exists
+    const booking = await Booking.findById(req.params.id);
+    
+    if (!booking) {
+      return res.status(404).json({
         success: false,
-        message: "Failed to delete booking",
-        error: error.message
+        message: "Booking not found"
       });
     }
-  }
 
+    // If you're using authentication middleware, make sure it's properly set up
+    // If you want to allow deletion without authentication, remove this check
+    if (req.user) {
+      // Check authorization if user info is available
+      if (booking.userId.toString() !== req.user.id && !req.user.isAdmin) {
+        return res.status(403).json({
+          success: false,
+          message: "Not authorized to delete this booking"
+        });
+      }
+    }
+
+    // Proceed with deletion
+    await Booking.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Booking deleted successfully",
+      deletedBooking: booking
+    });
+  } catch (error) {
+    console.error("deleteBooking - Error:", {
+      error: error.message,
+      stack: error.stack,
+      bookingId: req.params.id,
+      user: req.user
+    });
+    
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete booking",
+      error: error.message
+    });
+  }
+}
   // GET /bookings/count
   getBookingCounts = async (req, res) => {
     try {
@@ -304,9 +395,9 @@ class BookingController {
 
       const [total, pending, confirmed, canceled] = await Promise.all([
         Booking.countDocuments(query),
-        Booking.countDocuments({ ...query, status: "Pending" }),
-        Booking.countDocuments({ ...query, status: "Confirmed" }),
-        Booking.countDocuments({ ...query, status: "Canceled" })
+        Booking.countDocuments({ ...query, status: BOOKING_CONSTANTS.STATUSES.PENDING }),
+        Booking.countDocuments({ ...query, status: BOOKING_CONSTANTS.STATUSES.CONFIRMED }),
+        Booking.countDocuments({ ...query, status: BOOKING_CONSTANTS.STATUSES.CANCELED })
       ]);
 
       res.status(200).json({
@@ -341,7 +432,7 @@ class BookingController {
           { additionalUsers: userId }
         ],
         date: { $gte: today },
-        status: { $ne: "Canceled" }
+        status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED }
       })
         .populate("roomId", "name type")
         .populate("userId", "username email")
