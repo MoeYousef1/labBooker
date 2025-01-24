@@ -1,7 +1,7 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { IoClose } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+
 import {
   MdReport,
   MdNoFood,
@@ -24,84 +24,71 @@ const RoomGuidelines = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.scrollTo(0, 0); // Scrolls to the top of the page when the component loads
+    window.scrollTo(0, 0);
   }, []);
 
   const handleClose = () => {
-    navigate(-1); // Navigate back to the previous page
+    navigate(-1);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-grayLight to-grayDark flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="relative max-w-screen-lg w-full bg-white rounded-2xl shadow-xl p-8">
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-grayMid hover:text-grayLight transition duration-150"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition duration-150"
         >
           <IoClose size={28} />
         </button>
 
         {/* Title Section */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-grayDark">
-            Lab Room Rules & Guidelines
-          </h1>
-          <p className="mt-2 text-grayMid">
-            Follow these rules to maintain a respectful and efficient
-            environment for all users.
+          <h1 className="text-4xl font-extrabold text-gray-800">Lab Room Rules & Guidelines</h1>
+          <p className="mt-2 text-gray-600">
+            Follow these rules to maintain a respectful and efficient environment for all users.
           </p>
         </div>
 
         {/* Guidelines Content */}
-        <div className="space-y-8">
+        <div className="space-y-8 text-gray-700">
           {/* Booking and Usage */}
           <div>
-            <h2 className="text-2xl font-semibold text-grayDark mb-4">
-              Booking and Usage
-            </h2>
-            <ul className="space-y-2 text-grayMid">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Booking and Usage</h2>
+            <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <CiBookmarkCheck size={20} className="text-black font-bold" />
-                Rooms must be booked in advance through the designated booking
-                system.
+                <CiBookmarkCheck size={20} className="text-blue-500" />
+                Rooms must be booked in advance through the designated booking system.
               </li>
               <li className="flex items-center gap-2">
-                <HiIdentification size={20} className="text-black font-bold" />
+                <HiIdentification size={20} className="text-blue-500" />
                 Provide valid identification if required at the time of booking.
               </li>
               <li className="flex items-center gap-2">
-                <RiTimeZoneFill size={20} className="text-black font-bold" />
-                Arrive on time and vacate the room promptly at the end of your
-                booking slot.
+                <RiTimeZoneFill size={20} className="text-blue-500" />
+                Arrive on time and vacate the room promptly at the end of your booking slot.
               </li>
             </ul>
           </div>
 
           {/* Cleanliness and Maintenance */}
           <div>
-            <h2 className="text-2xl font-semibold text-grayDark mb-4">
-              Cleanliness and Maintenance
-            </h2>
-            <ul className="space-y-2 text-grayMid">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Cleanliness and Maintenance</h2>
+            <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <SiCcleaner size={20} className="text-black font-bold" />
-                Keep the room clean and tidy. Dispose of waste in designated
-                bins.
+                <SiCcleaner size={20} className="text-blue-500" />
+                Keep the room clean and tidy. Dispose of waste in designated bins.
               </li>
               <li className="flex items-center gap-2">
-                <MdReport size={20} className="text-black font-bold" />
+                <MdReport size={20} className="text-blue-500" />
                 Report any damages or malfunctioning equipment immediately.
               </li>
               <li className="flex items-center gap-2">
-                <MdNoFood size={20} className="text-black font-bold" />
+                <MdNoFood size={20} className="text-blue-500" />
                 Meals and drinks are prohibited inside the lab rooms.
               </li>
               <li className="flex items-center gap-2">
-                <MdOutlineSmokeFree
-                  size={20}
-                  className="text-black font-bold"
-                />
+                <MdOutlineSmokeFree size={20} className="text-blue-500" />
                 Smoking is prohibited inside the lab rooms.
               </li>
             </ul>
@@ -109,24 +96,18 @@ const RoomGuidelines = () => {
 
           {/* Respect for Others */}
           <div>
-            <h2 className="text-2xl font-semibold text-grayDark mb-4">
-              Respect for Others
-            </h2>
-            <ul className="space-y-2 text-grayMid">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Respect for Others</h2>
+            <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <MdNoiseAware size={20} className="text-black font-bold" />
+                <MdNoiseAware size={20} className="text-blue-500" />
                 Maintain a quiet environment. Keep noise levels to a minimum.
               </li>
               <li className="flex items-center gap-2">
-                <MdShare size={20} className="text-black font-bold" />
-                Be respectful of others’ time and space when using shared
-                resources.
+                <MdShare size={20} className="text-blue-500" />
+                Be respectful of others’ time and space when using shared resources.
               </li>
               <li className="flex items-center gap-2">
-                <MdOutlinePhonelinkRing
-                  size={20}
-                  className="text-black font-bold"
-                />
+                <MdOutlinePhonelinkRing size={20} className="text-blue-500" />
                 Do not disrupt others with loud conversations or phone usage.
               </li>
             </ul>
@@ -134,23 +115,18 @@ const RoomGuidelines = () => {
 
           {/* Equipment and Facilities */}
           <div>
-            <h2 className="text-2xl font-semibold text-grayDark mb-4">
-              Equipment and Facilities
-            </h2>
-            <ul className="space-y-2 text-grayMid">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Equipment and Facilities</h2>
+            <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <VscWorkspaceTrusted
-                  size={20}
-                  className="text-black font-bold"
-                />
+                <VscWorkspaceTrusted size={20} className="text-blue-500" />
                 Use equipment and facilities only for their intended purposes.
               </li>
               <li className="flex items-center gap-2">
-                <GiHammerBreak size={20} className="text-black font-bold" />
+                <GiHammerBreak size={20} className="text-blue-500" />
                 Handle all lab resources with care to avoid damage.
               </li>
               <li className="flex items-center gap-2">
-                <RiShutDownLine size={20} className="text-black font-bold" />
+                <RiShutDownLine size={20} className="text-blue-500" />
                 Ensure all devices and systems are shut down after use.
               </li>
             </ul>
@@ -158,24 +134,19 @@ const RoomGuidelines = () => {
 
           {/* Emergency Procedures */}
           <div>
-            <h2 className="text-2xl font-semibold text-grayDark mb-4">
-              Emergency Procedures
-            </h2>
-            <ul className="space-y-2 text-grayMid">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Emergency Procedures</h2>
+            <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <MdEmergencyShare size={20} className="text-black font-bold" />
-                Familiarize yourself with the lab’s emergency exits and
-                equipment.
+                <MdEmergencyShare size={20} className="text-blue-500" />
+                Familiarize yourself with the lab’s emergency exits and equipment.
               </li>
               <li className="flex items-center gap-2">
-                <TbProtocol size={20} className="text-black font-bold" />
-                Follow all safety protocols and guidelines provided by the
-                administration.
+                <TbProtocol size={20} className="text-blue-500" />
+                Follow all safety protocols and guidelines provided by the administration.
               </li>
               <li className="flex items-center gap-2">
-                <MdContactPhone size={20} className="text-black font-bold" />
-                In case of emergencies, contact the appropriate personnel
-                immediately.
+                <MdContactPhone size={20} className="text-blue-500" />
+                In case of emergencies, contact the appropriate personnel immediately.
               </li>
             </ul>
           </div>
@@ -183,9 +154,8 @@ const RoomGuidelines = () => {
 
         {/* Footer Section */}
         <div className="mt-10 text-center">
-          <p className="text-grayMid text-sm">
-            Failure to adhere to these rules may result in loss of access to lab
-            rooms or other penalties.
+          <p className="text-sm text-gray-500">
+            Failure to adhere to these rules may result in loss of access to lab rooms or other penalties.
           </p>
         </div>
       </div>

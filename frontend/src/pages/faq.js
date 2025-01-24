@@ -12,152 +12,152 @@ const FAQ = () => {
       {
         id: 1,
         question: "How do I register for the lab booking system?",
-        answer: "Go to the registration page, enter your real name, username, and email address. Your username must match your college website username.",
+        answer: "Go to the registration page...",
       },
       {
         id: 2,
         question: "What should I do if my username is not recognized?",
-        answer: "Ensure you are using the exact username from your college website. If the issue persists, contact support.",
+        answer: "Ensure you are using the exact username...",
       },
       {
         id: 3,
         question: "Can I use the app on multiple devices?",
-        answer: "Yes, the app is accessible from any device using your verified login credentials.",
+        answer: "Yes, the app is accessible from any device...",
       },
       {
         id: 4,
         question: "What browsers are supported?",
-        answer: "Our app supports all modern browsers including Chrome, Firefox, Safari, and Edge.",
+        answer: "Our app supports all modern browsers including...",
       },
       {
         id: 5,
         question: "How do I delete my account?",
-        answer: "Navigate to the Settings page, select 'Delete Account', and follow the instructions.",
+        answer: "Navigate to the Settings page...",
       },
     ],
     support: [
       {
         id: 6,
         question: "How do I contact support?",
-        answer: "You can email support@collegebooking.com or use the 'Contact Support' form on the app.",
+        answer: "You can email support@collegebooking.com...",
       },
       {
         id: 7,
         question: "What should I do if I don’t receive the verification code?",
-        answer: "Check your spam/junk folder. If you still don’t see it, click 'Resend Code' or contact support.",
+        answer: "Check your spam/junk folder...",
       },
       {
         id: 8,
         question: "How do I report an issue with my booking?",
-        answer: "Go to the 'Contact Support' section and provide details about your issue.",
+        answer: "Go to the 'Contact Support' section...",
       },
       {
         id: 9,
         question: "Can I request additional lab resources?",
-        answer: "Yes, use the 'Request Resources' form in the Support section.",
+        answer: "Yes, use the 'Request Resources' form...",
       },
       {
         id: 10,
         question: "Is there live support available?",
-        answer: "Yes, live support is available during college working hours via the chat feature.",
+        answer: "Yes, live support is available during college working hours...",
       },
     ],
     booking: [
       {
         id: 11,
         question: "How do I book a lab room?",
-        answer: "After logging in, navigate to the 'Book a Room' page, select a room, choose a date and time slot, and submit your booking request.",
+        answer: "After logging in, navigate to the 'Book a Room' page...",
       },
       {
         id: 12,
         question: "How long does it take for my booking to be confirmed?",
-        answer: "Bookings are usually reviewed and confirmed within 24 hours.",
+        answer: "Bookings are usually reviewed within 24 hours...",
       },
       {
         id: 13,
         question: "Can I cancel a booking?",
-        answer: "Yes, go to 'My Bookings', select the booking you want to cancel, and click 'Cancel Booking'.",
+        answer: "Yes, go to 'My Bookings'...",
       },
       {
         id: 14,
         question: "What happens if I miss my booking time?",
-        answer: "Missed bookings may affect your ability to book in the future. Check the app guidelines for penalties.",
+        answer: "Missed bookings may affect your ability to book in the future...",
       },
       {
         id: 15,
         question: "How do I check available rooms?",
-        answer: "Navigate to the 'Available Rooms' page to see real-time availability.",
+        answer: "Navigate to the 'Available Rooms' page...",
       },
     ],
     account: [
       {
         id: 16,
         question: "How do I update my profile information?",
-        answer: "Go to the 'Settings' page to update your name, email, or preferences.",
+        answer: "Go to the 'Settings' page...",
       },
       {
         id: 17,
         question: "Can I change my username?",
-        answer: "No, your username is linked to your college website and cannot be changed.",
+        answer: "No, your username is linked to your college website...",
       },
       {
         id: 18,
         question: "How do I change my email address?",
-        answer: "Go to the 'Settings' page, update your email, and verify it through the code sent to your new address.",
+        answer: "Go to the 'Settings' page, update your email, and verify it...",
       },
       {
         id: 19,
         question: "How do I reset my account settings?",
-        answer: "You can reset preferences from the 'Settings' page or contact support for assistance.",
+        answer: "You can reset preferences from the 'Settings' page...",
       },
       {
         id: 20,
         question: "Can I view my booking history?",
-        answer: "Yes, go to 'My Bookings' to see a list of all your past and upcoming bookings.",
+        answer: "Yes, go to 'My Bookings'...",
       },
     ],
     privacy: [
       {
         id: 21,
         question: "Is my data secure?",
-        answer: "Yes, we use advanced encryption and adhere to strict privacy protocols to protect your data.",
+        answer: "Yes, we use advanced encryption...",
       },
       {
         id: 22,
         question: "Who has access to my data?",
-        answer: "Only authorized administrators have access to your data for verification and support purposes.",
+        answer: "Only authorized administrators have access...",
       },
       {
         id: 23,
         question: "How do I request my data to be deleted?",
-        answer: "Submit a request through the 'Privacy' section in the app.",
+        answer: "Submit a request through the 'Privacy' section...",
       },
       {
         id: 24,
         question: "Do you share my data with third parties?",
-        answer: "No, we do not share your data with any third parties.",
+        answer: "No, we do not share your data with any third parties...",
       },
       {
         id: 25,
         question: "How do I manage my data preferences?",
-        answer: "Go to the 'Privacy Settings' page to manage your data preferences.",
+        answer: "Go to the 'Privacy Settings' page...",
       },
     ],
     feedback: [
       {
         id: 26,
         question: "How do I provide feedback about the app?",
-        answer: "Use the 'Feedback' form available in the app to share your thoughts.",
+        answer: "Use the 'Feedback' form available in the app...",
       },
       {
         id: 27,
         question: "Can I suggest new features?",
-        answer: "Yes, submit your suggestions through the 'Request Features' section.",
+        answer: "Yes, submit your suggestions through the 'Request Features' section...",
       },
       {
         id: 28,
         question: "How is feedback used?",
-        answer: "Your feedback helps us improve the app and prioritize new features.",
+        answer: "Your feedback helps us improve the app...",
       },
     ],
   };
@@ -219,9 +219,9 @@ const FAQ = () => {
           ))}
         </div>
 
-      {/* Divider Line */}
-      <div className="lg:w-px lg:h-auto lg:bg-gray-300 w-full h-px bg-gray-300"></div>
-      
+        {/* Divider Line */}
+        <div className="lg:w-px lg:h-auto lg:bg-gray-300 w-full h-px bg-gray-300"></div>
+
         {/* Questions */}
         <div className="relative flex-1">
           {/* Scroll Up Icon */}
@@ -301,7 +301,9 @@ const FAQ = () => {
           {/* Scroll Down Icon */}
           <button
             onClick={() => handleScroll("down")}
-            disabled={currentQuestionIndex + 3 >= sections[activeSection].length}
+            disabled={
+              currentQuestionIndex + 3 >= sections[activeSection].length
+            }
             className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 p-2 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition disabled:opacity-50"
           >
             <FaChevronDown size={24} />
@@ -325,6 +327,21 @@ const FAQ = () => {
             Contact Customer Support
           </a>
         </p>
+      </motion.div>
+
+      {/* Back Button at Bottom-Left with Motion */}
+      <motion.div
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bottom-8 left-8 z-50"
+      >
+        <button
+          onClick={() => window.history.back()}
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none transition-colors shadow"
+        >
+          ← Back
+        </button>
       </motion.div>
     </motion.section>
   );

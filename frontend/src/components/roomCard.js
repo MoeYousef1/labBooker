@@ -1,58 +1,97 @@
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useLayoutEffect, useCallback, useRef, useState } from "react";
 import RoomImg from "../assets/room.jpg";
 import iconMapping from "../utils/iconMapping";
 import RoomCardBookingForm from "./roomCardBookingForm";
-import { Users, MapPin } from 'lucide-react';
+import { Users } from "lucide-react";
+import debounce from "lodash/debounce";
 
-const RoomCard = ({
-  rooms,
-  room,
-  userInfo,
-  extraCount,
-  containerRef,
-  visibleIconsCount,
-  toggleDescription,
-  setVisibleIconsCount,
-  activeRoom,
-  setActiveRoom,
-}) => {
-  const handleStartBooking = useCallback((roomId) => {
-    setActiveRoom((prevRoom) => (prevRoom === roomId ? null : roomId));
-  }, [setActiveRoom]);
+const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom }) => {
+  const [visibleAmenities, setVisibleAmenities] = useState(room.amenities);
+  const [extraCount, setExtraCount] = useState(0);
 
-  const handleResize = useCallback(() => {
-    if (containerRef.current) {
-      const containerWidth = containerRef.current.offsetWidth;
-      const iconWidth = 60;
-      const visibleIcons = Math.floor(containerWidth / iconWidth);
-      setVisibleIconsCount(visibleIcons);
-    }
-  }, [containerRef, setVisibleIconsCount]);
+  const containerRef = useRef(null);
+  const measurementAmenitiesRef = useRef([]);
+  const measurementMoreRef = useRef(null);
 
-  useEffect(() => {
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [handleResize]);
-
-  const visibleAmenities = useMemo(() => 
-    room.amenities.slice(0, visibleIconsCount - 1),
-    [room.amenities, visibleIconsCount]
+  const handleStartBooking = useCallback(
+    (roomId) => {
+      setActiveRoom((prev) => (prev === roomId ? null : roomId));
+    },
+    [setActiveRoom]
   );
+
+  const calculateVisibleAmenities = useCallback(() => {
+    if (!containerRef.current) return;
+    const containerWidth = containerRef.current.getBoundingClientRect().width;
+    const gapSize = 8;
+    const amenitiesWidths = measurementAmenitiesRef.current.map((ref) => (ref ? ref.offsetWidth : 0));
+    const moreWidth = measurementMoreRef.current ? measurementMoreRef.current.offsetWidth : 0;
+
+    let availableWidth = containerWidth;
+    let visibleCount = 0;
+
+    for (let i = 0; i < amenitiesWidths.length; i++) {
+      const amenityWidth = amenitiesWidths[i];
+      const requiredWidth =
+        amenityWidth + (visibleCount > 0 ? gapSize : 0) + (i < amenitiesWidths.length - 1 ? moreWidth : 0);
+
+      if (availableWidth - requiredWidth >= 0) {
+        availableWidth -= amenityWidth + (visibleCount > 0 ? gapSize : 0);
+        visibleCount++;
+      } else {
+        break;
+      }
+    }
+
+    const hiddenCount = amenitiesWidths.length - visibleCount;
+    setVisibleAmenities(room.amenities.slice(0, visibleCount));
+    setExtraCount(hiddenCount > 0 ? hiddenCount : 0);
+  }, [room.amenities]);
+
+  const debouncedCalculate = useCallback(debounce(calculateVisibleAmenities, 100), [calculateVisibleAmenities]);
+
+  useLayoutEffect(() => {
+    calculateVisibleAmenities();
+    const resizeObserver = new ResizeObserver(() => {
+      debouncedCalculate();
+    });
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
+    return () => {
+      resizeObserver.disconnect();
+      debouncedCalculate.cancel();
+    };
+  }, [calculateVisibleAmenities, debouncedCalculate]);
+
+  useLayoutEffect(() => {
+    calculateVisibleAmenities();
+  }, [room.amenities, calculateVisibleAmenities]);
 
   return (
     <>
-      <div className="
-        flex flex-col md:flex-row
-        bg-white 
-        rounded-2xl 
-        shadow-lg hover:shadow-xl 
-        transition-all duration-300 
-        overflow-hidden
-        border border-gray-200
-        h-full
-      ">
-        {/* Room Image */}
+      {/* Hidden Measurement Container */}
+      <div className="absolute top-0 left-[-9999px] opacity-0 pointer-events-none whitespace-nowrap">
+        {room.amenities.map((amenity, index) => (
+          <div
+            key={`measure-${amenity.name}-${index}`}
+            ref={(el) => (measurementAmenitiesRef.current[index] = el)}
+            className="inline-flex items-center px-2 py-1 text-xs box-border bg-blue-50 text-blue-700 shadow-sm whitespace-nowrap"
+          >
+            <span className="mr-1 text-sm">{React.cloneElement(iconMapping[amenity.icon], { className: "h-5 w-5" })}</span>
+            {amenity.name}
+          </div>
+        ))}
+        {room.amenities.length > 0 && (
+          <span
+            ref={measurementMoreRef}
+            className="inline-flex items-center px-2 py-1 text-xs box-border bg-blue-100 text-blue-700 shadow-sm whitespace-nowrap"
+          >
+            +{room.amenities.length} more
+          </span>
+        )}
+      </div>
+
+      {/* Main Card Layout */}
+      <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 h-full">
         <div className="relative md:w-1/2 h-64 overflow-hidden">
           <img
             src={room.imageUrl || RoomImg}
@@ -60,21 +99,12 @@ const RoomCard = ({
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             loading="lazy"
           />
-          
-          {/* Room Type Tag */}
-          <div className="
-            absolute top-4 left-4 
-            bg-blue-500 text-white 
-            px-3 py-1 rounded-full 
-            text-sm shadow-md
-          ">
+          <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm shadow-md">
             {room.type}
           </div>
         </div>
 
-        {/* Room Details */}
         <div className="p-5 flex flex-col flex-grow md:w-1/2">
-          {/* Title and Capacity */}
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-xl font-bold text-gray-800">{room.name}</h3>
@@ -85,66 +115,54 @@ const RoomCard = ({
             </div>
           </div>
 
-          {/* Amenities */}
-          <div ref={containerRef} className="flex flex-wrap gap-2 mb-4 mt-auto">
+          {/* Amenities Container => Centered */}
+          <div ref={containerRef} className="flex flex-nowrap gap-2 mb-4 mx-1 mt-auto overflow-hidden justify-center items-center">
             {visibleAmenities.map((amenity, index) => (
-              <div 
-                key={`${amenity.name}-${index}`} 
-                className="
-                  bg-blue-50 text-blue-700 
-                  px-2 py-1 rounded-md text-xs 
-                  flex items-center 
-                  shadow-sm
-                "
+              <div
+                key={`${amenity.name}-${index}`}
+                className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs inline-flex items-center shadow-sm whitespace-nowrap box-border cursor-pointer hover:bg-blue-200 transition-colors"
               >
-                <span className="mr-1 text-sm">{iconMapping[amenity.icon]}</span>
+                <span className="mr-1 text-sm">
+                  {React.cloneElement(iconMapping[amenity.icon], { className: "h-5 w-5" })}
+                </span>
                 {amenity.name}
               </div>
             ))}
+
             {extraCount > 0 && (
-              <button 
-                onClick={() => toggleDescription(room)}
-                className="
-                  bg-blue-100 text-blue-700 
-                  px-2 py-1 rounded-md text-xs
-                  hover:bg-blue-200
-                  transition-colors
-                "
+              <span
+                className="bg-blue-100 text-blue-700 px-2 py-[6px] rounded-md text-xs inline-flex items-center shadow-sm whitespace-nowrap box-border cursor-pointer hover:bg-blue-300 transition-colors relative group flex-shrink-0"
+                aria-label={`There are ${extraCount} more amenities`}
               >
                 +{extraCount} more
-              </button>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                  {room.amenities.slice(visibleAmenities.length).map((hiddenAmenity, idx) => (
+                    <div key={`tooltip-${idx}`} className="flex items-center">
+                      <span className="mr-1">
+                        {React.cloneElement(iconMapping[hiddenAmenity.icon], { className: "h-4 w-4" })}
+                      </span>
+                      {hiddenAmenity.name}
+                    </div>
+                  ))}
+                </div>
+              </span>
             )}
           </div>
 
-          {/* Action Buttons */}
           <div className="flex space-x-2 mt-auto">
             <button
               onClick={() => toggleDescription(room._id)}
-              className="
-                flex-1 
-                bg-gray-100 text-gray-700 
-                py-2 rounded-md 
-                text-sm
-                hover:bg-gray-200 
-                transition-colors
-                shadow-sm
-                hover:shadow-md
-              "
+              className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-md text-sm hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md"
             >
               Details
             </button>
             <button
               onClick={() => handleStartBooking(room._id)}
-              className={`
-                flex-1 py-2 rounded-md 
-                text-sm
-                transition-all duration-300
-                shadow-md hover:shadow-lg
-                transform hover:-translate-y-1
-                ${activeRoom === room._id 
-                  ? 'bg-red-500 text-white hover:bg-red-600' 
-                  : 'bg-blue-500 text-white hover:bg-blue-600'}
-              `}
+              className={`flex-1 py-2 rounded-md text-sm transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 ${
+                activeRoom === room._id
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              }`}
             >
               {activeRoom === room._id ? "Cancel" : "Book"}
             </button>
@@ -152,12 +170,7 @@ const RoomCard = ({
         </div>
       </div>
 
-      <RoomCardBookingForm
-        room={room}
-        activeRoom={activeRoom}
-        userInfo={userInfo}
-        handleStartBooking={handleStartBooking}
-      />
+      <RoomCardBookingForm room={room} activeRoom={activeRoom} userInfo={userInfo} handleStartBooking={handleStartBooking} />
     </>
   );
 };
