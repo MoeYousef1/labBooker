@@ -40,7 +40,7 @@ router.post("/rooms", async (req, res) => {
 });
 
 // Update Room Details
-router.put("/rooms/:id", async (req, res) => {
+router.put("/rooms/:name", async (req, res) => {
   try {
     const response = await roomController.updateRoom(req, res);
     res
