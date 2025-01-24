@@ -98,17 +98,25 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
 
   // Callback when a date is selected and applied from the CustomDatepicker
   const handleDateSelected = (date) => {
-    const dateStr = date.toISOString().split("T")[0]; // Format: YYYY-MM-DD
-    setFormData((prev) => ({ ...prev, date: dateStr, startTime: "", endTime: "" }));
-    if (availability) {
-      const dayAvailability = availability.find((day) => day.date === dateStr);
-      if (dayAvailability) {
-        setDisplaySlots(dayAvailability.slots);
-      } else {
-        setDisplaySlots([]);
-      }
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(date.getDate()).padStart(2, '0');
+  const dateStr = `${year}-${month}-${day}`;
+  
+  console.log("Selected Date (Local):", dateStr); // Debugging log
+
+  setFormData((prev) => ({ ...prev, date: dateStr, startTime: "", endTime: "" }));
+  
+  if (availability) {
+    const dayAvailability = availability.find((day) => day.date === dateStr);
+    if (dayAvailability) {
+      setDisplaySlots(dayAvailability.slots);
+    } else {
+      setDisplaySlots([]);
     }
-  };
+  }
+};
+
 
   // When a timeslot is clicked, update formData if available
   const handleSlotSelect = (slot) => {

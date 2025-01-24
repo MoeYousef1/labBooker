@@ -275,7 +275,7 @@ const getRoomAvailabilityForMonth = async (roomId) => {
   const bookings = await Booking.find({
     roomId,
     date: { $in: dates },
-    status: "Confirmed", // Only consider confirmed bookings
+    status: { $in: ["Pending", "Confirmed"] }, // Include Pending and Confirmed bookings
   });
 
   // Prepare availability for each date

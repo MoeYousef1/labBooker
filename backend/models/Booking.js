@@ -67,23 +67,24 @@ const bookingSchema = new mongoose.Schema(
 // Add a pre-save validation hook
 bookingSchema.pre('save', function(next) {
   // Validate start and end times
-  const startTime = new Date(`1970-01-01T${this.startTime}`);
-  const endTime = new Date(`1970-01-01T${this.endTime}`);
+  const startTime = new Date(`1970-01-01T${this.startTime}:00`);
+  const endTime = new Date(`1970-01-01T${this.endTime}:00`);
 
   if (endTime <= startTime) {
-    next(new Error('End time must be after start time'));
+    return next(new Error('End time must be after start time'));
   }
 
   // Validate booking is for a future date
-  const bookingDate = new Date(this.date);
+  const bookingDate = new Date(`${this.date}T00:00:00`); // Treat as local midnight
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   if (bookingDate < today) {
-    next(new Error('Booking date must be in the future'));
+    return next(new Error('Booking date must be in the future'));
   }
 
   next();
 });
+
 
 module.exports = mongoose.model("Booking", bookingSchema);
