@@ -3,13 +3,25 @@ import { useNavigate } from "react-router-dom";
 import api from '../utils/axiosConfig';
 import Navbar from "../components/Navbar";
 import { Calendar, Clock, RefreshCw, X, AlertCircle, CalendarIcon } from 'lucide-react';
+import Footer from "../components/footer";
+import Modal from '../components/cnfrmModal'; // Adjust the path as needed
+import Toast from '../components/errsucModal'; // Adjust the path as needed
+
 
 const MyBookingsPage = () => {
+  const [userInfo, setUserInfo] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
+
+  // State for Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedBookingId, setSelectedBookingId] = useState(null);
+
+    // State for Toast
+      const [toast, setToast] = useState({ isVisible: false, type: '', message: '' });
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Invalid Date';
@@ -105,31 +117,36 @@ const MyBookingsPage = () => {
     fetchBookings();
   }, []);
 
-  const handleCancelBooking = async (bookingId) => {
+  const handleCancelBooking = async () => {
     try {
-      if (!window.confirm('Are you sure you want to cancel this booking?')) {
-        return;
-      }
+      const bookingId = selectedBookingId;
+      setIsModalOpen(false);
+      setSelectedBookingId(null);
 
       const response = await api.patch(`/book/booking/${bookingId}/status`, {
         status: 'Canceled'
       });
 
       if (response.data.booking) {
-        alert('Booking cancelled successfully');
+        setToast({ isVisible: true, type: 'success', message: 'Booking cancelled successfully' });
         fetchBookings();
       }
     } catch (error) {
       console.error('Cancel booking error:', error);
       
       if (error.response?.status === 403) {
-        alert('Cannot cancel this booking - it may be in the past or already cancelled');
+        setToast({ isVisible: true, type: 'error', message: 'Cannot cancel this booking - it may be in the past or already cancelled' });
       } else if (error.response?.status === 401) {
         navigate('/login');
       } else {
-        alert(error.response?.data?.message || 'Failed to cancel booking');
+        setToast({ isVisible: true, type: 'error', message: error.response?.data?.message || 'Failed to cancel booking' });
       }
     }
+  };
+
+  const openCancelModal = (bookingId) => {
+    setSelectedBookingId(bookingId);
+    setIsModalOpen(true);
   };
 
   const getFilteredAndSortedBookings = () => {
@@ -155,11 +172,45 @@ const MyBookingsPage = () => {
 
   const filteredBookings = getFilteredAndSortedBookings();
 
+  // Authentication check
+    useEffect(() => {
+      const checkAuthentication = () => {
+        try {
+          const storedUser = localStorage.getItem("user");
+          const token = localStorage.getItem("token");
+  
+          if (storedUser && token) {
+            const parsedUser = JSON.parse(storedUser);
+            setUserInfo({
+              email: parsedUser.email || "",
+              username: parsedUser.username || "",
+              id: parsedUser.id || "",
+            });
+          } else {
+            navigate("/login");
+          }
+        } catch (error) {
+          console.error("Authentication error:", error);
+          navigate("/login");
+        }
+      };
+  
+      checkAuthentication();
+    }, [navigate]);
+  
+    // Prevent rendering if not authenticated
+    if (!userInfo) {
+      return null;
+    }
+
   // ... Rest of your JSX remains the same ...
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Navbar 
+              userInfo={userInfo} 
+              setUserInfo={setUserInfo} 
+            />
       
       <main className="container mx-auto px-4 py-8 max-w-7xl pt-20">
         {/* Header Section */}
@@ -315,7 +366,7 @@ const MyBookingsPage = () => {
 
                       {canCancel ? (
                         <button
-                          onClick={() => handleCancelBooking(booking._id)}
+                          onClick={() => openCancelModal(booking._id)}
                           className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
                         >
                           <X className="w-4 h-4" />
@@ -345,6 +396,26 @@ const MyBookingsPage = () => {
           </div>
         )}
       </main>
+
+      {/* Confirmation Modal */}
+            <Modal
+              isOpen={isModalOpen}
+              onClose={() => { setIsModalOpen(false); setSelectedBookingId(null); }}
+              onConfirm={handleCancelBooking}
+              title="Confirm Cancellation"
+              message="Are you sure you want to cancel this booking?"
+            />
+      
+            {/* Toast Notification */}
+            {toast.isVisible && (
+              <Toast
+                type={toast.type}
+                message={toast.message}
+                onClose={() => setToast({ ...toast, isVisible: false })}
+              />
+            )}
+
+      <Footer />
     </div>
   );
 };
