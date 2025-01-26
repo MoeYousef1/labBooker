@@ -1,26 +1,121 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import api from '../utils/axiosConfig';
+import api from "../utils/axiosConfig";
 
 // Import assets
 import lapLogo from "../assets/laptop.png";
 import headerImage from "../assets/header-bg.jpg";
 import collegeLogoWhite from "../assets/collegeLogoWhite.png";
 
-// Import components
-import AuthLayout from "../components/AuthLayout";
-import FormInput from "../components/FormInput";
-import ErrorMessage from "../components/Error_successMessage";
-import AuthButton from "../components/AuthButton";
-import AuthFooter from "../components/AuthFooter";
+// FormInput Component
+const FormInput = ({
+  label,
+  type = "text",
+  name,
+  value,
+  onChange,
+  error,
+  placeholder,
+  required,
+  maxLength,
+  className,
+}) => {
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-300">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        maxLength={maxLength}
+        className={`
+          w-full px-4 py-3 rounded-lg bg-gray-700/50 border border-gray-600 
+          text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 
+          focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+          transition-all duration-300 ${className}
+        `}
+      />
+      {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+    </div>
+  );
+};
+
+// ErrorMessage Component
+const ErrorMessage = ({ message, onClose, className }) => {
+  if (!message) return null;
+
+  return (
+    <div
+      className={`bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg mt-4 ${className}`}
+    >
+      <div className="flex justify-between items-center">
+        <p className="text-sm">{message}</p>
+        <button
+          onClick={onClose}
+          className="text-red-500 hover:text-red-400 focus:outline-none"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// AuthButton Component
+const AuthButton = ({ isSubmitting, label, className }) => {
+  return (
+    <button
+      type="submit"
+      disabled={isSubmitting}
+      className={`
+        w-full flex justify-center items-center px-4 py-3 rounded-lg
+        text-white font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 
+        focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed
+        bg-blue-600 hover:bg-blue-700 transition-all duration-300 transform hover:-translate-y-0.5
+        ${className}
+      `}
+    >
+      {isSubmitting ? (
+        <svg
+          className="animate-spin h-5 w-5 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      ) : (
+        label
+      )}
+    </button>
+  );
+};
 
 const LogInPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [stage, setStage] = useState('email');
+  const [stage, setStage] = useState("email");
   const [formData, setFormData] = useState({
     email: "",
-    verificationCode: ""
+    verificationCode: "",
   });
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
@@ -36,10 +131,10 @@ const LogInPage = () => {
 
       if (token && user) {
         try {
-          await api.get('/auth/verify-token');
+          await api.get("/auth/verify-token");
           navigate("/homepage");
         } catch (error) {
-          console.error('Session validation failed:', error);
+          console.error("Session validation failed:", error);
           localStorage.clear();
         }
       }
@@ -61,14 +156,13 @@ const LogInPage = () => {
 
     return () => clearInterval(interval);
   }, [resendTimer]);
-
   const handleError = (error) => {
-    console.error('Operation failed:', {
+    console.error("Operation failed:", {
       error: error.message,
       response: error.response?.data,
-      status: error.response?.status
+      status: error.response?.status,
     });
-    
+
     if (error.response) {
       switch (error.response.status) {
         case 401:
@@ -83,7 +177,9 @@ const LogInPage = () => {
           setResendTimer(60);
           break;
         default:
-          setGeneralError(error.response.data.message || "An unexpected error occurred");
+          setGeneralError(
+            error.response.data.message || "An unexpected error occurred"
+          );
       }
     } else if (error.request) {
       setGeneralError("Network error. Please check your connection.");
@@ -111,15 +207,11 @@ const LogInPage = () => {
         return;
       }
 
-      console.log('Requesting login code for:', formData.email);
-
-      const response = await api.post('/auth/login', { 
-        email: formData.email 
+      const response = await api.post("/auth/login", {
+        email: formData.email,
       });
 
-      console.log('Login request response:', response.data);
-      
-      setStage('verification');
+      setStage("verification");
       setResendDisabled(true);
       setResendTimer(30);
     } catch (error) {
@@ -135,42 +227,16 @@ const LogInPage = () => {
     setGeneralError("");
 
     try {
-      console.log('Submitting verification with:', {
+      const response = await api.post("/auth/verify-login", {
         email: formData.email,
-        code: formData.verificationCode
+        code: formData.verificationCode,
       });
-
-      const response = await api.post('/auth/verify-login', { 
-        email: formData.email, 
-        code: formData.verificationCode 
-      });
-
-      console.log('Verification response:', response.data);
 
       const { user, accessToken, refreshToken } = response.data;
 
-      if (!accessToken || !refreshToken) {
-        throw new Error('Invalid server response - missing tokens');
-      }
-
-      // Store authentication data
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-
-      console.log('Authentication data stored:', {
-        user: user.email,
-        tokenPreview: `${accessToken.substring(0, 10)}...`,
-        refreshTokenPreview: `${refreshToken.substring(0, 10)}...`
-      });
-
-      // Test authentication
-      try {
-        const testResponse = await api.get('/auth/test');
-        console.log('Authentication test:', testResponse.data);
-      } catch (testError) {
-        console.error('Authentication test failed:', testError);
-      }
 
       const from = location.state?.from?.pathname || "/homepage";
       navigate(from);
@@ -183,15 +249,12 @@ const LogInPage = () => {
 
   const handleResendCode = async () => {
     if (resendDisabled) return;
-
     setIsSubmitting(true);
     setGeneralError("");
 
     try {
-      console.log('Requesting new code for:', formData.email);
-
-      await api.post('/auth/request-code', { 
-        email: formData.email 
+      await api.post("/auth/request-code", {
+        email: formData.email,
       });
 
       setResendDisabled(true);
@@ -204,100 +267,83 @@ const LogInPage = () => {
     }
   };
 
-  const rightContent = (
-    <>
-      <div className="text-center">
-        <h4 className="mb-4 text-lg font-semibold">
-          LabBooker - Azrieli College of Engineering Jerusalem
-        </h4>
-        <p className="text-sm mb-4">
-          LabBooker is your go-to platform for reserving study rooms. Sign up to
-          get started and book your next study space today!
-        </p>
-      </div>
-      <div className="mt-2">
-        <img 
-          src={collegeLogoWhite} 
-          alt="College Logo" 
-          className="mx-auto max-h-20"
-        />
-      </div>
-    </>
-  );
-
   const renderEmailForm = () => (
-    <form onSubmit={handleEmailSubmit} className="space-y-4">
-      <p className="mb-4 text-white font-semibold">Login to your account</p>
+    <form onSubmit={handleEmailSubmit} className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-xl text-white font-semibold mb-2">Welcome Back</h2>
+        <p className="text-gray-400 text-sm">Sign in to your account</p>
+      </div>
+
       <FormInput
         type="email"
         name="email"
+        label="Email"
         value={formData.email}
         onChange={handleChange}
-        label="Email"
-        error={errors.email}
         placeholder="Enter your email"
         required
       />
-      <div className="mb-6 text-center">
-        <AuthButton 
-          isSubmitting={isSubmitting} 
-          label="Continue" 
+
+      <AuthButton isSubmitting={isSubmitting} label="Continue" />
+
+      {generalError && (
+        <ErrorMessage
+          message={generalError}
+          onClose={() => setGeneralError("")}
         />
-        {generalError && (
-          <ErrorMessage
-            message={generalError}
-            onClose={() => setGeneralError("")}
-          />
-        )}
-      </div>
+      )}
     </form>
   );
 
   const renderVerificationForm = () => (
-    <form onSubmit={handleVerificationSubmit} className="space-y-4">
-      <p className="mb-4 text-white font-semibold">
-        Enter Verification Code
-      </p>
-      <p className="mb-4 text-gray-300 text-sm">
-        A verification code has been sent to {formData.email}
-      </p>
+    <form onSubmit={handleVerificationSubmit} className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-xl text-white font-semibold mb-2">
+          Enter Verification Code
+        </h2>
+        <p className="text-gray-400 text-sm">
+          Enter the code sent to
+          <br />
+          <span className="font-medium text-gray-300">{formData.email}</span>
+        </p>
+      </div>
+
       <FormInput
-        type="text"
         name="verificationCode"
+        label="Verification Code"
         value={formData.verificationCode}
         onChange={handleChange}
-        label="Verification Code"
-        error={errors.verificationCode}
-        maxLength={6}
         placeholder="Enter 6-digit code"
+        maxLength={6}
         required
+        className="text-center tracking-widest text-lg"
       />
-      <div className="mb-6 text-center space-y-2">
-        <AuthButton 
-          isSubmitting={isSubmitting} 
-          label="Verify" 
-        />
-        <button
-          type="button"
-          className="text-sm text-blue-300 hover:text-blue-200 block mx-auto"
-          onClick={() => setStage('email')}
-        >
-          Back to Email
-        </button>
-        <button
-          type="button"
-          className={`text-sm ${
-            resendDisabled 
-              ? 'text-gray-400 cursor-not-allowed' 
-              : 'text-blue-300 hover:text-blue-200'
-          } block mx-auto`}
-          onClick={handleResendCode}
-          disabled={resendDisabled}
-        >
-          {resendTimer > 0 
-            ? `Resend code in ${resendTimer}s` 
-            : 'Resend code'}
-        </button>
+
+      <div className="space-y-4">
+        <AuthButton isSubmitting={isSubmitting} label="Verify" />
+
+        <div className="flex flex-col space-y-2">
+          <button
+            type="button"
+            className="text-sm text-gray-400 hover:text-white transition-colors duration-300"
+            onClick={() => setStage("email")}
+          >
+            ← Back to Email
+          </button>
+          <button
+            type="button"
+            className={`text-sm ${
+              resendDisabled
+                ? "text-gray-500 cursor-not-allowed"
+                : "text-blue-400 hover:text-blue-300 transition-colors duration-300"
+            }`}
+            onClick={handleResendCode}
+            disabled={resendDisabled}
+          >
+            {resendTimer > 0 ? `Resend code in ${resendTimer}s` : "Resend code"}
+          </button>
+        </div>
+
         {generalError && (
           <ErrorMessage
             message={generalError}
@@ -309,24 +355,44 @@ const LogInPage = () => {
   );
 
   return (
-    <AuthLayout headerImage={headerImage} rightContent={rightContent}>
-      <div className="text-center">
-        <img className="mx-auto w-48" src={lapLogo} alt="logo" />
-        <h4 className="mb-8 mt-1 text-4xl font-extrabold text-white">
-          LabBooker
-        </h4>
-      </div>
-      
-      {stage === 'email' 
-        ? renderEmailForm() 
-        : renderVerificationForm()}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        {/* Header */}
+        <div className="flex items-center justify-center space-x-3 mb-8">
+          <img
+            className="w-16 md:w-20 h-auto object-contain drop-shadow-xl"
+            src={lapLogo}
+            alt="logo"
+          />
+          <div className="border-l border-gray-600 pl-3">
+            <h4 className="text-2xl md:text-3xl font-bold text-white tracking-wider">
+              LabBooker
+            </h4>
+            <p className="text-xs md:text-sm text-gray-400">
+              Azrieli College of Engineering
+            </p>
+          </div>
+        </div>
 
-      <AuthFooter
-        isLoginPage={true}
-        onLoginRedirect={() => navigate("/signup")}
-        onForgotPasswordRedirect={() => navigate("/forgotpassword")}
-      />
-    </AuthLayout>
+        {/* Form Container */}
+        <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl shadow-2xl px-4 py-8 sm:px-10">
+          {stage === "email" ? renderEmailForm() : renderVerificationForm()}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-gray-400">
+            Don't have an account?{" "}
+            <button
+              onClick={() => navigate("/signup")}
+              className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300"
+            >
+              Sign up
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
