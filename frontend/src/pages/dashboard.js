@@ -8,7 +8,10 @@ import {
   Calendar, 
   Settings, 
   UserPlus, 
-  BookmarkPlus 
+  BookmarkPlus,
+  AlertTriangle,
+  CheckCircle2,
+  XOctagon
 } from 'lucide-react';
 
 const DashBoard = () => {
@@ -21,8 +24,12 @@ const DashBoard = () => {
   const [userCount, setUserCount] = useState(0);
 
   // Booking counts
-  const [pendingBookings, setPendingBookings] = useState(0);
-  const [activeBookings, setActiveBookings] = useState(0);
+  const [bookingCounts, setBookingCounts] = useState({
+    total: 0,
+    pending: 0,
+    confirmed: 0,
+    canceled: 0,
+  });
 
   // Loading & Error States
   const [loading, setLoading] = useState(false);
@@ -58,49 +65,40 @@ const DashBoard = () => {
     setErrors("");
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://localhost:5000/api/user/count",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get("http://localhost:5000/api/user/count", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (response.status === 200) {
         setUserCount(response.data.count);
       }
     } catch (error) {
       setErrors(
         error?.response?.data?.message ||
-          "An error occurred while fetching user count"
+        "An error occurred while fetching user count"
       );
     } finally {
       setLoading(false);
     }
   };
 
-  // 2. Fetch booking counts (pending, active)
+  // 2. Fetch booking counts (total, pending, confirmed, canceled)
   const fetchBookingCounts = async () => {
     setLoading(true);
     setErrors("");
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://localhost:5000/api/book/bookings/count",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get("http://localhost:5000/api/book/bookings/count", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (response.status === 200) {
-        setPendingBookings(response.data.pending);
-        setActiveBookings(response.data.confirmed);
+        // destructure out total, pending, confirmed, canceled
+        const { total, pending, confirmed, canceled } = response.data.counts;
+        setBookingCounts({ total, pending, confirmed, canceled });
       }
     } catch (error) {
       setErrors(
         error?.response?.data?.message ||
-          "An error occurred while fetching booking counts"
+        "An error occurred while fetching booking counts"
       );
     } finally {
       setLoading(false);
@@ -111,7 +109,8 @@ const DashBoard = () => {
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col px-6 sm:px-8 md:px-12 mt-16 sm:mt-0 sm:ml-64 py-10 mx-auto  ">
+      <div className="flex-1 flex flex-col px-6 sm:px-8 md:px-12 mt-16 sm:mt-0 sm:ml-64 py-10 mx-auto">
+        
         {/* Header Section */}
         <div className="mb-8 flex flex-col justify-between sm:flex-row sm:items-center">
           <h1 className="text-3xl font-bold text-gray-800 flex items-center">
@@ -124,19 +123,9 @@ const DashBoard = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Card: Total Users */}
-          <div className="
-            bg-white 
-            rounded-xl 
-            shadow-md 
-            hover:shadow-xl 
-            p-6 
-            transition-all 
-            duration-300 
-            border border-gray-100
-            flex flex-col
-          ">
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
                 Total Users
@@ -146,65 +135,74 @@ const DashBoard = () => {
             {loading ? (
               <p className="mt-2 text-gray-600">Loading...</p>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">
-                {userCount}
-              </p>
+              <p className="text-3xl font-bold text-gray-800">{userCount}</p>
             )}
             {errors && <p className="mt-1 text-red-600">{errors}</p>}
           </div>
 
-          {/* Card: Pending Bookings */}
-          <div className="
-            bg-white 
-            rounded-xl 
-            shadow-md 
-            hover:shadow-xl 
-            p-6 
-            transition-all 
-            duration-300 
-            border border-gray-100
-            flex flex-col
-          ">
+          {/* Card: Total Bookings */}
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
-                Pending Bookings
-              </h3>
-              <BookmarkPlus className="text-green-500" />
-            </div>
-            {loading ? (
-              <p className="mt-2 text-gray-600">Loading...</p>
-            ) : (
-              <p className="text-3xl font-bold text-gray-800">
-                {pendingBookings}
-              </p>
-            )}
-            {errors && <p className="mt-1 text-red-600">{errors}</p>}
-          </div>
-
-          {/* Card: Active Bookings */}
-          <div className="
-            bg-white 
-            rounded-xl 
-            shadow-md 
-            hover:shadow-xl 
-            p-6 
-            transition-all 
-            duration-300 
-            border border-gray-100
-            flex flex-col
-          ">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
-                Active Bookings
+                Total Bookings
               </h3>
               <Calendar className="text-green-500" />
             </div>
             {loading ? (
               <p className="mt-2 text-gray-600">Loading...</p>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">
-                {activeBookings}
-              </p>
+              <p className="text-3xl font-bold text-gray-800">{bookingCounts.total}</p>
+            )}
+            {errors && <p className="mt-1 text-red-600">{errors}</p>}
+          </div>
+        </div>
+
+        {/* Detailed Booking Breakdown */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Pending Bookings */}
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
+                Pending
+              </h3>
+              <AlertTriangle className="text-yellow-500" />
+            </div>
+            {loading ? (
+              <p className="mt-2 text-gray-600">Loading...</p>
+            ) : (
+              <p className="text-3xl font-bold text-gray-800">{bookingCounts.pending}</p>
+            )}
+            {errors && <p className="mt-1 text-red-600">{errors}</p>}
+          </div>
+
+          {/* Confirmed Bookings */}
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
+                Confirmed
+              </h3>
+              <CheckCircle2 className="text-green-500" />
+            </div>
+            {loading ? (
+              <p className="mt-2 text-gray-600">Loading...</p>
+            ) : (
+              <p className="text-3xl font-bold text-gray-800">{bookingCounts.confirmed}</p>
+            )}
+            {errors && <p className="mt-1 text-red-600">{errors}</p>}
+          </div>
+
+          {/* Canceled Bookings */}
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
+                Canceled
+              </h3>
+              <XOctagon className="text-red-500" />
+            </div>
+            {loading ? (
+              <p className="mt-2 text-gray-600">Loading...</p>
+            ) : (
+              <p className="text-3xl font-bold text-gray-800">{bookingCounts.canceled}</p>
             )}
             {errors && <p className="mt-1 text-red-600">{errors}</p>}
           </div>
@@ -214,21 +212,7 @@ const DashBoard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           <button
             onClick={() => navigate("/usermanagement")}
-            className="
-              flex items-center justify-center 
-              p-6 
-              bg-white 
-              text-gray-800 
-              font-semibold 
-              rounded-xl 
-              shadow-md 
-              hover:shadow-xl 
-              transition-all 
-              duration-300 
-              border border-gray-100
-              hover:border-green-200
-              group
-            "
+            className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
           >
             <UserPlus className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />
             Manage Users
@@ -236,21 +220,7 @@ const DashBoard = () => {
 
           <button
             onClick={() => navigate("/roomOperationpage")}
-            className="
-              flex items-center justify-center 
-              p-6 
-              bg-white 
-              text-gray-800 
-              font-semibold 
-              rounded-xl 
-              shadow-md 
-              hover:shadow-xl 
-              transition-all 
-              duration-300 
-              border border-gray-100
-              hover:border-green-200
-              group
-            "
+            className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
           >
             <BookOpen className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />
             Manage Rooms
@@ -258,21 +228,7 @@ const DashBoard = () => {
 
           <button
             onClick={() => navigate("/bookingmanagement")}
-            className="
-              flex items-center justify-center 
-              p-6 
-              bg-white 
-              text-gray-800 
-              font-semibold 
-              rounded-xl 
-              shadow-md 
-              hover:shadow-xl 
-              transition-all 
-              duration-300 
-              border border-gray-100
-              hover:border-green-200
-              group
-            "
+            className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
           >
             <Calendar className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />
             Manage Bookings
@@ -280,21 +236,7 @@ const DashBoard = () => {
 
           <button
             onClick={() => navigate("/configmanagement")}
-            className="
-              flex items-center justify-center 
-              p-6 
-              bg-white 
-              text-gray-800 
-              font-semibold 
-              rounded-xl 
-              shadow-md 
-              hover:shadow-xl 
-              transition-all 
-              duration-300 
-              border border-gray-100
-              hover:border-green-200
-              group
-            "
+            className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
           >
             <Settings className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />
             Configurations
