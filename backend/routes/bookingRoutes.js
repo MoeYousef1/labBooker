@@ -18,6 +18,6 @@ router.get("/my-bookings", authMiddleware.requireAuth, bookingController.getMyBo
 router.patch("/booking/:id/status", authMiddleware.requireAuth, bookingController.updateBookingStatus);
 router.delete("/booking/:id", debugMiddleware, bookingController.deleteBooking);
 router.get("/bookings/count", debugMiddleware, bookingController.getBookingCounts);
-router.get("/bookings/upcoming/:userId", authMiddleware.requireAuth , bookingController.getUserUpcomingBookings);
+router.get("/bookings/upcoming/:username", authMiddleware.requireAuth , bookingController.getUserUpcomingBookings);
 
 module.exports = router;
