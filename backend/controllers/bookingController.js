@@ -1,31 +1,49 @@
 // controllers/bookingController.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Booking = require("../models/Booking");
 const Room = require("../models/Room");
 const User = require("../models/User");
 const Config = require("../models/Config");
+const nodemailer = require("nodemailer");
 
+// Constants
 const BOOKING_CONSTANTS = {
   STATUSES: {
-    PENDING: 'Pending',
-    CONFIRMED: 'Confirmed',
-    CANCELED: 'Canceled'
+    PENDING: "Pending",
+    CONFIRMED: "Confirmed",
+    CANCELED: "Canceled",
   },
   MAX_DURATION: 3,
-  MIN_DURATION: 0
+  MIN_DURATION: 0,
 };
+
+const ROOM_TYPES = {
+  LARGE_SEMINAR: "Large Seminar",
+  REGULAR: "Regular",
+  COMPUTER_LAB: "Computer Lab",
+  STUDY_ROOM: "Study Room",
+};
+
+// Email configuration
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 class BookingController {
   // Helper methods
   static calculateDurationInHours(startTime, endTime) {
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    return ((endHour * 60 + endMinute) - (startHour * 60 + startMinute)) / 60;
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
+    return (endHour * 60 + endMinute - (startHour * 60 + startMinute)) / 60;
   }
 
   static isBookingPast(date, endTime) {
     const bookingDateTime = new Date(date);
-    const [hours, minutes] = endTime.split(':');
+    const [hours, minutes] = endTime.split(":");
     bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0);
     return bookingDateTime < new Date();
   }
@@ -35,6 +53,84 @@ class BookingController {
     return emailRegex.test(email);
   }
 
+  static async sendAdminNotificationEmail({
+    to,
+    bookingId,
+    roomName,
+    date,
+    startTime,
+    endTime,
+    userEmail,
+    userName,
+  }) {
+    const emailContent = `
+      New Large Seminar Room Booking Request
+
+      Booking ID: ${bookingId}
+      Room: ${roomName}
+      Date: ${date}
+      Time: ${startTime} - ${endTime}
+      Requested by: ${userName} (${userEmail})
+      
+      Please review and confirm this booking through the admin dashboard.
+    `;
+
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to,
+        subject: "New Large Seminar Room Booking Request",
+        text: emailContent,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2>New Large Seminar Room Booking Request</h2>
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
+              <p><strong>Booking ID:</strong> ${bookingId}</p>
+              <p><strong>Room:</strong> ${roomName}</p>
+              <p><strong>Date:</strong> ${date}</p>
+              <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
+              <p><strong>Requested by:</strong> ${userName} (${userEmail})</p>
+            </div>
+            <p>Please review and confirm this booking through the admin dashboard.</p>
+            <p style="color: #666;">This is an automated message from the LabBooker system.</p>
+          </div>
+        `,
+      });
+      console.log("Admin notification email sent successfully");
+    } catch (error) {
+      console.error("Failed to send admin notification email:", error);
+      throw error;
+    }
+  }
+
+  // GET /booking/:id
+  getBookingById = async (req, res) => {
+    try {
+      const booking = await Booking.findById(req.params.id)
+        .populate("roomId", "name type capacity description")
+        .populate("userId", "username email")
+        .populate("additionalUsers", "username email");
+
+      if (!booking) {
+        return res.status(404).json({
+          success: false,
+          message: "Booking not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        booking,
+      });
+    } catch (error) {
+      console.error("getBookingById - Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch booking",
+        error: error.message,
+      });
+    }
+  };
   // GET /bookings
   getBookings = async (req, res) => {
     try {
@@ -45,15 +141,15 @@ class BookingController {
       const skip = (page - 1) * limit;
 
       const query = {};
-      
+
       if (req.query.status) query.status = req.query.status;
       if (req.query.roomId) query.roomId = req.query.roomId;
       if (req.query.userId) query.userId = req.query.userId;
-      
+
       if (req.query.startDate && req.query.endDate) {
         query.date = {
           $gte: new Date(req.query.startDate),
-          $lte: new Date(req.query.endDate)
+          $lte: new Date(req.query.endDate),
         };
       }
 
@@ -73,47 +169,18 @@ class BookingController {
         pagination: {
           currentPage: page,
           totalPages: Math.ceil(total / limit),
-          totalBookings: total
-        }
+          totalBookings: total,
+        },
       });
     } catch (error) {
       console.error("getBookings - Error:", error);
       res.status(500).json({
         success: false,
         message: "Failed to fetch bookings",
-        error: error.message
+        error: error.message,
       });
     }
-  }
-
-  // GET /booking/:id
-  getBookingById = async (req, res) => {
-    try {
-      const booking = await Booking.findById(req.params.id)
-        .populate("roomId", "name type capacity description")
-        .populate("userId", "username email")
-        .populate("additionalUsers", "username email");
-
-      if (!booking) {
-        return res.status(404).json({
-          success: false,
-          message: "Booking not found"
-        });
-      }
-
-      res.status(200).json({
-        success: true,
-        booking
-      });
-    } catch (error) {
-      console.error("getBookingById - Error:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch booking",
-        error: error.message
-      });
-    }
-  }
+  };
 
   // POST /booking
   createBooking = async (req, res) => {
@@ -121,65 +188,90 @@ class BookingController {
     session.startTransaction();
 
     try {
-      const { 
-        roomId, 
-        userId, 
-        date, 
-        startTime, 
-        endTime, 
-        additionalUsers = [] 
+      const {
+        roomId,
+        userId,
+        date,
+        startTime,
+        endTime,
+        additionalUsers = [],
       } = req.body;
 
       // Basic validation
       if (!roomId || !userId || !date || !startTime || !endTime) {
         return res.status(400).json({
           success: false,
-          message: "Missing required booking fields"
+          message: "Missing required booking fields",
+        });
+      }
+
+      // Get room details to check type
+      const room = await Room.findById(roomId);
+      if (!room) {
+        return res.status(400).json({
+          success: false,
+          message: "Room not found",
+        });
+      }
+
+      // Get user details for email notification
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: "User not found",
         });
       }
 
       // Validate date
-      if (new Date(date) < new Date().setHours(0,0,0,0)) {
+      if (new Date(date) < new Date().setHours(0, 0, 0, 0)) {
         return res.status(400).json({
           success: false,
-          message: "Cannot book for past dates"
+          message: "Cannot book for past dates",
         });
       }
 
-      // Validate email format
-      const invalidEmails = additionalUsers.filter(email => !BookingController.validateEmail(email));
+      // Validate email format for additional users
+      const invalidEmails = additionalUsers.filter(
+        (email) => !BookingController.validateEmail(email)
+      );
       if (invalidEmails.length > 0) {
         return res.status(400).json({
           success: false,
           message: "Invalid email format",
-          invalidEmails
+          invalidEmails,
         });
       }
 
       // Look up additional users by email
       let additionalUserIds = [];
       if (additionalUsers.length > 0) {
-        const users = await User.find({ 
-          email: { $in: additionalUsers }
-        }).select('_id');
-        
-        additionalUserIds = users.map(user => user._id);
+        const users = await User.find({
+          email: { $in: additionalUsers },
+        }).select("_id");
 
-        // Check if all emails were found
+        additionalUserIds = users.map((user) => user._id);
+
         if (additionalUserIds.length !== additionalUsers.length) {
           return res.status(400).json({
             success: false,
-            message: "One or more additional users were not found"
+            message: "One or more additional users were not found",
           });
         }
       }
 
       // Duration check
-      const duration = BookingController.calculateDurationInHours(startTime, endTime);
-      if (duration <= BOOKING_CONSTANTS.MIN_DURATION || duration > BOOKING_CONSTANTS.MAX_DURATION) {
+      const duration = BookingController.calculateDurationInHours(
+        startTime,
+        endTime
+      );
+      if (
+        duration <= BOOKING_CONSTANTS.MIN_DURATION ||
+        duration > BOOKING_CONSTANTS.MAX_DURATION
+      ) {
         return res.status(400).json({
           success: false,
-          message: `Invalid booking duration. Must be between ${BOOKING_CONSTANTS.MIN_DURATION} and ${BOOKING_CONSTANTS.MAX_DURATION} hours`
+          message: `Invalid booking duration. Must be between ${BOOKING_CONSTANTS.MIN_DURATION} and ${BOOKING_CONSTANTS.MAX_DURATION} hours`,
         });
       }
 
@@ -191,17 +283,23 @@ class BookingController {
         $or: [
           {
             startTime: { $lt: endTime },
-            endTime: { $gt: startTime }
-          }
-        ]
+            endTime: { $gt: startTime },
+          },
+        ],
       });
 
       if (conflictingBooking) {
         return res.status(400).json({
           success: false,
-          message: "Time slot is already booked"
+          message: "Time slot is already booked",
         });
       }
+
+      // Determine booking status based on room type
+      const bookingStatus =
+        room.type === ROOM_TYPES.LARGE_SEMINAR
+          ? BOOKING_CONSTANTS.STATUSES.PENDING
+          : BOOKING_CONSTANTS.STATUSES.CONFIRMED;
 
       const booking = new Booking({
         roomId,
@@ -210,10 +308,31 @@ class BookingController {
         startTime,
         endTime,
         additionalUsers: additionalUserIds,
-        status: BOOKING_CONSTANTS.STATUSES.PENDING
+        status: bookingStatus,
       });
 
       await booking.save({ session });
+
+      // If it's a large seminar room, send email to admin
+      if (room.type === ROOM_TYPES.LARGE_SEMINAR) {
+        try {
+          const config = await Config.findOne();
+          const adminEmail = config?.adminEmail || process.env.ADMIN_EMAIL;
+
+          await BookingController.sendAdminNotificationEmail({
+            to: adminEmail,
+            bookingId: booking._id,
+            roomName: room.name,
+            date,
+            startTime,
+            endTime,
+            userEmail: user.email,
+            userName: user.username,
+          });
+        } catch (emailError) {
+          console.error("Failed to send admin notification email:", emailError);
+        }
+      }
 
       // Populate the response data
       const populatedBooking = await Booking.findById(booking._id)
@@ -225,27 +344,263 @@ class BookingController {
 
       res.status(201).json({
         success: true,
-        message: "Booking created successfully",
-        booking: populatedBooking
+        message:
+          bookingStatus === BOOKING_CONSTANTS.STATUSES.PENDING
+            ? "Booking created and pending admin approval"
+            : "Booking created successfully",
+        booking: populatedBooking,
       });
-
     } catch (error) {
       await session.abortTransaction();
       console.error("createBooking - Error:", {
         error: error.message,
         stack: error.stack,
-        requestData: req.body
+        requestData: req.body,
       });
       res.status(500).json({
         success: false,
         message: "Failed to create booking",
-        error: error.message
+        error: error.message,
       });
     } finally {
       session.endSession();
     }
-  }
+  };
+  // GET /bookings
+  getBookings = async (req, res) => {
+    try {
+      console.log("getBookings - Start", req.query);
 
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+
+      const query = {};
+
+      if (req.query.status) query.status = req.query.status;
+      if (req.query.roomId) query.roomId = req.query.roomId;
+      if (req.query.userId) query.userId = req.query.userId;
+
+      if (req.query.startDate && req.query.endDate) {
+        query.date = {
+          $gte: new Date(req.query.startDate),
+          $lte: new Date(req.query.endDate),
+        };
+      }
+
+      const bookings = await Booking.find(query)
+        .populate("roomId", "name type")
+        .populate("userId", "username email")
+        .populate("additionalUsers", "username email")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+
+      const total = await Booking.countDocuments(query);
+
+      res.status(200).json({
+        success: true,
+        bookings,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
+          totalBookings: total,
+        },
+      });
+    } catch (error) {
+      console.error("getBookings - Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch bookings",
+        error: error.message,
+      });
+    }
+  };
+
+  // POST /booking
+  createBooking = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const {
+        roomId,
+        userId,
+        date,
+        startTime,
+        endTime,
+        additionalUsers = [],
+      } = req.body;
+
+      // Basic validation
+      if (!roomId || !userId || !date || !startTime || !endTime) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required booking fields",
+        });
+      }
+
+      // Get room details to check type
+      const room = await Room.findById(roomId);
+      if (!room) {
+        return res.status(400).json({
+          success: false,
+          message: "Room not found",
+        });
+      }
+
+      // Get user details for email notification
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      // Validate date
+      if (new Date(date) < new Date().setHours(0, 0, 0, 0)) {
+        return res.status(400).json({
+          success: false,
+          message: "Cannot book for past dates",
+        });
+      }
+
+      // Validate email format for additional users
+      const invalidEmails = additionalUsers.filter(
+        (email) => !BookingController.validateEmail(email)
+      );
+      if (invalidEmails.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid email format",
+          invalidEmails,
+        });
+      }
+
+      // Look up additional users by email
+      let additionalUserIds = [];
+      if (additionalUsers.length > 0) {
+        const users = await User.find({
+          email: { $in: additionalUsers },
+        }).select("_id");
+
+        additionalUserIds = users.map((user) => user._id);
+
+        if (additionalUserIds.length !== additionalUsers.length) {
+          return res.status(400).json({
+            success: false,
+            message: "One or more additional users were not found",
+          });
+        }
+      }
+
+      // Duration check
+      const duration = BookingController.calculateDurationInHours(
+        startTime,
+        endTime
+      );
+      if (
+        duration <= BOOKING_CONSTANTS.MIN_DURATION ||
+        duration > BOOKING_CONSTANTS.MAX_DURATION
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid booking duration. Must be between ${BOOKING_CONSTANTS.MIN_DURATION} and ${BOOKING_CONSTANTS.MAX_DURATION} hours`,
+        });
+      }
+
+      // Check for conflicts
+      const conflictingBooking = await Booking.findOne({
+        roomId,
+        date,
+        status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED },
+        $or: [
+          {
+            startTime: { $lt: endTime },
+            endTime: { $gt: startTime },
+          },
+        ],
+      });
+
+      if (conflictingBooking) {
+        return res.status(400).json({
+          success: false,
+          message: "Time slot is already booked",
+        });
+      }
+
+      // Determine booking status based on room type
+      const bookingStatus =
+        room.type === ROOM_TYPES.LARGE_SEMINAR
+          ? BOOKING_CONSTANTS.STATUSES.PENDING
+          : BOOKING_CONSTANTS.STATUSES.CONFIRMED;
+
+      const booking = new Booking({
+        roomId,
+        userId,
+        date,
+        startTime,
+        endTime,
+        additionalUsers: additionalUserIds,
+        status: bookingStatus,
+      });
+
+      await booking.save({ session });
+
+      // If it's a large seminar room, send email to admin
+      if (room.type === ROOM_TYPES.LARGE_SEMINAR) {
+        try {
+          const config = await Config.findOne();
+          const adminEmail = config?.adminEmail || process.env.ADMIN_EMAIL;
+
+          await BookingController.sendAdminNotificationEmail({
+            to: adminEmail,
+            bookingId: booking._id,
+            roomName: room.name,
+            date,
+            startTime,
+            endTime,
+            userEmail: user.email,
+            userName: user.username,
+          });
+        } catch (emailError) {
+          console.error("Failed to send admin notification email:", emailError);
+        }
+      }
+
+      // Populate the response data
+      const populatedBooking = await Booking.findById(booking._id)
+        .populate("roomId", "name type")
+        .populate("userId", "username email")
+        .populate("additionalUsers", "username email");
+
+      await session.commitTransaction();
+
+      res.status(201).json({
+        success: true,
+        message:
+          bookingStatus === BOOKING_CONSTANTS.STATUSES.PENDING
+            ? "Booking created and pending admin approval"
+            : "Booking created successfully",
+        booking: populatedBooking,
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      console.error("createBooking - Error:", {
+        error: error.message,
+        stack: error.stack,
+        requestData: req.body,
+      });
+      res.status(500).json({
+        success: false,
+        message: "Failed to create booking",
+        error: error.message,
+      });
+    } finally {
+      session.endSession();
+    }
+  };
   // GET /my-bookings
   getMyBooking = async (req, res) => {
     try {
@@ -255,20 +610,17 @@ class BookingController {
       const skip = (page - 1) * limit;
 
       const bookings = await Booking.find({
-        $or: [
-          { userId },
-          { additionalUsers: userId }
-        ]
+        $or: [{ userId }, { additionalUsers: userId }],
       })
-        .populate('roomId', 'name type capacity')
-        .populate('userId', 'username email')
-        .populate('additionalUsers', 'username email')
+        .populate("roomId", "name type capacity")
+        .populate("userId", "username email")
+        .populate("additionalUsers", "username email")
         .sort({ date: -1, startTime: -1 })
         .skip(skip)
         .limit(limit);
 
       const total = await Booking.countDocuments({
-        $or: [{ userId }, { additionalUsers: userId }]
+        $or: [{ userId }, { additionalUsers: userId }],
       });
 
       res.status(200).json({
@@ -277,18 +629,18 @@ class BookingController {
         pagination: {
           currentPage: page,
           totalPages: Math.ceil(total / limit),
-          totalBookings: total
-        }
+          totalBookings: total,
+        },
       });
     } catch (error) {
       console.error("getMyBooking - Error:", error);
       res.status(500).json({
         success: false,
         message: "Failed to fetch your bookings",
-        error: error.message
+        error: error.message,
       });
     }
-  }
+  };
 
   // PATCH /booking/:id/status
   updateBookingStatus = async (req, res) => {
@@ -302,19 +654,19 @@ class BookingController {
         return res.status(400).json({
           success: false,
           message: "Invalid status",
-          validStatuses
+          validStatuses,
         });
       }
 
       const booking = await Booking.findOne({
         _id: id,
-        userId
+        userId,
       });
 
       if (!booking) {
         return res.status(404).json({
           success: false,
-          message: "Booking not found or unauthorized"
+          message: "Booking not found or unauthorized",
         });
       }
 
@@ -324,80 +676,84 @@ class BookingController {
       res.status(200).json({
         success: true,
         message: "Booking status updated successfully",
-        booking
+        booking,
       });
     } catch (error) {
       console.error("updateBookingStatus - Error:", error);
       res.status(500).json({
         success: false,
         message: "Failed to update booking status",
-        error: error.message
+        error: error.message,
       });
     }
-  }
+  };
 
   // DELETE /booking/:id
-  // DELETE /booking/:id
-deleteBooking = async (req, res) => {
-  try {
-    // First check if the booking exists
-    const booking = await Booking.findById(req.params.id);
-    
-    if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: "Booking not found"
-      });
-    }
+  deleteBooking = async (req, res) => {
+    try {
+      const booking = await Booking.findById(req.params.id);
 
-    // If you're using authentication middleware, make sure it's properly set up
-    // If you want to allow deletion without authentication, remove this check
-    if (req.user) {
-      // Check authorization if user info is available
-      if (booking.userId.toString() !== req.user.id && !req.user.isAdmin) {
-        return res.status(403).json({
+      if (!booking) {
+        return res.status(404).json({
           success: false,
-          message: "Not authorized to delete this booking"
+          message: "Booking not found",
         });
       }
+
+      if (req.user) {
+        if (booking.userId.toString() !== req.user.id && !req.user.isAdmin) {
+          return res.status(403).json({
+            success: false,
+            message: "Not authorized to delete this booking",
+          });
+        }
+      }
+
+      await Booking.findByIdAndDelete(req.params.id);
+
+      res.status(200).json({
+        success: true,
+        message: "Booking deleted successfully",
+        deletedBooking: booking,
+      });
+    } catch (error) {
+      console.error("deleteBooking - Error:", {
+        error: error.message,
+        stack: error.stack,
+        bookingId: req.params.id,
+        user: req.user,
+      });
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to delete booking",
+        error: error.message,
+      });
     }
+  };
 
-    // Proceed with deletion
-    await Booking.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: "Booking deleted successfully",
-      deletedBooking: booking
-    });
-  } catch (error) {
-    console.error("deleteBooking - Error:", {
-      error: error.message,
-      stack: error.stack,
-      bookingId: req.params.id,
-      user: req.user
-    });
-    
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete booking",
-      error: error.message
-    });
-  }
-}
   // GET /bookings/count
   getBookingCounts = async (req, res) => {
     try {
       const query = {};
-      
+
       if (req.query.roomId) query.roomId = req.query.roomId;
       if (req.query.userId) query.userId = req.query.userId;
 
       const [total, pending, confirmed, canceled] = await Promise.all([
         Booking.countDocuments(query),
-        Booking.countDocuments({ ...query, status: BOOKING_CONSTANTS.STATUSES.PENDING }),
-        Booking.countDocuments({ ...query, status: BOOKING_CONSTANTS.STATUSES.CONFIRMED }),
-        Booking.countDocuments({ ...query, status: BOOKING_CONSTANTS.STATUSES.CANCELED })
+        Booking.countDocuments({
+          ...query,
+          status: BOOKING_CONSTANTS.STATUSES.PENDING,
+        }),
+        Booking.countDocuments({
+          ...query,
+          status: BOOKING_CONSTANTS.STATUSES.CONFIRMED,
+        }),
+        Booking.countDocuments({
+          ...query,
+          status: BOOKING_CONSTANTS.STATUSES.CANCELED,
+        }),
       ]);
 
       res.status(200).json({
@@ -406,33 +762,30 @@ deleteBooking = async (req, res) => {
           total,
           pending,
           confirmed,
-          canceled
-        }
+          canceled,
+        },
       });
     } catch (error) {
       console.error("getBookingCounts - Error:", error);
       res.status(500).json({
         success: false,
         message: "Failed to fetch booking counts",
-        error: error.message
+        error: error.message,
       });
     }
-  }
+  };
 
-  // GET /bookings/upcoming/:userId
+  // GET /bookings/upcoming/:username
   getUserUpcomingBookings = async (req, res) => {
     try {
-      const { userId } = req.params;
+      const { username } = req.params;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       const upcomingBookings = await Booking.find({
-        $or: [
-          { userId },
-          { additionalUsers: userId }
-        ],
+        $or: [{ username }, { additionalUsers: username }],
         date: { $gte: today },
-        status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED }
+        status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED },
       })
         .populate("roomId", "name type")
         .populate("userId", "username email")
@@ -441,17 +794,17 @@ deleteBooking = async (req, res) => {
 
       res.status(200).json({
         success: true,
-        bookings: upcomingBookings
+        bookings: upcomingBookings,
       });
     } catch (error) {
       console.error("getUserUpcomingBookings - Error:", error);
       res.status(500).json({
         success: false,
         message: "Failed to fetch upcoming bookings",
-        error: error.message
+        error: error.message,
       });
     }
-  }
+  };
 }
 
 // Export a new instance of the controller
