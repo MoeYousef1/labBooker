@@ -32,7 +32,7 @@ const UpdateBooking = ({ onSuccess }) => {
     try {
       // e.g. /api/book/bookings/upcoming-by-username?username=<username>
       const response = await axios.get(
-        `http://localhost:5000/api/book/bookings/upcoming-by-username/${username}`
+        `http://localhost:5000/api/book/bookings/upcoming/${username}`
       );
       if (response.status === 200) {
         const bookings = response.data.bookings || [];

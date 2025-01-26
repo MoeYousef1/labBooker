@@ -72,7 +72,7 @@ const BookingOperations = ({
         </button>
       </div>
 
-      {(operation === "update" || operation === "delete") && (
+      {/* {(operation === "update" || operation === "delete") && (
         <div className="space-y-4">
           <label className="block text-gray-700 font-medium">
             Booking ID:
@@ -91,7 +91,7 @@ const BookingOperations = ({
             {operation === "update" ? "Load Booking for Update" : "Set Booking ID"}
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

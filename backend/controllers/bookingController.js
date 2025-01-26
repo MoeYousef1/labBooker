@@ -776,35 +776,234 @@ class BookingController {
   };
 
   // GET /bookings/upcoming/:username
-  getUserUpcomingBookings = async (req, res) => {
+  // getUserUpcomingBookings = async (req, res) => {
+  //   try {
+  //     const { username } = req.params;
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
+
+  //     const upcomingBookings = await Booking.find({
+  //       $or: [{ username }, { additionalUsers: username }],
+  //       date: { $gte: today },
+  //       status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED },
+  //     })
+  //       .populate("roomId", "name type")
+  //       .populate("userId", "username email")
+  //       .populate("additionalUsers", "username email")
+  //       .sort({ date: 1, startTime: 1 });
+
+  //     res.status(200).json({
+  //       success: true,
+  //       bookings: upcomingBookings,
+  //     });
+  //   } catch (error) {
+  //     console.error("getUserUpcomingBookings - Error:", error);
+  //     res.status(500).json({
+  //       success: false,
+  //       message: "Failed to fetch upcoming bookings",
+  //       error: error.message,
+  //     });
+  //   }
+  // };
+
+  //moe added these functions for testing, might remove or keep some of them 
+
+  getUserUpcomingBookings= async (req, res) => {
     try {
       const { username } = req.params;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const upcomingBookings = await Booking.find({
-        $or: [{ username }, { additionalUsers: username }],
-        date: { $gte: today },
-        status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED },
+  
+      // 1) Find user by username
+      const user = await User.findOne({ username }).select("_id");
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: `No user found with username: ${username}`
+        });
+      }
+  
+      // 2) Build todayStr (e.g., "2023-10-20") for lexical compare
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      const todayStr = `${yyyy}-${mm}-${dd}`; // e.g. "2023-10-20"
+  
+      // 3) Query for date >= todayStr (lexical compare),
+      //    status != "Canceled",
+      //    userId or additionalUsers = user._id
+      // BUT this will return "today" bookings that might have ended,
+      // so we'll further filter them out in code below
+      let allPotentiallyUpcoming = await Booking.find({
+        $or: [
+          { userId: user._id },
+          { additionalUsers: user._id }
+        ],
+        date: { $gte: todayStr },  // lexical compare for future/present day
+        status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED }
       })
         .populate("roomId", "name type")
         .populate("userId", "username email")
         .populate("additionalUsers", "username email")
         .sort({ date: 1, startTime: 1 });
-
+  
+      // 4) Filter out bookings that are "today" but already ended
+      //    Because we only want truly future bookings
+      const nowReal = new Date(); 
+      const finalUpcoming = allPotentiallyUpcoming.filter(booking => {
+        // If booking.date > todayStr, it's definitely future
+        if (booking.date > todayStr) {
+          return true;
+        }
+        // If booking.date < todayStr, we never see it because of the query
+        // If booking.date === todayStr, check endTime
+        if (booking.date === todayStr) {
+          // Construct a DateTime for booking's endTime to see if it's still in the future
+          const [endH, endM] = booking.endTime.split(":").map(Number);
+          const bookingEnd = new Date();
+          bookingEnd.setHours(endH, endM, 0, 0); 
+          // e.g., if now is 2023-10-20T14:00, and booking ends at 13:00, it's already past
+  
+          return bookingEnd > nowReal;
+        }
+        return false; // default, should never happen given the query
+      });
+  
       res.status(200).json({
         success: true,
-        bookings: upcomingBookings,
+        bookings: finalUpcoming
       });
     } catch (error) {
-      console.error("getUserUpcomingBookings - Error:", error);
+      console.error("getUserUpcomingBookingsByUsername - Error:", error);
       res.status(500).json({
         success: false,
-        message: "Failed to fetch upcoming bookings",
-        error: error.message,
+        message: "Failed to fetch upcoming bookings by username",
+        error: error.message
       });
     }
   };
+  
+  updateBookingStatusByUsername = async (req, res) => {
+    try {
+      const { id } = req.params; // The booking ID
+      const { status } = req.body;
+      const { username } = req.query;
+  
+      // Validate status
+      const validStatuses = Object.values(BOOKING_CONSTANTS.STATUSES);
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid status",
+          validStatuses
+        });
+      }
+  
+      if (!username) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing query param ?username="
+        });
+      }
+  
+      // Find user by username
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: `No user found with username: ${username}`
+        });
+      }
+  
+      // Find the booking => if userId OR additionalUsers includes user._id
+      const booking = await Booking.findOne({
+        _id: id,
+        $or: [
+          { userId: user._id },
+          { additionalUsers: user._id }
+        ]
+      });
+  
+      if (!booking) {
+        return res.status(404).json({
+          success: false,
+          message: "Booking not found or unauthorized for this username"
+        });
+      }
+  
+      // Update
+      booking.status = status;
+      await booking.save();
+  
+      res.status(200).json({
+        success: true,
+        message: "Booking status updated successfully (by username)!",
+        booking
+      });
+    } catch (error) {
+      console.error("updateBookingStatusByUsername - Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to update booking status by username",
+        error: error.message
+      });
+    }
+  };
+  
+  // DELETE /booking/:id/by-username?username=john_doe
+  deleteBookingByUsername = async (req, res) => {
+    try {
+      const { id } = req.params; // booking ID
+      const { username } = req.query;
+      if (!username) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing query param ?username="
+        });
+      }
+  
+      // 1) Find user by username
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: `No user found with username: ${username}`
+        });
+      }
+  
+      // 2) Check booking belongs to user
+      const booking = await Booking.findOne({
+        _id: id,
+        $or: [
+          { userId: user._id },
+          { additionalUsers: user._id }
+        ]
+      });
+      if (!booking) {
+        return res.status(404).json({
+          success: false,
+          message: "Booking not found or unauthorized for this username"
+        });
+      }
+  
+      // 3) Delete it
+      await Booking.findByIdAndDelete(booking._id);
+  
+      res.status(200).json({
+        success: true,
+        message: "Booking deleted successfully by username",
+        deletedBooking: booking
+      });
+    } catch (error) {
+      console.error("deleteBookingByUsername - Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to delete booking by username",
+        error: error.message
+      });
+    }
+  };
+  
 }
 
 // Export a new instance of the controller

@@ -123,7 +123,7 @@ const MyBookingsPage = () => {
       setIsModalOpen(false);
       setSelectedBookingId(null);
 
-      const response = await api.patch(`/book/booking/${bookingId}/status`, {
+      const response = await api.delete(`/book/booking/${bookingId}`, {
         status: 'Canceled'
       });
 

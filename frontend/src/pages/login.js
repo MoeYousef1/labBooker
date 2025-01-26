@@ -361,7 +361,7 @@ const LogInPage = () => {
         <div className="flex items-center justify-center space-x-3 mb-8">
           <img
             className="w-16 md:w-20 h-auto object-contain drop-shadow-xl"
-            src={lapLogo}
+            src={collegeLogoWhite}
             alt="logo"
           />
           <div className="border-l border-gray-600 pl-3">
