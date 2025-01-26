@@ -1,34 +1,62 @@
-import React, { 
-  useState, 
-  useCallback, 
-  useMemo, 
-  useEffect 
-} from 'react';
-import { 
-  Link, 
-  useNavigate, 
-  useLocation 
-} from 'react-router-dom';
-import { 
-  Menu, 
-  X, 
-  Home, 
-  BookOpen, 
-  LogOut, 
-  User, 
-  Settings, 
-  Bell 
-} from 'lucide-react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo
+} from "react";
+import {
+  Link,
+  useNavigate,
+  useLocation
+} from "react-router-dom";
+import {
+  Menu,
+  X,
+  Home,
+  BookOpen,
+  LogOut,
+  User,
+  Settings,
+  Bell
+} from "lucide-react";
 
-const Navbar = ({ userInfo, setUserInfo }) => {
+const Navbar = ({
+  userInfo,
+  setUserInfo,
+  enableTransparentOnScroll = false // Default is always solid unless this is true
+}) => {
   const [state, setState] = useState({
     mobileMenuOpen: false,
     profileDropdownOpen: false,
     activeHover: null
   });
 
+  // If we want some pages to be transparent at first, use scroll logic:
+  const [isScrolled, setIsScrolled] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    // Only track scroll if we allow transparency on this page
+    if (!enableTransparentOnScroll) return;
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [enableTransparentOnScroll]);
+
+  // If "enableTransparentOnScroll" is false => always solid
+  // Otherwise => transparent until scrolled
+  const navBgClass = useMemo(() => {
+    if (!enableTransparentOnScroll) {
+      return "bg-gray-900"; // always solid
+    }
+    return isScrolled ? "bg-gray-900" : "bg-transparent";
+  }, [enableTransparentOnScroll, isScrolled]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -234,11 +262,13 @@ const Navbar = ({ userInfo, setUserInfo }) => {
   }, [state.profileDropdownOpen, userInfo, profileMenuItems, handleLogout]);
 
   return (
-    <nav 
-      className="
-        fixed top-0 left-0 right-0 z-50 
-        bg-gray-900 // Solid background
-      "
+    <nav
+      className={`
+        fixed top-0 left-0 right-0 z-50
+        text-white
+        transition-colors duration-300
+        ${navBgClass}
+      `}
     >
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo with hover effect */}

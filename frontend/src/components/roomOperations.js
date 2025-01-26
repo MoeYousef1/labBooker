@@ -36,7 +36,7 @@ const RoomOperations = ({ setOperation, setRoomId, setRoomDetails, operation }) 
           whileHover="hover"
           whileTap="tap"
           onClick={() => handleOperationChange(currentOperation)}
-          className={`px-6 py-4 text-green-500 bg-white rounded-lg shadow-md transition-all duration-300 ${
+          className={`flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group ${
             operation === currentOperation
               ? "ring-2 ring-green-500 bg-green-50 text-green-700"
               : ""

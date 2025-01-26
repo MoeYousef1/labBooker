@@ -34,7 +34,7 @@ const LandingPage = () => {
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-gray-50 to-gray-200">
       {/* No Navbar needed if you're hiding it for non-logged in,
           or you can import a "logged-out" Navbar here */}
-          <Navbar />
+          <Navbar enableTransparentOnScroll  />
       <HeroSection />
       <Footer />
     </div>

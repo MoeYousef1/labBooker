@@ -227,7 +227,7 @@ const DashBoard = () => {
           </button>
 
           <button
-            onClick={() => navigate("/bookingmanagement")}
+            onClick={() => navigate("/bookingOperationpage")}
             className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
           >
             <Calendar className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />

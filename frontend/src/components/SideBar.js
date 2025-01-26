@@ -13,7 +13,7 @@ const DASHBOARD_PATHS = [
   "/dashboard",
   "/usermanagement",
   "/roomOperationpage",
-  "/bookingmanagement",
+  "/bookingOperationpage",
   "/configmanagement",
 ];
 
@@ -123,7 +123,7 @@ export function Sidebar() {
                   { path: "/dashboard", label: "Overview" },
                   { path: "/usermanagement", label: "Manage Users" },
                   { path: "/roomOperationpage", label: "Manage Rooms" },
-                  { path: "/bookingmanagement", label: "Manage Bookings" },
+                  { path: "/bookingOperationpage", label: "Manage Bookings" },
                   { path: "/configmanagement", label: "Configurations" },
                 ].map((item) => (
                   <li

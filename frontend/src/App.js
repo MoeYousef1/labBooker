@@ -19,6 +19,7 @@ import LabRooms from "./pages/LabRooms";
 import RoomGuidelines from "./pages/roomGuidelines ";
 import ContactPage from "./pages/contact";
 import RoomOperationpage from "./pages/roomOperationPage";
+import BookingOperationpage from "./pages/bookingOperationPage";
 import DashBoard from "./pages/dashboard";
 import MyBookingsPage from "./pages/MyBookingsPage";
 
@@ -136,6 +137,15 @@ const AnimatedRoutes = () => {
           element={
             <PageTransition>
               <RoomOperationpage />
+            </PageTransition>
+          } 
+        />
+
+        <Route 
+          path="/bookingOperationpage" 
+          element={
+            <PageTransition>
+              <BookingOperationpage />
             </PageTransition>
           } 
         />
