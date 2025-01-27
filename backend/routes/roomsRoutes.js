@@ -75,4 +75,17 @@ router.get("/rooms/:roomId/monthly-availability", async (req, res) => {
   }
 });
 
+// GET /rooms-by-name/:name/monthly-availability
+router.get("/rooms-by-name/:name/monthly-availability", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const response = await roomController.getRoomAvailabilityForMonthByName(name);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching room availability by name:", error.message);
+    return res.status(500).json({ message: "Failed to fetch room availability" });
+  }
+});
+
+
 module.exports = router;

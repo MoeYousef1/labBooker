@@ -39,4 +39,13 @@ router.delete(
   bookingController.deleteBookingByUsername
 );
 
+// e.g. GET /bookings/all-by-username/:username
+router.get(
+  "/bookings/all-by-username/:username",
+  bookingController.getAllBookingsByUsername
+);
+
+// e.g. POST /api/book/booking/by-names
+router.post("/booking/create-by-names", bookingController.createBookingByNames);
+
 module.exports = router;

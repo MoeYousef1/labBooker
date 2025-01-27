@@ -882,6 +882,48 @@ class BookingController {
       });
     }
   };
+
+  // GET /bookings/all-by-username/:username
+getAllBookingsByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    // Find user
+    const user = await User.findOne({ username }).select("_id");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: `No user found with username: ${username}`
+      });
+    }
+
+    // fetch ALL bookings (no date filter) 
+    // userId or additionalUsers = user._id
+    const allBookings = await Booking.find({
+      $or: [
+        { userId: user._id },
+        { additionalUsers: user._id }
+      ]
+    })
+    .populate("roomId", "name type")
+    .populate("userId", "username email")
+    .populate("additionalUsers", "username email")
+    .sort({ date: -1, startTime: -1 });
+
+    res.status(200).json({
+      success: true,
+      bookings: allBookings
+    });
+  } catch (error) {
+    console.error("getAllBookingsByUsername - Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch all bookings by username",
+      error: error.message
+    });
+  }
+};
+
   
   updateBookingStatusByUsername = async (req, res) => {
     try {
@@ -1003,7 +1045,165 @@ class BookingController {
       });
     }
   };
+
+  createBookingByNames = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
   
+    try {
+      const { 
+        username,
+        roomName,
+        date,
+        startTime,
+        endTime,
+        additionalUsers = []
+      } = req.body;
+  
+      // 1) Basic field checks
+      if (!username || !roomName || !date || !startTime || !endTime) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields (username, roomName, date, startTime, endTime)."
+        });
+      }
+  
+      // 2) Find the user by username
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: `No user found with username: ${username}`
+        });
+      }
+  
+      // 3) Find the room by name
+      const room = await Room.findOne({ name: roomName });
+      if (!room) {
+        return res.status(404).json({
+          success: false,
+          message: `No room found with name: ${roomName}`
+        });
+      }
+  
+      // 4) Validate date. For example, no past dates:
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const bookingDate = new Date(date); // if you're storing date as a real Date in DB
+      // (If your schema uses string-based date, adapt accordingly.)
+  
+      if (bookingDate < today) {
+        return res.status(400).json({
+          success: false,
+          message: "Cannot book for past dates."
+        });
+      }
+  
+      // 5) Validate additional user emails
+      const invalidEmails = additionalUsers.filter(
+        (email) => !this.validateEmail(email)
+      );
+      if (invalidEmails.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid email format in additionalUsers",
+          invalidEmails
+        });
+      }
+  
+      // 6) Look up these additional users by email => get their IDs
+      let additionalUserIds = [];
+      if (additionalUsers.length > 0) {
+        const foundUsers = await User.find({ email: { $in: additionalUsers } }).select("_id");
+        additionalUserIds = foundUsers.map((u) => u._id);
+        if (additionalUserIds.length !== additionalUsers.length) {
+          return res.status(400).json({
+            success: false,
+            message: "One or more additional users not found by email."
+          });
+        }
+      }
+  
+      // 7) Check duration
+      const duration = BookingController.calculateDurationInHours(startTime, endTime);
+      if (
+        duration <= BOOKING_CONSTANTS.MIN_DURATION ||
+        duration > BOOKING_CONSTANTS.MAX_DURATION
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid booking duration. Must be between ${BOOKING_CONSTANTS.MIN_DURATION} and ${BOOKING_CONSTANTS.MAX_DURATION} hours`
+        });
+      }
+  
+      // 8) Check conflicts (for date, startTime <-> endTime overlap)
+      const conflictingBooking = await Booking.findOne({
+        roomId: room._id,
+        date, // If your schema stores date as string vs real Date, adapt
+        status: { $ne: BOOKING_CONSTANTS.STATUSES.CANCELED },
+        $or: [
+          { startTime: { $lt: endTime }, endTime: { $gt: startTime } }
+        ]
+      });
+      if (conflictingBooking) {
+        return res.status(400).json({
+          success: false,
+          message: "Time slot is already booked."
+        });
+      }
+  
+      // 9) Determine booking status if you have special logic (like Large Seminar => "Pending", else => "Confirmed")
+      let bookingStatus = BOOKING_CONSTANTS.STATUSES.CONFIRMED;
+      if (room.type === "Large Seminar") {
+        bookingStatus = BOOKING_CONSTANTS.STATUSES.PENDING;
+      }
+  
+      // 10) Create the booking
+      const booking = new Booking({
+        roomId: room._id,
+        userId: user._id,
+        date,
+        startTime,
+        endTime,
+        additionalUsers: additionalUserIds,
+        status: bookingStatus
+      });
+  
+      await booking.save({ session });
+  
+      // If it's Large Seminar => maybe send admin email notification or do other logic
+      // e.g. if (room.type === 'Large Seminar') { ... }
+  
+      // 11) Populate final booking
+      const populatedBooking = await Booking.findById(booking._id)
+        .populate("roomId", "name type")
+        .populate("userId", "username email")
+        .populate("additionalUsers", "username email");
+  
+      await session.commitTransaction();
+      session.endSession();
+  
+      return res.status(201).json({
+        success: true,
+        message:
+          bookingStatus === BOOKING_CONSTANTS.STATUSES.PENDING
+            ? "Booking created and pending admin approval"
+            : "Booking created successfully",
+        booking: populatedBooking
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      console.error("createBookingByNames - Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create booking by username/roomName",
+        error: error.message
+      });
+    }
+  };
+  
+
 }
 
 // Export a new instance of the controller

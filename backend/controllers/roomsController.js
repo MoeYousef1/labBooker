@@ -308,8 +308,57 @@ const getRoomAvailabilityForMonth = async (roomId) => {
   return {
     room: room.name,
     availability,
-  };
+  }; 
 };
+
+async function getRoomAvailabilityForMonthByName(roomName) {
+  // 1) Ensure the room exists by name
+  const room = await Room.findOne({ name: roomName });
+  if (!room) {
+    throw new Error("Room not found by that name.");
+  }
+
+  const roomId = room._id;
+
+  // 2) Generate next 30 days
+  const dates = generateNext30Days();
+
+  // 3) Fetch all bookings for that room & date in next 30 days
+  const bookings = await Booking.find({
+    roomId,
+    date: { $in: dates },
+    status: { $in: ["Pending", "Confirmed"] },
+  });
+
+  // 4) Prepare availability
+  const availability = dates.map((date) => {
+    // Generate half-hourly slots
+    const halfHourlySlots = generateHalfHourlySlots();
+
+    // Check conflicts
+    const slots = halfHourlySlots.map((slot) => {
+      const isOccupied = bookings.some(
+        (b) =>
+          b.date === date &&
+          (
+            // Overlapping start or end
+            (slot.startTime >= b.startTime && slot.startTime < b.endTime) ||
+            (slot.endTime > b.startTime && slot.endTime <= b.endTime) ||
+            // slot fully covers the booking
+            (slot.startTime <= b.startTime && slot.endTime >= b.endTime)
+          )
+      );
+      return { ...slot, status: isOccupied ? "Occupied" : "Available" };
+    });
+
+    return { date, slots };
+  });
+
+  return {
+    room: room.name,
+    availability,
+  };
+}
 
 module.exports = {
   getRooms,
@@ -317,4 +366,5 @@ module.exports = {
   updateRoom,
   deleteRoom,
   getRoomAvailabilityForMonth,
+  getRoomAvailabilityForMonthByName,
 };
