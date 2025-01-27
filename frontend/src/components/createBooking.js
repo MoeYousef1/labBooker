@@ -66,8 +66,6 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
       );
       if (response.status === 200) {
         setAvailability(response.data.availability || []);
-        // e.g. array of { date: "2025-01-05", slots: [...] }
-
         // Extract date strings
         const dateStrings = (response.data.availability || []).map((day) => day.date);
         setAvailableDates(dateStrings);
