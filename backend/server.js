@@ -14,6 +14,7 @@ const roomRoutes = require("./routes/roomsRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const configRoutes = require("./routes/configRoutes");
+const dashboardRoutes = require('./routes/dashboardRoutes');
 console.log("[IMPORT] Route imports completed");
 
 // Debugging function for route registration
@@ -132,6 +133,8 @@ try {
     { path: "/api/book", routes: bookingRoutes },
     { path: "/api/upload", routes: uploadRoutes },
     { path: "/api/config", routes: configRoutes },
+    {path:("/api/dashboard", dashboardRoutes)}
+
   ];
 
   routesToRegister.forEach(({ path, routes }) => {
