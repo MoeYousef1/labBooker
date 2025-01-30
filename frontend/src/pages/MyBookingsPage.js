@@ -122,24 +122,49 @@ const MyBookingsPage = () => {
       const bookingId = selectedBookingId;
       setIsModalOpen(false);
       setSelectedBookingId(null);
-
-      const response = await api.delete(`/book/booking/${bookingId}`, {
-        status: 'Canceled'
-      });
-
-      if (response.data.booking) {
-        setToast({ isVisible: true, type: 'success', message: 'Booking cancelled successfully' });
-        fetchBookings();
+  
+      const response = await api.delete(`/book/booking/${bookingId}`);
+      
+      if (response.status === 200) {
+        // Just update the status to 'Canceled'
+        setBookings(prevBookings => 
+          prevBookings.map(booking => 
+            booking._id === bookingId 
+              ? {
+                  ...booking,
+                  status: 'Canceled'
+                }
+              : booking
+          )
+        );
+  
+        setToast({ 
+          isVisible: true, 
+          type: 'success', 
+          message: 'Booking cancelled successfully. It will be permanently deleted in 3 days.' 
+        });
+  
+        setTimeout(() => {
+          setToast({ isVisible: false, type: '', message: '' });
+        }, 3000);
       }
     } catch (error) {
       console.error('Cancel booking error:', error);
       
       if (error.response?.status === 403) {
-        setToast({ isVisible: true, type: 'error', message: 'Cannot cancel this booking - it may be in the past or already cancelled' });
+        setToast({ 
+          isVisible: true, 
+          type: 'error', 
+          message: 'Cannot cancel this booking - it may be in the past' 
+        });
       } else if (error.response?.status === 401) {
         navigate('/login');
       } else {
-        setToast({ isVisible: true, type: 'error', message: error.response?.data?.message || 'Failed to cancel booking' });
+        setToast({ 
+          isVisible: true, 
+          type: 'error', 
+          message: error.response?.data?.message || 'Failed to cancel booking' 
+        });
       }
     }
   };
@@ -150,8 +175,12 @@ const MyBookingsPage = () => {
   };
 
   const getFilteredAndSortedBookings = () => {
+    if (!bookings || bookings.length === 0) return [];
+  
     return [...bookings]
       .filter(booking => {
+        if (!booking || !booking.date || !booking.endTime) return false;
+  
         switch(filter) {
           case 'upcoming':
             return !isBookingPast(booking.date, booking.endTime) && 
@@ -164,6 +193,9 @@ const MyBookingsPage = () => {
         }
       })
       .sort((a, b) => {
+        if (!a || !a.date) return 1;
+        if (!b || !b.date) return -1;
+        
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
         return dateB - dateA;
@@ -202,6 +234,86 @@ const MyBookingsPage = () => {
     if (!userInfo) {
       return null;
     }
+
+    const ModalContent = () => {
+      const selectedBooking = bookings.find(b => b._id === selectedBookingId);
+      
+      return (
+        <div className="space-y-6">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-14 w-14 text-red-500">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-full w-full"
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          Confirm Booking Cancellation
+        </h3>
+        <div className="text-gray-500">
+          Are you sure you want to cancel this booking? This action cannot be undone.
+        </div>
+      </div>
+  
+          {selectedBooking && (
+            <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+              <div className="px-4 py-3 bg-gray-100 border-b border-gray-200">
+                <h4 className="text-sm font-medium text-gray-700">Booking Details</h4>
+              </div>
+              <div className="p-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="block text-gray-500">Room</span>
+                    <span className="font-medium">{selectedBooking.roomId?.name}</span>
+                  </div>
+                  <div>
+                    <span className="block text-gray-500">Date</span>
+                    <span className="font-medium">{formatDate(selectedBooking.date)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-gray-500">Time</span>
+                    <span className="font-medium">
+                      {selectedBooking.startTime} - {selectedBooking.endTime}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-gray-500">Status</span>
+                    <span className="font-medium">{selectedBooking.status}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+  
+  <div className="text-center">
+  <div className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
+    <svg 
+      className="w-4 h-4 inline mr-1 -mt-0.5" 
+      fill="currentColor" 
+      viewBox="0 0 20 20"
+    >
+      <path 
+        fillRule="evenodd" 
+        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" 
+        clipRule="evenodd" 
+      />
+    </svg>
+    This booking will be cancelled and permanently deleted after 3 days
+  </div>
+</div>
+    </div>
+  );
+};
 
   // ... Rest of your JSX remains the same ...
 
@@ -388,23 +500,41 @@ const MyBookingsPage = () => {
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-center text-blue-800 text-sm">
-                You can cancel bookings up until their scheduled time.
-                Past bookings cannot be modified.
-              </p>
-            </div>
+  <p className="text-center text-blue-800 text-sm">
+    You can cancel bookings up until their scheduled time.
+    Past bookings cannot be modified. Cancelled bookings will be automatically deleted after 3 days.
+  </p>
+</div>
           </div>
         )}
       </main>
 
       {/* Confirmation Modal */}
-            <Modal
-              isOpen={isModalOpen}
-              onClose={() => { setIsModalOpen(false); setSelectedBookingId(null); }}
-              onConfirm={handleCancelBooking}
-              title="Confirm Cancellation"
-              message="Are you sure you want to cancel this booking?"
-            />
+      <Modal
+  isOpen={isModalOpen}
+  onClose={() => { setIsModalOpen(false); setSelectedBookingId(null); }}
+  onConfirm={handleCancelBooking}
+  message={<ModalContent />}
+  confirmText={
+    <span className="flex items-center">
+      <svg 
+        className="w-4 h-4 mr-2" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+          strokeWidth="2" 
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+        />
+      </svg>
+      Cancel Booking
+    </span>
+  }
+  cancelText="Close"
+/>
       
             {/* Toast Notification */}
             {toast.isVisible && (

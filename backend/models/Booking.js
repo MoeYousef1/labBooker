@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 
+const THREE_DAYS_IN_SECONDS = 3 * 24 * 60 * 60; // 259200 seconds
+
+
 const bookingSchema = new mongoose.Schema(
   {
     roomId: {
@@ -17,7 +20,6 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: function(v) {
-          // Validate date format (YYYY-MM-DD)
           return /^\d{4}-\d{2}-\d{2}$/.test(v);
         },
         message: props => `${props.value} is not a valid date format!`
@@ -28,7 +30,6 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: function(v) {
-          // Validate time format (HH:MM)
           return /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
         },
         message: props => `${props.value} is not a valid time format!`
@@ -39,7 +40,6 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: function(v) {
-          // Validate time format (HH:MM)
           return /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
         },
         message: props => `${props.value} is not a valid time format!`
@@ -56,15 +56,24 @@ const bookingSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    // Add these new fields for soft delete
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+      expires: THREE_DAYS_IN_SECONDS // 3 days in seconds (3 * 24 * 60 * 60)
+    }
   },
   { 
     timestamps: true,
-    // Add a pre-save hook for additional validation
     validateBeforeSave: true 
   }
 );
 
-// Add a pre-save validation hook
+// Existing pre-save validation hook
 bookingSchema.pre('save', function(next) {
   // Validate start and end times
   const startTime = new Date(`1970-01-01T${this.startTime}:00`);
@@ -75,7 +84,7 @@ bookingSchema.pre('save', function(next) {
   }
 
   // Validate booking is for a future date
-  const bookingDate = new Date(`${this.date}T00:00:00`); // Treat as local midnight
+  const bookingDate = new Date(`${this.date}T00:00:00`);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -86,5 +95,22 @@ bookingSchema.pre('save', function(next) {
   next();
 });
 
+// Add static method to handle soft deletion
+bookingSchema.statics.softDelete = async function(bookingId) {
+  const booking = await this.findById(bookingId);
+  if (!booking) {
+    throw new Error('Booking not found');
+  }
+
+  const currentDate = new Date(); // Get current date/time
+  booking.status = 'Canceled';
+  booking.isDeleted = true;
+  booking.deletedAt = currentDate; // Use current date instead of booking date
+  
+  return booking.save();
+};
+
+// Make sure your TTL index is correctly set
+bookingSchema.index({ deletedAt: 1 }, { expireAfterSeconds: THREE_DAYS_IN_SECONDS });
 
 module.exports = mongoose.model("Booking", bookingSchema);

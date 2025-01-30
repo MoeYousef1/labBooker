@@ -543,14 +543,14 @@ class BookingController {
   deleteBooking = async (req, res) => {
     try {
       const booking = await Booking.findById(req.params.id);
-
+  
       if (!booking) {
         return res.status(404).json({
           success: false,
           message: "Booking not found",
         });
       }
-
+  
       if (req.user) {
         if (booking.userId.toString() !== req.user.id && !req.user.isAdmin) {
           return res.status(403).json({
@@ -559,13 +559,22 @@ class BookingController {
           });
         }
       }
-
-      await Booking.findByIdAndDelete(req.params.id);
-
+  
+      const currentDate = new Date(); // Get current date/time
+      booking.status = 'Canceled';
+      booking.isDeleted = true;
+      booking.deletedAt = currentDate; // Use current date
+      await booking.save();
+  
+      const updatedBooking = await Booking.findById(booking._id)
+        .populate('roomId', 'name type')
+        .populate('userId', 'username email')
+        .populate('additionalUsers', 'username email');
+  
       res.status(200).json({
         success: true,
-        message: "Booking deleted successfully",
-        deletedBooking: booking,
+        message: "Booking cancelled successfully and will be permanently deleted in 3 days",
+        booking: updatedBooking
       });
     } catch (error) {
       console.error("deleteBooking - Error:", {
@@ -574,7 +583,7 @@ class BookingController {
         bookingId: req.params.id,
         user: req.user,
       });
-
+  
       res.status(500).json({
         success: false,
         message: "Failed to delete booking",
@@ -834,55 +843,73 @@ class BookingController {
   };
 
   // DELETE /booking/:id/by-username?username=john_doe
-  deleteBookingByUsername = async (req, res) => {
-    try {
-      const { id } = req.params; // booking ID
-      const { username } = req.query;
-      if (!username) {
-        return res.status(400).json({
-          success: false,
-          message: "Missing query param ?username=",
-        });
-      }
-
-      // 1) Find user by username
-      const user = await User.findOne({ username });
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: `No user found with username: ${username}`,
-        });
-      }
-
-      // 2) Check booking belongs to user
-      const booking = await Booking.findOne({
-        _id: id,
-        $or: [{ userId: user._id }, { additionalUsers: user._id }],
-      });
-      if (!booking) {
-        return res.status(404).json({
-          success: false,
-          message: "Booking not found or unauthorized for this username",
-        });
-      }
-
-      // 3) Delete it
-      await Booking.findByIdAndDelete(booking._id);
-
-      res.status(200).json({
-        success: true,
-        message: "Booking deleted successfully by username",
-        deletedBooking: booking,
-      });
-    } catch (error) {
-      console.error("deleteBookingByUsername - Error:", error);
-      res.status(500).json({
+deleteBookingByUsername = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username } = req.query;
+    
+    if (!username) {
+      return res.status(400).json({
         success: false,
-        message: "Failed to delete booking by username",
-        error: error.message,
+        message: "Missing query param ?username=",
       });
     }
-  };
+
+    // 1) Find user by username
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: `No user found with username: ${username}`,
+      });
+    }
+
+    // 2) Check booking belongs to user
+    const booking = await Booking.findOne({
+      _id: id,
+      $or: [{ userId: user._id }, { additionalUsers: user._id }],
+    });
+    
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found or unauthorized for this username",
+      });
+    }
+
+    // 3) Instead of deleting, mark as deleted with current date
+    const currentDate = new Date();
+    booking.status = 'Canceled';
+    booking.isDeleted = true;
+    booking.deletedAt = currentDate;
+    await booking.save();
+
+    // 4) Fetch updated booking with populated fields
+    const updatedBooking = await Booking.findById(booking._id)
+      .populate('roomId', 'name type')
+      .populate('userId', 'username email')
+      .populate('additionalUsers', 'username email');
+
+    res.status(200).json({
+      success: true,
+      message: "Booking cancelled successfully and will be permanently deleted in 3 days",
+      booking: updatedBooking
+    });
+  } catch (error) {
+    console.error("deleteBookingByUsername - Error:", {
+      error: error.message,
+      stack: error.stack,
+      bookingId: req.params.id,
+      username: req.query.username,
+    });
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to cancel booking",
+      error: error.message,
+    });
+  }
+};
 
   createBookingByNames = async (req, res) => {
     const session = await mongoose.startSession();

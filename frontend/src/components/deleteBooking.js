@@ -44,7 +44,7 @@ const DeleteBookingByUsername = ({ onSuccess }) => {
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/book/bookings/all-by-username/${username}`
+        `http://localhost:5000/api/book/bookings/upcoming/${username}`
       );
       
       if (response.status === 200) {

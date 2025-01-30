@@ -95,10 +95,36 @@ const authLimiter = rateLimit({
 });
 app.use("/api/auth/", authLimiter);
 
-// Database Connection
+// Database Connection and TTL Index Setup
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected Successfully!"))
+  .then(async () => {
+    console.log("✅ MongoDB Connected Successfully!");
+    
+    // Setup TTL index for bookings
+    try {
+      const Booking = require('./models/Booking'); // Add this at the top with other requires
+      const THREE_DAYS_IN_SECONDS = 3 * 24 * 60 * 60; // 259200 seconds
+      
+      // Remove existing index if it exists
+      try {
+        await Booking.collection.dropIndex("deletedAt_1");
+        console.log("✅ Existing TTL index dropped successfully");
+      } catch (error) {
+        // Index might not exist, that's okay
+        console.log("ℹ️ No existing TTL index to drop");
+      }
+
+      // Create new TTL index with 3 days expiration
+      await Booking.collection.createIndex(
+        { deletedAt: 1 },
+        { expireAfterSeconds: THREE_DAYS_IN_SECONDS }
+      );
+      console.log("✅ TTL index created successfully (3 days expiration)");
+    } catch (error) {
+      console.error("❌ Error setting up TTL index:", error);
+    }
+  })
   .catch((err) => {
     console.error("❌ MongoDB Connection Failed:", err.message);
     process.exit(1);
@@ -133,7 +159,7 @@ try {
     { path: "/api/book", routes: bookingRoutes },
     { path: "/api/upload", routes: uploadRoutes },
     { path: "/api/config", routes: configRoutes },
-    {path:("/api/dashboard", dashboardRoutes)}
+    { path: "/api/dashboard", routes: dashboardRoutes }
 
   ];
 
