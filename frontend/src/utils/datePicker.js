@@ -4,15 +4,21 @@ import React, { useState, useEffect, useRef } from "react";
 const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availableDates = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  // currentDate holds the first day of the currently displayed month
   const [currentDate, setCurrentDate] = useState(new Date());
   const popupRef = useRef(null);
 
-  // Helper functions: number of days and starting weekday of the month
+  // Helper functions
   const getDaysInMonth = (date) =>
     new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const getStartDay = (date) =>
     new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = (`0${date.getMonth() + 1}`).slice(-2);
+    const day = (`0${date.getDate()}`).slice(-2);
+    return `${year}-${month}-${day}`;
+  };
 
   // Close the calendar if clicking outside the popup overlay
   useEffect(() => {
@@ -44,14 +50,12 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
   };
 
   // Footer button handlers
-  // When Cancel is clicked, reset selection and revert view to today
   const handleCancelDate = () => {
     setSelectedDate(null);
     setCurrentDate(new Date());
     setIsOpen(false);
   };
 
-  // When Apply is clicked, trigger onDateChange and close the popup
   const handleApply = () => {
     if (selectedDate) {
       onDateChange(selectedDate);
@@ -59,7 +63,7 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
     setIsOpen(false);
   };
 
-  // Additional enhancement: Today button to jump to today's date
+  // Today button handler
   const handleToday = () => {
     const today = new Date();
     setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
@@ -68,10 +72,10 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
 
   // Generate day cells
   const daysInMonth = getDaysInMonth(currentDate);
-  const startDay = getStartDay(currentDate);
   const dayCells = [];
 
   // Add empty cells for offset
+  const startDay = getStartDay(currentDate);
   for (let i = 0; i < startDay; i++) {
     dayCells.push(<div key={`empty-${i}`} className="w-10 h-10"></div>);
   }
@@ -79,13 +83,13 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
   // For each day, check if that day is available (using availableDates array)
   for (let day = 1; day <= daysInMonth; day++) {
     const thisDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    const dateStr = thisDate.toISOString().split("T")[0];
-    const isDayAvailable = availableDates.includes(dateStr);
+    const dateStr = formatDate(thisDate);
+    const todayStr = formatDate(new Date());
+    const isToday = dateStr === todayStr;
+    const isDayAvailable = availableDates.includes(dateStr) || isToday;
     const isSel =
       selectedDate &&
-      selectedDate.getDate() === day &&
-      selectedDate.getMonth() === currentDate.getMonth() &&
-      selectedDate.getFullYear() === currentDate.getFullYear();
+      formatDate(selectedDate) === dateStr;
 
     dayCells.push(
       <div
@@ -180,11 +184,6 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
 
             {/* Days Grid */}
             <div className="grid grid-cols-7 gap-2 mt-2 px-5 pb-5">
-              {Array(getStartDay(currentDate))
-                .fill(null)
-                .map((_, index) => (
-                  <div key={`empty-${index}`} className="w-10 h-10"></div>
-                ))}
               {dayCells}
             </div>
 

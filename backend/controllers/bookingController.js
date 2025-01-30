@@ -937,29 +937,31 @@ class BookingController {
         });
       }
 
-      // 5) Validate additional user emails
+      // Validate email format for additional users
       const invalidEmails = additionalUsers.filter(
-        (email) => !this.validateEmail(email)
+        (email) => !BookingController.validateEmail(email)
       );
       if (invalidEmails.length > 0) {
         return res.status(400).json({
           success: false,
-          message: "Invalid email format in additionalUsers",
+          message: "Invalid email format",
           invalidEmails,
         });
       }
 
-      // 6) Look up these additional users by email => get their IDs
+      // Look up additional users by email
       let additionalUserIds = [];
       if (additionalUsers.length > 0) {
-        const foundUsers = await User.find({
+        const users = await User.find({
           email: { $in: additionalUsers },
         }).select("_id");
-        additionalUserIds = foundUsers.map((u) => u._id);
+
+        additionalUserIds = users.map((user) => user._id);
+
         if (additionalUserIds.length !== additionalUsers.length) {
           return res.status(400).json({
             success: false,
-            message: "One or more additional users not found by email.",
+            message: "One or more additional users were not found",
           });
         }
       }

@@ -237,14 +237,34 @@ async function deleteRoom(name) {
   }
 }
 
+// const generateNext30Days = () => {
+//   const dates = [];
+//   const today = new Date();
+//   for (let i = 0; i < 30; i++) {
+//     const date = new Date(today);
+//     date.setDate(today.getDate() + i);
+//     dates.push(date.toISOString().split("T")[0]); // Format as YYYY-MM-DD
+//   }
+//   return dates;
+// };
+
 const generateNext30Days = () => {
   const dates = [];
   const today = new Date();
+
   for (let i = 0; i < 30; i++) {
+    // Create a new Date instance to avoid mutating 'today'
     const date = new Date(today);
     date.setDate(today.getDate() + i);
-    dates.push(date.toISOString().split("T")[0]); // Format as YYYY-MM-DD
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day}`; // Format as YYYY-MM-DD
+    dates.push(formattedDate);
   }
+
   return dates;
 };
 
