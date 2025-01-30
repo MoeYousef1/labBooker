@@ -32,7 +32,9 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
     const fetchAllRooms = async () => {
       setLoadingRooms(true);
       try {
-        const response = await axios.get("http://localhost:5000/api/room/rooms");
+        const response = await axios.get(
+          "http://localhost:5000/api/room/rooms",
+        );
         setRoomsList(response.data);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load rooms list.");
@@ -67,7 +69,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
     setLoadingBookings(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/book/bookings/by-room/${roomName}`
+        `http://localhost:5000/api/book/bookings/by-room/${roomName}`,
       );
       if (response.data.success) {
         setRelatedBookings(response.data.bookings);
@@ -90,16 +92,18 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
     try {
       // Delete room (this should cascade delete bookings on the backend)
       const response = await axios.delete(
-        `http://localhost:5000/api/room/rooms/${roomId}`
+        `http://localhost:5000/api/room/rooms/${roomId}`,
       );
-      
+
       if (response.status === 200) {
-        const deletedRoom = roomsList.find(room => room.name === roomId);
+        const deletedRoom = roomsList.find((room) => room.name === roomId);
         const successMsg = (
           <div className="space-y-2">
             <p>Room and associated bookings successfully deleted!</p>
             <div className="text-sm bg-green-50 p-3 rounded-md">
-              <p className="font-medium text-green-800">Deleted Room Details:</p>
+              <p className="font-medium text-green-800">
+                Deleted Room Details:
+              </p>
               <ul className="mt-1 text-green-700">
                 <li>Name: {deletedRoom.name}</li>
                 <li>Type: {deletedRoom.type}</li>
@@ -128,24 +132,24 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
 
   // Modal content component
   const ModalContent = () => {
-    const selectedRoom = roomsList.find(room => room.name === roomId);
-    
+    const selectedRoom = roomsList.find((room) => room.name === roomId);
+
     return (
       <div className="space-y-6">
         <div className="text-center">
           <div className="mx-auto mb-4 h-14 w-14 text-red-500">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
               className="h-full w-full"
-              fill="none" 
-              viewBox="0 0 24 24" 
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
           </div>
@@ -153,7 +157,8 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
             Confirm Room Deletion
           </h3>
           <p className="text-gray-500">
-            Are you sure you want to delete this room? This action cannot be undone.
+            Are you sure you want to delete this room? This action cannot be
+            undone.
           </p>
         </div>
 
@@ -162,21 +167,35 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
             {/* Room Details */}
             <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
               <div className="px-4 py-3 bg-gray-100 border-b border-gray-200">
-                <h4 className="text-sm font-medium text-gray-700">Room Details</h4>
+                <h4 className="text-sm font-medium text-gray-700">
+                  Room Details
+                </h4>
               </div>
               <div className="p-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-1">
-                    <span className="text-xs text-gray-500 uppercase">Name</span>
-                    <p className="text-sm font-medium text-gray-900">{selectedRoom.name}</p>
+                    <span className="text-xs text-gray-500 uppercase">
+                      Name
+                    </span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {selectedRoom.name}
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-xs text-gray-500 uppercase">Type</span>
-                    <p className="text-sm font-medium text-gray-900">{selectedRoom.type}</p>
+                    <span className="text-xs text-gray-500 uppercase">
+                      Type
+                    </span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {selectedRoom.type}
+                    </p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-xs text-gray-500 uppercase">Capacity</span>
-                    <p className="text-sm font-medium text-gray-900">{selectedRoom.capacity}</p>
+                    <span className="text-xs text-gray-500 uppercase">
+                      Capacity
+                    </span>
+                    <p className="text-sm font-medium text-gray-900">
+                      {selectedRoom.capacity}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -191,18 +210,27 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                   </h4>
                 </div>
                 <div className="p-4">
-                  <div className="max-h-40 overflow-y-auto">
+                  <div className="max-h-48 overflow-y-auto space-y-2">
                     {relatedBookings.map((booking, index) => (
-                      <div 
+                      <div
                         key={booking._id}
-                        className={`text-sm p-2 ${
-                          index % 2 === 0 ? 'bg-red-50' : 'bg-white'
-                        }`}
+                        className="p-3 text-sm border-l-4 border-red-300 bg-red-100"
                       >
-                        <p className="text-red-700">
-                          Date: {booking.date} | Time: {booking.startTime}-{booking.endTime} |
-                          User: {booking.username}
-                        </p>
+                        <div className="text-red-700">
+                          Date: {booking.date} | Time: {booking.startTime} -{" "}
+                          {booking.endTime}
+                        </div>
+                        <div className="text-red-600 text-xs mt-1">
+                          Booked by: {booking.userId?.username}
+                          {booking.additionalUsers?.length > 0 && (
+                            <span className="ml-2">
+                              | With:{" "}
+                              {booking.additionalUsers
+                                .map((user) => user.username)
+                                .join(", ")}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -214,18 +242,19 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
 
         <div className="text-center">
           <p className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
-            <svg 
-              className="w-4 h-4 inline mr-1 -mt-0.5" 
-              fill="currentColor" 
+            <svg
+              className="w-4 h-4 inline mr-1 -mt-0.5"
+              fill="currentColor"
               viewBox="0 0 20 20"
             >
-              <path 
-                fillRule="evenodd" 
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" 
-                clipRule="evenodd" 
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
               />
             </svg>
-            This will permanently delete the room and {relatedBookings.length} associated booking(s)
+            This will permanently delete the room and {relatedBookings.length}{" "}
+            associated booking(s)
           </p>
         </div>
       </div>
@@ -260,7 +289,9 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 disabled={loadingRooms}
               >
-                <option value="" disabled>Choose a Room</option>
+                <option value="" disabled>
+                  Choose a Room
+                </option>
                 {roomsList.map((room) => (
                   <option key={room._id} value={room.name}>
                     {room.name} - {room.type} (Capacity: {room.capacity})
@@ -272,9 +303,13 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
             {/* Room Details Preview */}
             {roomId && (
               <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Room Details</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">
+                  Selected Room Details
+                </h4>
                 {(() => {
-                  const selectedRoom = roomsList.find(room => room.name === roomId);
+                  const selectedRoom = roomsList.find(
+                    (room) => room.name === roomId,
+                  );
                   return selectedRoom ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                       <div>
@@ -287,7 +322,9 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                       </div>
                       <div>
                         <span className="block text-gray-500">Capacity</span>
-                        <span className="font-medium">{selectedRoom.capacity}</span>
+                        <span className="font-medium">
+                          {selectedRoom.capacity}
+                        </span>
                       </div>
                     </div>
                   ) : null;
@@ -306,9 +343,9 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Message 
-                    message={error} 
-                    type="error" 
+                  <Message
+                    message={error}
+                    type="error"
                     onClose={() => setError("")}
                   />
                 </motion.div>
@@ -320,9 +357,9 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Message 
-                    message={successMessage} 
-                    type="success" 
+                  <Message
+                    message={successMessage}
+                    type="success"
                     onClose={() => setSuccessMessage("")}
                   />
                 </motion.div>
@@ -346,9 +383,10 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
               onClick={handleDeleteClick}
               disabled={loading || !roomId}
               className={`px-6 py-3 rounded-lg shadow-md transition-colors
-                ${loading || !roomId
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-white text-red-500 hover:bg-red-500 hover:text-white focus:ring-2 focus:ring-red-400'
+                ${
+                  loading || !roomId
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-white text-red-500 hover:bg-red-500 hover:text-white focus:ring-2 focus:ring-red-400"
                 }`}
             >
               {loading ? "Deleting..." : "Delete Room"}
