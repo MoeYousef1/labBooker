@@ -1046,6 +1046,43 @@ class BookingController {
       });
     }
   };
+
+    // GET /bookings/by-room/:roomName
+getAllBookingsByRoomName = async (req, res) => {
+  try {
+    const { roomName } = req.params;
+
+    // Find room
+    const room = await Room.findOne({ name: roomName }).select("_id");
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: `No room found with name: ${roomName}`,
+      });
+    }
+
+    // Fetch ALL bookings for this room
+    const allBookings = await Booking.find({ roomId: room._id })
+      .populate("roomId", "name type")
+      .populate("userId", "username email")
+      .populate("additionalUsers", "username email")
+      .sort({ date: -1, startTime: -1 });
+
+    res.status(200).json({
+      success: true,
+      bookings: allBookings,
+      count: allBookings.length
+    });
+  } catch (error) {
+    console.error("getAllBookingsByRoomName - Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch bookings for this room",
+      error: error.message,
+    });
+  }
+};
+
 }
 
 // Export a new instance of the controller

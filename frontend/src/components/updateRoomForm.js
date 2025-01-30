@@ -169,8 +169,11 @@ const UpdateRoomForm = ({
         Update Room
       </h2>
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          Select a Room to Update
+      <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-6">
+              Select Room
+            </h3>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+        Available Rooms
         </label>
 
         <select

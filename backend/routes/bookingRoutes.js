@@ -46,4 +46,7 @@ router.get(
 // e.g. POST /api/book/booking/by-names
 router.post("/booking/create-by-names", bookingController.createBookingByNames);
 
+// to delete bookings using room name 
+router.get("/bookings/by-room/:roomName", bookingController.getAllBookingsByRoomName);
+
 module.exports = router;

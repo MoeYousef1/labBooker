@@ -206,8 +206,8 @@ async function updateRoom(req, res) {
 
 async function deleteRoom(name) {
   try {
-    // Search for room by name instead of ID
-    const room = await Room.findOne({ name }); // Find room by name
+    // Search for room by name
+    const room = await Room.findOne({ name });
 
     if (!room) {
       return {
@@ -216,23 +216,33 @@ async function deleteRoom(name) {
       };
     }
 
+    // Delete associated image from Cloudinary if exists
     const imageUrl = room.imageUrl;
     if (imageUrl) {
       const publicId = imageUrl.split("/").slice(-1)[0].split(".")[0];
       await cloudinary.uploader.destroy(publicId);
     }
 
-    await Room.findByIdAndDelete(room._id); // Use the room's ID to delete the document
+    // Delete all bookings associated with this room
+    const deletedBookings = await Booking.deleteMany({ roomId: room._id });
+
+    // Delete the room
+    await Room.findByIdAndDelete(room._id);
 
     return {
       status: 200,
-      message: "Room deleted successfully",
+      message: "Room and associated bookings deleted successfully",
+      data: {
+        roomName: room.name,
+        deletedBookingsCount: deletedBookings.deletedCount
+      }
     };
   } catch (error) {
     console.error("Error deleting room:", error.message);
     return {
       status: 500,
-      message: "Failed to delete room. Please check the input and try again.",
+      message: "Failed to delete room and associated bookings. Please try again.",
+      error: error.message
     };
   }
 }

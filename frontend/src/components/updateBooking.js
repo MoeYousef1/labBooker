@@ -3,7 +3,6 @@ import axios from "axios";
 import Message from "./Error_successMessage";
 import { motion } from "framer-motion";
 
-// Example statuses used in your system
 const validStatuses = ["Pending", "Confirmed", "Canceled"];
 
 const UpdateBooking = ({ onSuccess }) => {
@@ -11,34 +10,48 @@ const UpdateBooking = ({ onSuccess }) => {
   const [userBookings, setUserBookings] = useState([]);
   const [selectedBookingId, setSelectedBookingId] = useState("");
   const [status, setStatus] = useState("Pending");
-
-  // For UI feedback
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [errors, setErrors] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // 1) Fetch user’s upcoming bookings by username
+  const resetMessages = () => {
+    setErrors("");
+    setSuccessMessage("");
+  };
+
+  const resetForm = () => {
+    setUsername("");
+    setUserBookings([]);
+    setSelectedBookingId("");
+    setStatus("Pending");
+    resetMessages();
+  };
+
   const fetchBookings = async () => {
-    if (!username) {
+    if (!username.trim()) {
       setErrors("Please enter a username to fetch bookings.");
       return;
     }
-    setErrors("");
-    setSuccessMessage("");
+    
+    resetMessages();
     setLoadingBookings(true);
     setUserBookings([]);
+    setSelectedBookingId("");
 
     try {
-      // e.g. /api/book/bookings/upcoming-by-username?username=<username>
       const response = await axios.get(
         `http://localhost:5000/api/book/bookings/upcoming/${username}`
       );
+      
       if (response.status === 200) {
         const bookings = response.data.bookings || [];
         setUserBookings(bookings);
+        
         if (bookings.length === 0) {
           setErrors(`No upcoming bookings found for username: "${username}"`);
+        } else {
+          setSuccessMessage(`Found ${bookings.length} upcoming booking(s)`);
         }
       }
     } catch (err) {
@@ -51,125 +64,251 @@ const UpdateBooking = ({ onSuccess }) => {
     }
   };
 
-  // 2) Update a chosen booking’s status
-  const handleUpdate = async () => {
-    if (!username) {
-      setErrors("Please enter a username first.");
-      return;
-    }
-    if (!selectedBookingId) {
-      setErrors("Please select a booking to update.");
-      return;
-    }
+ // Update the handleUpdate function to prevent updating to the same status
+const handleUpdate = async () => {
+  if (!username.trim()) {
+    setErrors("Please enter a username first.");
+    return;
+  }
+  if (!selectedBookingId) {
+    setErrors("Please select a booking to update.");
+    return;
+  }
 
-    setErrors("");
-    setSuccessMessage("");
-    setLoadingUpdate(true);
+  const currentStatus = userBookings.find(b => b._id === selectedBookingId)?.status;
+  if (status === currentStatus) {
+    setErrors("Please select a different status to update.");
+    return;
+  }
 
-    try {
-      // e.g. PATCH /booking/:id/status/by-username?username=john_doe
-      const response = await axios.patch(
-        `http://localhost:5000/api/book/booking/${selectedBookingId}/status/by-username?username=${username}`,
-        { status }
-      );
-      if (response.status === 200) {
-        setSuccessMessage(response.data.message || "Booking updated successfully!");
-        onSuccess?.(response.data.message);
-        // Optionally re-fetch bookings to reflect updated statuses
-        fetchBookings();
-      }
-    } catch (err) {
-      setErrors(err.response?.data?.message || "Error updating booking by username");
-    } finally {
-      setLoadingUpdate(false);
+  resetMessages();
+  setLoadingUpdate(true);
+
+  try {
+    const response = await axios.patch(
+      `http://localhost:5000/api/book/booking/${selectedBookingId}/status/by-username?username=${username}`,
+      { status }
+    );
+    
+    if (response.status === 200) {
+      setSuccessMessage(`Booking status successfully updated from ${currentStatus} to ${status}`);
+      onSuccess?.(response.data.message);
+      await fetchBookings();
     }
-  };
+  } catch (err) {
+    setErrors(err.response?.data?.message || "Error updating booking status");
+  } finally {
+    setLoadingUpdate(false);
+  }
+};
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-50 p-6 rounded-md shadow-md border border-gray-200"
+      className="max-w-6xl mx-auto p-10 bg-gray-50 rounded-lg shadow-xl mb-4"
     >
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Update Booking (By Username)</h2>
+      <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
+        Update Booking Status
+      </h2>
 
-      {/* Step 1: Enter username & fetch bookings */}
-      <div className="flex flex-col sm:flex-row sm:items-end mb-6 gap-4">
-        <div className="w-full sm:w-1/2">
-          <label className="block text-gray-700 font-medium">Username</label>
-          <input
-            type="text"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="john_doe"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+      <form className="space-y-10" onSubmit={(e) => e.preventDefault()}>
+        {/* Username Section */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+            User Details
+          </h3>
+          <div className="flex space-x-4">
+            <div className="flex-grow">
+              <label className="block text-sm font-medium text-gray-700">
+                Username <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  resetMessages();
+                }}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                placeholder="Enter username to fetch bookings"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={fetchBookings}
+              disabled={loadingBookings || !username.trim()}
+              className={`px-6 py-3 rounded-lg shadow-md transition-colors self-end
+                ${loadingBookings || !username.trim()
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-white text-green-500 hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400'
+                }`}
+            >
+              {loadingBookings ? "Fetching..." : "Fetch Bookings"}
+            </button>
+          </div>
         </div>
-        <button
-          onClick={fetchBookings}
-          disabled={loadingBookings}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          {loadingBookings ? "Fetching..." : "Fetch Bookings"}
-        </button>
+
+        {/* Bookings Section */}
+        {userBookings.length > 0 && (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+              Select Booking
+            </h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Available Bookings
+              </label>
+              <select
+                value={selectedBookingId}
+                onChange={(e) => {
+                  setSelectedBookingId(e.target.value);
+                  resetMessages();
+                }}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">-- Select a booking to update --</option>
+                {userBookings.map((booking) => (
+                  <option key={booking._id} value={booking._id}>
+                    Room: {booking.roomId?.name} | Date: {booking.date} | Time: {booking.startTime}-{booking.endTime}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Status Section */}
+{selectedBookingId && (
+  <div className="space-y-6">
+    <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+      Update Status
+    </h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Current Status Display */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Current Status
+        </label>
+        <div className="p-3 bg-gray-100 border border-gray-200 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <span className={`inline-block w-2 h-2 rounded-full ${
+              userBookings.find(b => b._id === selectedBookingId)?.status === 'Confirmed'
+                ? 'bg-green-500'
+                : userBookings.find(b => b._id === selectedBookingId)?.status === 'Canceled'
+                ? 'bg-red-500'
+                : 'bg-yellow-500'
+            }`}></span>
+            <span className="font-medium text-gray-800">
+              {userBookings.find(b => b._id === selectedBookingId)?.status || 'Unknown'}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Step 2: Display upcoming bookings in dropdown */}
-      {userBookings.length > 0 && (
-        <div className="mb-6">
-          <label className="block text-gray-700 font-medium">Select Booking</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={selectedBookingId}
-            onChange={(e) => setSelectedBookingId(e.target.value)}
-          >
-            <option value="">-- Choose a Booking --</option>
-            {userBookings.map((b) => (
-              <option key={b._id} value={b._id}>
-                BookingID: {b._id.slice(-4)} | Room: {b.roomId?.name} | {b.date} ({b.startTime}-{b.endTime})
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Step 3: If a booking is selected, pick a status */}
-      {selectedBookingId && (
-        <div className="mb-6">
-          <label className="block text-gray-700 font-medium">New Status</label>
-          <select
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            {validStatuses.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Error/Success Messages */}
-      {errors && (
-        <Message message={errors} type="error" onClose={() => setErrors("")} />
-      )}
-      {successMessage && (
-        <Message message={successMessage} type="success" onClose={() => setSuccessMessage("")} />
-      )}
-
-      {/* Update Button */}
-      {selectedBookingId && (
-        <button
-          onClick={handleUpdate}
-          disabled={loadingUpdate}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+      {/* New Status Selector */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          New Status <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            resetMessages();
+          }}
+          className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 ${
+            status === userBookings.find(b => b._id === selectedBookingId)?.status
+              ? 'border-yellow-300 bg-yellow-50'
+              : 'border-gray-300'
+          }`}
         >
-          {loadingUpdate ? "Updating..." : "Update Booking"}
-        </button>
-      )}
+          {validStatuses.map((s) => (
+            <option 
+              key={s} 
+              value={s}
+              disabled={s === userBookings.find(b => b._id === selectedBookingId)?.status}
+            >
+              {s} {s === userBookings.find(b => b._id === selectedBookingId)?.status ? '(Current)' : ''}
+            </option>
+          ))}
+        </select>
+        {status === userBookings.find(b => b._id === selectedBookingId)?.status && (
+          <p className="mt-1 text-sm text-yellow-600">
+            Please select a different status to update
+          </p>
+        )}
+      </div>
+    </div>
+
+    {/* Booking Details Summary */}
+    <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Booking Details</h4>
+      {(() => {
+        const selectedBooking = userBookings.find(b => b._id === selectedBookingId);
+        return selectedBooking ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <span className="block text-gray-500">Room</span>
+              <span className="font-medium">{selectedBooking.roomId?.name}</span>
+            </div>
+            <div>
+              <span className="block text-gray-500">Date</span>
+              <span className="font-medium">{selectedBooking.date}</span>
+            </div>
+            <div>
+              <span className="block text-gray-500">Time</span>
+              <span className="font-medium">{selectedBooking.startTime} - {selectedBooking.endTime}</span>
+            </div>
+            <div>
+              <span className="block text-gray-500">Booking ID</span>
+              <span className="font-medium">{selectedBooking._id.slice(-6)}</span>
+            </div>
+          </div>
+        ) : null;
+      })()}
+    </div>
+  </div>
+)}
+
+        {/* Messages */}
+        <div className="text-center">
+          {errors && (
+            <Message message={errors} type="error" onClose={resetMessages} />
+          )}
+          {successMessage && (
+            <Message message={successMessage} type="success" onClose={resetMessages} />
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end space-x-4">
+          {userBookings.length > 0 && (
+            <button
+              type="button"
+              onClick={resetForm}
+              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Reset
+            </button>
+          )}
+          {selectedBookingId && (
+            <button
+              type="button"
+              onClick={handleUpdate}
+              disabled={loadingUpdate}
+              className={`px-6 py-3 rounded-lg shadow-md transition-colors
+                ${loadingUpdate
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-white text-green-500 hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400'
+                }`}
+            >
+              {loadingUpdate ? "Updating..." : "Update Booking"}
+            </button>
+          )}
+        </div>
+      </form>
     </motion.div>
   );
 };

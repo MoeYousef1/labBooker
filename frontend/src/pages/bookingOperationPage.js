@@ -44,11 +44,10 @@ const BookingPage = () => {
         {/* Booking Operations */}
         <div className="w-full max-w-4xl">
           <BookingOperations
-            operation={operation}
             setOperation={setOperation}
-            bookingId={bookingId}
             setBookingId={setBookingId}
             setBookingDetails={setBookingDetails}
+            operation={operation}
           />
         </div>
 
@@ -60,10 +59,11 @@ const BookingPage = () => {
           className="w-full max-w-4xl mt-6"
         >
           {operation === "create" && (
-            <CretaeBooking onSuccess={handleSuccess} />
+            <CretaeBooking operation={operation} onSuccess={handleSuccess} />
           )}
           {operation === "update" && (
             <UpdateBooking
+              operation={operation}
               bookingId={bookingId}
               bookingDetails={bookingDetails}
               setBookingId={setBookingId}
@@ -73,7 +73,7 @@ const BookingPage = () => {
           )}
           {operation === "delete" && (
             <DeleteBooking
-              bookingId={bookingId}
+              operation={operation}
               onSuccess={handleSuccess}
             />
           )}

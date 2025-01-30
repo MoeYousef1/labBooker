@@ -321,7 +321,7 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
                     let slotClasses = "relative px-4 py-3 border border-gray-300 rounded-md flex items-center justify-center transition";
 
                     if (slotStatus === "Available") {
-                      slotClasses += " bg-white text-gray-800 hover:bg-blue-50 cursor-pointer";
+                      slotClasses += "text-gray-800 hover:bg-blue-50 cursor-pointer";
                     } else if (slotStatus === "Booked") {
                       slotClasses += " bg-gray-200 text-gray-500 cursor-not-allowed";
                     } else if (slotStatus === "Past") {

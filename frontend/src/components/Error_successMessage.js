@@ -1,38 +1,40 @@
 import React from "react";
 
-const Message = ({ message, onClose, type }) => {
-  if (!message) return null;
-
-  const messageType =
-    type === "success"
-      ? "bg-green-100 border-green-400 text-green-700"
-      : "bg-red-100 border-red-400 text-red-700";
-
-  const closeButtonColor =
-    type === "success" ? "text-green-500" : "text-red-500";
-
+const Message = ({ message, type, onClose }) => {
   return (
-    <div
-      className={`${messageType} border px-4 py-2 rounded mt-1 relative flex items-start min-w-0`}
-      role="alert"
-    >
-      <span className="flex-grow pr-10">{message}</span>{" "}
-      {/* Add padding-right for space */}
-      {onClose && (
-        <button onClick={onClose} className="absolute top-0 right-0 px-3 py-3">
-          <svg
-            className={`fill-current h-6 w-6 ${closeButtonColor}`}
-            role="button"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-          >
-            <title>Close</title>
-            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+    <div className={`rounded-lg p-4 mb-4 text-sm ${
+      type === 'error' 
+        ? 'bg-red-50 text-red-800' 
+        : 'bg-green-50 text-green-800'
+    }`}>
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          {typeof message === 'string' ? (
+            <p>{message}</p>
+          ) : (
+            message
+          )}
+        </div>
+        <button
+          onClick={onClose}
+          className={`ml-3 inline-flex ${
+            type === 'error' 
+              ? 'text-red-500 hover:text-red-600' 
+              : 'text-green-500 hover:text-green-600'
+          }`}
+        >
+          <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fillRule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
           </svg>
         </button>
-      )}
+      </div>
     </div>
   );
 };
+
 
 export default Message;
