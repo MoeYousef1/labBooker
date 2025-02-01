@@ -142,11 +142,18 @@ export function Sidebar() {
             )}
           </li>
 
-          {/* Other Menu Items */}
+          {/* Other Menu Items - Combined Profile & Settings */}
           {[
-            { icon: User, label: "My Profile", path: "/myprofile" },
-            { icon: Settings, label: "Settings", path: "/accountsettings" },
-            { icon: Home, label: "Home", path: "/homepage" },
+            { 
+              icon: User, 
+              label: "Profile & Settings", 
+              path: "/accountSettings" // New combined path
+            },
+            { 
+              icon: Home, 
+              label: "Home", 
+              path: "/homepage" 
+            },
           ].map((item) => (
             <li
               key={item.path}
@@ -183,29 +190,28 @@ export function Sidebar() {
         />
       )}
 
-     {/* Mobile Toggle Button */}
-{!isOpen && (
-  <button
-    className="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md"
-    onClick={toggleSidebar}
-  >
-    <svg
-      className="w-6 h-6 text-gray-600"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M4 6h16M4 12h16m-7 6h7"
-      />
-    </svg>
-  </button>
-)}
-
+      {/* Mobile Toggle Button */}
+      {!isOpen && (
+        <button
+          className="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md"
+          onClick={toggleSidebar}
+        >
+          <svg
+            className="w-6 h-6 text-gray-600"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }

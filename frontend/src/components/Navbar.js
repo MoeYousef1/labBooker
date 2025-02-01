@@ -16,7 +16,6 @@ import {
   BookOpen,
   LogOut,
   User,
-  Settings,
   Bell
 } from "lucide-react";
 
@@ -73,15 +72,20 @@ const Navbar = ({
 
   // Profile menu items
   const profileMenuItems = useMemo(() => [
+    // { 
+    //   label: 'Profile', 
+    //   path: '/profile', 
+    //   icon: <User className="w-5 h-5 mr-3" /> 
+    // },
+    // { 
+    //   label: 'Settings', 
+    //   path: '/accountSettings', 
+    //   icon: <Settings className="w-5 h-5 mr-3" /> 
+    // },
     { 
-      label: 'Profile', 
-      path: '/profile', 
-      icon: <User className="w-5 h-5 mr-3" /> 
-    },
-    { 
-      label: 'Settings', 
+      label: 'Profile & Settings', 
       path: '/accountSettings', 
-      icon: <Settings className="w-5 h-5 mr-3" /> 
+      icon: <User className="w-5 h-5 mr-3" /> 
     }
   ], []);
 
@@ -195,14 +199,27 @@ const Navbar = ({
       >
         {/* User Avatar */}
         <div className="flex items-center space-x-3 p-4 bg-gray-800 rounded-t-lg">
-          <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xl">
-            {userInfo.username.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <p className="text-sm font-semibold text-white truncate">{userInfo.username}</p>
-            <p className="text-xs text-gray-400 truncate">{userInfo.email}</p>
-          </div>
-        </div>
+  <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
+    {userInfo.profilePicture ? (
+      <img
+        src={userInfo.profilePicture}
+        alt="Profile Avatar"
+        className="object-cover w-full h-full"
+      />
+    ) : (
+      <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold text-xl">
+        {userInfo.username.charAt(0).toUpperCase()}
+      </div>
+    )}
+  </div>
+  <div className="flex-1 overflow-hidden">
+    <p className="text-sm font-semibold text-white truncate">
+      {userInfo.username}
+    </p>
+    <p className="text-xs text-gray-400 truncate">{userInfo.email}</p>
+  </div>
+</div>
+
 
         <div className="py-2">
           {profileMenuItems.map((item, index) => (

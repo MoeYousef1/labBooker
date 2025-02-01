@@ -253,7 +253,9 @@ const verifyLoginCode = async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        name: user.name,
+        profilePicture: user.profilePicture || null, // Add this line
       },
       ...tokens
     });

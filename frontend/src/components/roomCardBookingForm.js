@@ -218,7 +218,7 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
     try {
       const response = await axios.post("http://localhost:5000/api/book/booking", {
         roomId: room._id,
-        userId: userInfo.id,
+        userId: userInfo._id,
         date: formData.date,
         startTime: formData.startTime,
         endTime: formData.endTime,

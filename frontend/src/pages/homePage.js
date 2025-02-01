@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/footer";
 import { BookOpen, Calendar, Activity } from 'lucide-react';
+import api from '../utils/axiosConfig';
 
 const HomePage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -20,6 +21,7 @@ const HomePage = () => {
           setUserInfo({
             email: parsedUser.email || "",
             username: parsedUser.username || "",
+            profilePicture: parsedUser.profilePicture || "",
             id: parsedUser.id || "",
           });
         } else {
@@ -33,6 +35,22 @@ const HomePage = () => {
 
     checkAuthentication();
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get("/user/profile");
+        setUserInfo(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
+      } catch (error) {
+        console.error("Failed to fetch updated profile:", error);
+        // handle error or redirect
+      }
+    };
+  
+    fetchProfile();
+  }, []);
+  
 
   // Prevent rendering if not authenticated
   if (!userInfo) {

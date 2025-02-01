@@ -178,7 +178,6 @@ const SignUpPage = () => {
         onChange={handleChange}
         error={errors.username}
         placeholder="Enter your username"
-        required
       />
       <FormInput
         name="name"
@@ -187,7 +186,6 @@ const SignUpPage = () => {
         onChange={handleChange}
         error={errors.name}
         placeholder="Enter your full name"
-        required
       />
       <FormInput
         name="email"
@@ -197,7 +195,6 @@ const SignUpPage = () => {
         onChange={handleChange}
         error={errors.email}
         placeholder="Enter your email"
-        required
       />
 
       <AuthButton 
@@ -233,7 +230,6 @@ const SignUpPage = () => {
         error={errors.verificationCode}
         placeholder="Enter 6-digit code"
         maxLength={6}
-        required
         className="text-center tracking-widest text-lg"
       />
 

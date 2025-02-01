@@ -12,6 +12,14 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  name: {
+    type: String,
+    default: ''
+  },
+  profilePicture: {
+    type: String,
+    default: null
+  },
   role: {
     type: String,
     enum: ["user", "admin", "manager"], 
@@ -24,6 +32,11 @@ const userSchema = new mongoose.Schema({
   verificationExpires: {
     type: Date,
     default: null
+  },
+  emailChangeRequest: {
+    newEmail: { type: String, default: null },
+    verificationCode: { type: String, default: null },
+    expiresAt: { type: Date, default: null }
   }
 }, { timestamps: true });
 

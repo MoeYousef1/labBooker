@@ -15,6 +15,7 @@ const MyBookingsPage = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
+  
 
   // State for Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +45,8 @@ const MyBookingsPage = () => {
   const isBookingCancelable = (booking) => {
     return (
       booking.status.toLowerCase() !== 'canceled' && 
-      !isBookingPast(booking.date, booking.endTime)
+      !isBookingPast(booking.date, booking.endTime) &&
+      booking.userId.email === userInfo.email  // Add this check for main booker
     );
   };
 
@@ -91,7 +93,7 @@ const MyBookingsPage = () => {
       
       const response = await api.get('/book/my-bookings', {
         params: {
-          userId: user.id,
+          userId: user._id,
           email: user.email,
           page: 1,
           limit: 50 // Adjust as needed
@@ -205,35 +207,51 @@ const MyBookingsPage = () => {
   const filteredBookings = getFilteredAndSortedBookings();
 
   // Authentication check
-    useEffect(() => {
-      const checkAuthentication = () => {
-        try {
-          const storedUser = localStorage.getItem("user");
-          const token = localStorage.getItem("token");
-  
-          if (storedUser && token) {
-            const parsedUser = JSON.parse(storedUser);
-            setUserInfo({
-              email: parsedUser.email || "",
-              username: parsedUser.username || "",
-              id: parsedUser.id || "",
-            });
-          } else {
-            navigate("/login");
-          }
-        } catch (error) {
-          console.error("Authentication error:", error);
+  useEffect(() => {
+    const checkAuthentication = () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+
+        if (storedUser && token) {
+          const parsedUser = JSON.parse(storedUser);
+          setUserInfo({
+            email: parsedUser.email || "",
+            username: parsedUser.username || "",
+            profilePicture: parsedUser.profilePicture || "",
+            id: parsedUser.id || "",
+          });
+        } else {
           navigate("/login");
         }
-      };
+      } catch (error) {
+        console.error("Authentication error:", error);
+        navigate("/login");
+      }
+    };
+
+    checkAuthentication();
+  }, [navigate]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get("/user/profile");
+        setUserInfo(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
+      } catch (error) {
+        console.error("Failed to fetch updated profile:", error);
+        // handle error or redirect
+      }
+    };
   
-      checkAuthentication();
-    }, [navigate]);
-  
-    // Prevent rendering if not authenticated
-    if (!userInfo) {
-      return null;
-    }
+    fetchProfile();
+  }, []);
+   
+     // Prevent rendering if not authenticated
+     if (!userInfo) {
+       return null;
+     }
 
     const ModalContent = () => {
       const selectedBooking = bookings.find(b => b._id === selectedBookingId);
@@ -466,33 +484,46 @@ const MyBookingsPage = () => {
                       </div>
 
                       {booking.additionalUsers?.length > 0 && (
-                        <div className="text-sm text-gray-600">
-                          <p>Additional Users:</p>
-                          <ul className="list-disc pl-5">
-                            {booking.additionalUsers.map((user, index) => (
-                              <li key={index}>{user.email}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+  <div className="text-sm text-gray-600">
+    <p>Other Users in this Booking:</p>
+    <ul className="list-disc pl-5">
+      {booking.userId.email !== userInfo.email && (
+        <li className="font-medium text-blue-600">
+          {booking.userId.email} 
+          <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+            Main Booker
+          </span>
+        </li>
+      )}
+      
+      {booking.additionalUsers
+        .filter(user => user.email !== userInfo.email)
+        .map((user, index) => (
+          <li key={index}>{user.email}</li>
+        ))}
+    </ul>
+  </div>
+)}
 
-                      {canCancel ? (
-                        <button
-                          onClick={() => openCancelModal(booking._id)}
-                          className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
-                        >
-                          <X className="w-4 h-4" />
-                          Cancel Booking
-                        </button>
-                      ) : (
-                        <div className="mt-4 text-sm text-gray-500 text-center">
-                          {booking.status.toLowerCase() === 'canceled' 
-                            ? 'This booking has been canceled'
-                            : isPast 
-                              ? 'This booking has already passed'
-                              : 'This booking cannot be canceled'}
-                        </div>
-                      )}
+{canCancel ? (
+  <button
+    onClick={() => openCancelModal(booking._id)}
+    className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
+  >
+    <X className="w-4 h-4" />
+    Cancel Booking
+  </button>
+) : (
+  <div className="mt-4 text-sm text-gray-500 text-center">
+    {booking.status.toLowerCase() === 'canceled' 
+      ? 'This booking has been canceled'
+      : isPast 
+        ? 'This booking has already passed'
+        : booking.userId.email !== userInfo.email
+          ? 'Only the main booker can cancel this booking'
+          : 'This booking cannot be canceled'}
+  </div>
+)}
                     </div>
                   </div>
                 );

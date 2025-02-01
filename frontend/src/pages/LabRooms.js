@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/footer";
 import RoomsSection from "../components/roomsSection";
 import { BookOpen } from 'lucide-react';
+import api from '../utils/axiosConfig';
+
 
 const LabRooms = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -21,7 +23,8 @@ const LabRooms = () => {
           setUserInfo({
             email: parsedUser.email || "",
             username: parsedUser.username || "",
-            id: parsedUser.id || "",
+            profilePicture: parsedUser.profilePicture || "",
+            id: parsedUser._id || "",
           });
         } else {
           navigate("/login");
@@ -34,6 +37,21 @@ const LabRooms = () => {
 
     checkAuthentication();
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get("/user/profile");
+        setUserInfo(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
+      } catch (error) {
+        console.error("Failed to fetch updated profile:", error);
+        // handle error or redirect
+      }
+    };
+  
+    fetchProfile();
+  }, []);
 
   // Prevent rendering if not authenticated
   if (!userInfo) {

@@ -30,5 +30,21 @@ router.put("/profile",
   userController.updateUserProfile
 );
 
+// routes/userRoutes.js
+router.post("/check-email", 
+  authMiddleware.requireAuth, 
+  userController.checkEmailAvailability
+);
+
+router.post("/initiate-email-change", 
+  authMiddleware.requireAuth,
+  userController.initiateEmailChange
+);
+
+router.post("/verify-email-change",
+  authMiddleware.requireAuth,
+  userController.verifyEmailChange
+);
+
 // Export router
 module.exports = router;
