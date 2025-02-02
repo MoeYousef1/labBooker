@@ -11,6 +11,7 @@ const VerificationModal = ({
   onCodeChange,
   onConfirm,
   onClose,
+  onCancelEmailChange, // New prop for cancel action
 }) => {
   if (!isOpen) return null;
 
@@ -49,17 +50,15 @@ const VerificationModal = ({
               />
             </div>
 
-            {/* Display modal-specific error */}
             {error && (
               <div className="my-4 text-center">
                 <Message
                   message={error}
                   type="error"
-                  onClose={() =>
-                    // Clear the modal error when user dismisses the message
-                    onCodeChange("") ||
-                    onClose() // or just remove the error field if you prefer
-                  }
+                  onClose={() => {
+                    onCodeChange("");
+                    onClose();
+                  }}
                 />
               </div>
             )}
@@ -67,17 +66,21 @@ const VerificationModal = ({
             <div className="mt-6 flex flex-col sm:flex-row sm:justify-center gap-4">
               <button
                 type="button"
+                onClick={() => {
+                  onCancelEmailChange();  // Trigger cancellation endpoint
+                  onCodeChange("");       // Clear code
+                  onClose();              // Close modal and clear modal state
+                }}
+                className="w-full sm:w-auto px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md hover:bg-gray-50 focus:ring-2 focus:ring-green-400 border border-gray-300 transition-all duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
                 onClick={onConfirm}
                 className="w-full sm:w-auto px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400 transition-all duration-300"
               >
                 Verify
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full sm:w-auto px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md hover:bg-gray-50 focus:ring-2 focus:ring-green-400 border border-gray-300 transition-all duration-300"
-              >
-                Cancel
               </button>
             </div>
           </div>

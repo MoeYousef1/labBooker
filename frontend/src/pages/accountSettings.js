@@ -169,6 +169,18 @@ const ProfileSettings = () => {
     }
   };
 
+  // In ProfileSettings component
+const cancelEmailChangeRequest = async () => {
+  try {
+    await api.post("/user/cancel-email-change"); // Adjust URL/method as needed
+    setSuccessMessage("Email change request cancelled.");
+    // Also update any local state if you’re showing pending email changes.
+  } catch (error) {
+    setErrors(error.response?.data?.message || "Failed to cancel email change request");
+  }
+};
+
+
   // verify email code
   const handleVerifyEmail = async () => {
     clearMessages(); // still clears main page errors/success
@@ -583,15 +595,13 @@ const ProfileSettings = () => {
   isOpen={verificationModal.isOpen}
   email={verificationModal.email}
   code={verificationModal.code}
-  error={verificationModal.error}           // <-- new prop
-  onCodeChange={(code) =>
-    setVerificationModal((prev) => ({ ...prev, code }))
-  }
+  error={verificationModal.error}
+  onCodeChange={(code) => setVerificationModal((prev) => ({ ...prev, code }))}
   onConfirm={handleVerifyEmail}
-  onClose={() =>
-    setVerificationModal({ isOpen: false, email: "", code: "", error: "" })
-  }
+  onClose={() => setVerificationModal({ isOpen: false, email: "", code: "", error: "" })}
+  onCancelEmailChange={cancelEmailChangeRequest}
 />
+
 
 
         {/* Cropper Modal */}

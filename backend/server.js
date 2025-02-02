@@ -15,6 +15,7 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const configRoutes = require("./routes/configRoutes");
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const notificationsRoutes = require("./routes/notificationsRoutes");
 console.log("[IMPORT] Route imports completed");
 
 // Debugging function for route registration
@@ -101,9 +102,9 @@ mongoose
   .then(async () => {
     console.log("✅ MongoDB Connected Successfully!");
     
-    // Setup TTL index for bookings
+    // Setup TTL index for bookings (your existing code)
     try {
-      const Booking = require('./models/Booking'); // Add this at the top with other requires
+      const Booking = require('./models/Booking');
       const THREE_DAYS_IN_SECONDS = 3 * 24 * 60 * 60; // 259200 seconds
       
       // Remove existing index if it exists
@@ -111,18 +112,41 @@ mongoose
         await Booking.collection.dropIndex("deletedAt_1");
         console.log("✅ Existing TTL index dropped successfully");
       } catch (error) {
-        // Index might not exist, that's okay
         console.log("ℹ️ No existing TTL index to drop");
       }
 
-      // Create new TTL index with 3 days expiration
+      // Create new TTL index for bookings
       await Booking.collection.createIndex(
         { deletedAt: 1 },
         { expireAfterSeconds: THREE_DAYS_IN_SECONDS }
       );
-      console.log("✅ TTL index created successfully (3 days expiration)");
+      console.log("✅ TTL index for Bookings created successfully (3 days expiration)");
     } catch (error) {
-      console.error("❌ Error setting up TTL index:", error);
+      console.error("❌ Error setting up TTL index for Bookings:", error);
+    }
+
+    // Setup TTL index for notifications
+    try {
+      const Notification = require('./models/Notification');
+      const THREE_DAYS_IN_SECONDS = 3 * 24 * 60 * 60; // 259200 seconds
+      
+      // Drop existing index on readAt if it exists (the index name is usually 'readAt_1')
+      try {
+        await Notification.collection.dropIndex("readAt_1");
+        console.log("✅ Existing Notification TTL index dropped successfully");
+      } catch (error) {
+        console.log("ℹ️ No existing Notification TTL index to drop");
+      }
+
+      // Create a TTL index on the readAt field so that once a notification is marked as read,
+      // it will be automatically removed after 3 days.
+      await Notification.collection.createIndex(
+        { readAt: 1 },
+        { expireAfterSeconds: THREE_DAYS_IN_SECONDS }
+      );
+      console.log("✅ Notification TTL index created successfully (3 days expiration)");
+    } catch (error) {
+      console.error("❌ Error setting up Notification TTL index:", error);
     }
   })
   .catch((err) => {
@@ -159,7 +183,8 @@ try {
     { path: "/api/book", routes: bookingRoutes },
     { path: "/api/upload", routes: uploadRoutes },
     { path: "/api/config", routes: configRoutes },
-    { path: "/api/dashboard", routes: dashboardRoutes }
+    { path: "/api/dashboard", routes: dashboardRoutes },
+    { path: "/api/notifications", routes: notificationsRoutes }
 
   ];
 

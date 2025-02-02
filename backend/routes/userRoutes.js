@@ -46,5 +46,7 @@ router.post("/verify-email-change",
   userController.verifyEmailChange
 );
 
+router.post('/cancel-email-change', authMiddleware.requireAuth, userController.cancelEmailChange);
+
 // Export router
 module.exports = router;
