@@ -1,11 +1,41 @@
 // ../utils/CustomDatepicker.js
 import React, { useState, useEffect, useRef } from "react";
 
-const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availableDates = [] }) => {
+const themes = {
+  blue: {
+    primary: "blue",
+    selected: "bg-blue-600",
+    hover: "hover:bg-blue-50",
+    text: "text-blue-600",
+    border: "border-blue-600",
+    hoverBg: "hover:bg-blue-100",
+    hoverDark: "hover:bg-blue-700",
+    focus: "focus:ring-blue-600 focus:border-blue-600",
+  },
+  green: {
+    primary: "green",
+    selected: "bg-green-500",
+    hover: "hover:bg-green-50",
+    text: "text-green-500",
+    border: "border-green-500",
+    hoverBg: "hover:bg-green-100",
+    hoverDark: "hover:bg-green-600",
+    focus: "focus:ring-green-500 focus:border-green-500",
+  },
+};
+
+const CustomDatepicker = ({ 
+  onDateChange, 
+  placeholder = "Select a date", 
+  availableDates = [],
+  theme = "blue" // New theme prop with default value
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const popupRef = useRef(null);
+
+  const currentTheme = themes[theme] || themes.blue;
 
   // Helper functions
   const getDaysInMonth = (date) =>
@@ -80,23 +110,25 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
     dayCells.push(<div key={`empty-${i}`} className="w-10 h-10"></div>);
   }
 
-  // For each day, check if that day is available (using availableDates array)
+  // Update day cells with themed classes
   for (let day = 1; day <= daysInMonth; day++) {
     const thisDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     const dateStr = formatDate(thisDate);
     const todayStr = formatDate(new Date());
     const isToday = dateStr === todayStr;
     const isDayAvailable = availableDates.includes(dateStr) || isToday;
-    const isSel =
-      selectedDate &&
-      formatDate(selectedDate) === dateStr;
+    const isSel = selectedDate && formatDate(selectedDate) === dateStr;
 
     dayCells.push(
       <div
         key={day}
         onClick={() => handleDayClick(day, isDayAvailable)}
         className={`flex items-center justify-center cursor-pointer w-10 h-10 rounded-full transition duration-150 
-          ${isDayAvailable ? (isSel ? "bg-blue-600 text-white" : "hover:bg-blue-50 text-gray-700") : "opacity-50 cursor-not-allowed"}`}
+          ${isDayAvailable 
+            ? (isSel 
+                ? `${currentTheme.selected} text-white` 
+                : `${currentTheme.hover} text-gray-700`)
+            : "opacity-50 cursor-not-allowed"}`}
       >
         {day}
       </div>
@@ -111,22 +143,22 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
 
   return (
     <div className="relative">
-      {/* Input Field */}
-      <div className="relative flex items-center">
-        <span className="absolute left-4 text-gray-500">
-          {/* Calendar Icon */}
-          <svg className="fill-current" width="20" height="20" viewBox="0 0 20 20">
-            <path d="M17.5 3.3125H15.8125V2.625C15.8125 2.25 15.5 1.90625 15.0937 1.90625C14.6875 1.90625 14.375 2.21875 14.375 2.625V3.28125H5.59375V2.625C5.59375 2.25 5.28125 1.90625 4.875 1.90625C4.46875 1.90625 4.15625 2.21875 4.15625 2.625V3.28125H2.5C1.4375 3.28125 0.53125 4.15625 0.53125 5.25V16.125C0.53125 17.1875 1.40625 18.0937 2.5 18.0937H17.5C18.5625 18.0937 19.4687 17.2187 19.4687 16.125V5.25C19.4687 4.1875 18.5625 3.3125 17.5 3.3125ZM2.5 4.71875H4.1875V5.34375C4.1875 5.71875 4.5 6.0625 4.90625 6.0625C5.3125 6.0625 5.625 5.75 5.625 5.34375V4.71875H14.4687V5.34375C14.4687 5.71875 14.7812 6.0625 15.1875 6.0625C15.5937 6.0625 15.9062 5.75 15.9062 5.34375V4.71875H17.5C17.8125 4.71875 18.0625 4.96875 18.0625 5.28125V7.34375H1.96875V5.28125C1.96875 4.9375 2.1875 4.71875 2.5 4.71875Z" />
-          </svg>
-        </span>
-        <input
-          type="text"
-          readOnly
-          value={selectedDate ? selectedDate.toLocaleDateString() : ""}
-          placeholder={placeholder}
-          className="w-full bg-transparent pl-12 pr-8 py-2.5 border rounded-lg text-gray-700 border-gray-300 outline-none transition focus:border-blue-600"
-          onClick={() => setIsOpen(true)}
-        />
+    {/* Input Field */}
+    <div className="relative flex items-center">
+      <span className="absolute left-4 text-gray-500">
+        {/* Calendar Icon */}
+        <svg className="fill-current" width="20" height="20" viewBox="0 0 20 20">
+          <path d="M17.5 3.3125H15.8125V2.625C15.8125 2.25 15.5 1.90625 15.0937 1.90625C14.6875 1.90625 14.375 2.21875 14.375 2.625V3.28125H5.59375V2.625C5.59375 2.25 5.28125 1.90625 4.875 1.90625C4.46875 1.90625 4.15625 2.21875 4.15625 2.625V3.28125H2.5C1.4375 3.28125 0.53125 4.15625 0.53125 5.25V16.125C0.53125 17.1875 1.40625 18.0937 2.5 18.0937H17.5C18.5625 18.0937 19.4687 17.2187 19.4687 16.125V5.25C19.4687 4.1875 18.5625 3.3125 17.5 3.3125ZM2.5 4.71875H4.1875V5.34375C4.1875 5.71875 4.5 6.0625 4.90625 6.0625C5.3125 6.0625 5.625 5.75 5.625 5.34375V4.71875H14.4687V5.34375C14.4687 5.71875 14.7812 6.0625 15.1875 6.0625C15.5937 6.0625 15.9062 5.75 15.9062 5.34375V4.71875H17.5C17.8125 4.71875 18.0625 4.96875 18.0625 5.28125V7.34375H1.96875V5.28125C1.96875 4.9375 2.1875 4.71875 2.5 4.71875Z" />
+        </svg>
+      </span>
+      <input
+        type="text"
+        readOnly
+        value={selectedDate ? selectedDate.toLocaleDateString() : ""}
+        placeholder={placeholder}
+        className={`w-full bg-transparent pl-12 pr-8 py-2.5 border rounded-lg text-gray-700 border-gray-300 transition focus:outline-none focus:ring-2 ${currentTheme.focus}`}
+        onClick={() => setIsOpen(true)}
+      />
         <span
           className="absolute right-4 text-gray-500 cursor-pointer"
           onClick={() => setIsOpen(true)}
@@ -167,7 +199,7 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
             <div className="px-5 py-1 border-b border-gray-200 flex justify-end">
               <button
                 onClick={handleToday}
-                className="text-sm font-medium text-blue-600 hover:underline"
+                className={`text-sm font-medium ${currentTheme.text} hover:underline`}
               >
                 Today
               </button>
@@ -191,13 +223,13 @@ const CustomDatepicker = ({ onDateChange, placeholder = "Select a date", availab
             <div className="flex justify-end px-5 py-3 border-t border-gray-200">
               <button
                 onClick={handleCancelDate}
-                className="px-5 py-2 text-base font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-100"
+                className={`px-5 py-2 text-base font-medium ${currentTheme.text} ${currentTheme.border} rounded-lg ${currentTheme.hoverBg}`}
               >
                 Cancel
               </button>
               <button
                 onClick={handleApply}
-                className="ml-2 px-5 py-2 text-base font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className={`ml-2 px-5 py-2 text-base font-medium ${currentTheme.selected} text-white rounded-lg ${currentTheme.hoverDark}`}
               >
                 Apply
               </button>

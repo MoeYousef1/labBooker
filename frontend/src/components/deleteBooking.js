@@ -244,7 +244,7 @@ const DeleteBookingByUsername = ({ onSuccess }) => {
                   setUsername(e.target.value);
                   resetMessages();
                 }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="Enter username to fetch bookings"
               />
             </div>
@@ -279,7 +279,7 @@ const DeleteBookingByUsername = ({ onSuccess }) => {
                   setSelectedBookingId(e.target.value);
                   resetMessages();
                 }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">-- Select a booking to delete --</option>
                 {userBookings.map((booking) => (

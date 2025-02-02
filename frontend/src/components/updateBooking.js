@@ -131,7 +131,7 @@ const handleUpdate = async () => {
                   setUsername(e.target.value);
                   resetMessages();
                 }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="Enter username to fetch bookings"
               />
             </div>
@@ -166,7 +166,7 @@ const handleUpdate = async () => {
                   setSelectedBookingId(e.target.value);
                   resetMessages();
                 }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">-- Select a booking to update --</option>
                 {userBookings.map((booking) => (
@@ -218,7 +218,7 @@ const handleUpdate = async () => {
             setStatus(e.target.value);
             resetMessages();
           }}
-          className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 ${
+          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
             status === userBookings.find(b => b._id === selectedBookingId)?.status
               ? 'border-yellow-300 bg-yellow-50'
               : 'border-gray-300'

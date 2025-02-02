@@ -124,7 +124,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className=" w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="Enter room name"
               />
             </div>
@@ -137,7 +137,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                 name="type"
                 value={formData.type}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className=" w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="" disabled>
                   Select Room Type
@@ -157,7 +157,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                 name="capacity"
                 value={formData.capacity}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className=" w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="Enter capacity"
               />
             </div>
@@ -170,7 +170,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className=" w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="Enter room description"
               ></textarea>
             </div>
@@ -186,7 +186,7 @@ const CreateRoomForm = ({ onSuccess }) => {
             <button
               type="button"
               onClick={() => setShowAmenitiesDropdown((prev) => !prev)}
-              className="w-full p-3 border border-gray-300 rounded-lg flex justify-between items-center focus:ring-2 focus:ring-green-500"
+              className="w-full p-3 border border-gray-300 rounded-lg flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             >
               Select Amenities
               <ChevronDown className="w-5 h-5 text-gray-500" />
@@ -198,7 +198,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                   placeholder="Search amenities..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+                  className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
                 <div className="grid grid-cols-1 gap-2">
                   {availableAmenities
@@ -216,7 +216,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                           type="checkbox"
                           checked={selectedAmenities.includes(amenity)}
                           onChange={() => handleAmenityToggle(amenity)}
-                          className="form-checkbox text-green-500"
+                          className="form-checkbox focus:ring-green-500 text-green-500"
                         />
                       </label>
                     ))}
@@ -234,7 +234,7 @@ const CreateRoomForm = ({ onSuccess }) => {
           <input
             type="file"
             onChange={handleImageChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
           />
         </div>
 

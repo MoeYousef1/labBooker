@@ -349,7 +349,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                   name="roomName"
                   value={formData.roomName}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   placeholder="e.g. Large Seminar Room A"
                 />
               </div>
@@ -373,7 +373,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="e.g. jdoe"
               />
             </div>
@@ -409,7 +409,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                         setFormError("");
                         setSuccessMessage("");
                       }}
-                      className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 
+                      className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 
                           ${
                             formData.colleagues.length === requiredUsers
                               ? "border-green-500"
@@ -430,7 +430,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                         !colleagueEmail.trim() ||
                         formData.colleagues.length >= requiredUsers
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-blue-500 text-white hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
+                          : "bg-green-500 text-white hover:bg-green-600 focus:ring-2 focus:ring-green-400"
                       }`}
                     >
                       Add
@@ -514,6 +514,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
               <CustomDatepicker
                 onDateChange={handleDateSelected}
                 availableDates={availableDates}
+                theme="green"
               />
             </div>
           )}

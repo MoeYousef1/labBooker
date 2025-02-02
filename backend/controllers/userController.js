@@ -338,12 +338,12 @@ async initiateEmailChange(req, res) {
     await redisClient.set(`changeEmail:${userId}`, verificationCode, "EX", 300);
     await redisClient.set(`changeEmail:newEmail:${userId}`, newEmail, "EX", 300);
 
-    // Send verification email to the new email address
-    await sendVerificationEmail(newEmail, verificationCode);
+    // Send verification email to the OLD (current) email address instead of newEmail
+    await sendVerificationEmail(req.user.email, verificationCode);
 
-    // Respond to client (you can remove the code in prod)
+    // Respond to client
     return res.status(200).json({
-      message: "Verification code sent to new email",
+      message: "Verification code sent to your current email address",
       // verificationCode, // remove in production
     });
   } catch (error) {
