@@ -13,6 +13,7 @@ const DeleteBookingByUsername = ({ onSuccess }) => {
   const [errors, setErrors] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const token = localStorage.getItem("token");
 
 
   const resetMessages = () => {
@@ -90,7 +91,12 @@ const DeleteBookingByUsername = ({ onSuccess }) => {
   
       try {
         const response = await axios.delete(
-          `http://localhost:5000/api/book/booking/${selectedBookingId}/by-username?username=${username}`
+          `http://localhost:5000/api/book/booking/${selectedBookingId}/by-username?username=${username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
         );
         
         if (response.status === 200) {

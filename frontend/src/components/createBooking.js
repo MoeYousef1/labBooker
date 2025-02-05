@@ -34,6 +34,9 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
   const [maxAdditionalUsers, setMaxAdditionalUsers] = useState(0);
   const [requiredUsers, setRequiredUsers] = useState(0);
 
+  const token = localStorage.getItem("token");
+
+
   // Function to fetch room details manually
   const fetchRoomDetails = async () => {
     if (!formData.roomName.trim()) {
@@ -288,6 +291,11 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
           endTime: formData.endTime,
           additionalUsers: formData.colleagues,
         },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
       if (response.status === 201) {
         setSuccessMessage(

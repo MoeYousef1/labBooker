@@ -18,8 +18,6 @@ router.get("/my-bookings", authMiddleware.requireAuth, bookingController.getMyBo
 router.patch("/booking/:id/status", authMiddleware.requireAuth, bookingController.updateBookingStatus);
 router.delete("/booking/:id",  bookingController.deleteBooking);
 router.get("/bookings/count",  bookingController.getBookingCounts);
-// router.get("/bookings/upcoming/:username", authMiddleware.requireAuth , bookingController.getUserUpcomingBookings); // cuz the token is still not working
-
 
 
 // moe added these three routes for testing
@@ -29,11 +27,13 @@ router.get("/bookings/upcoming/:username",  bookingController.getUserUpcomingBoo
 // PATCH /booking/:id/status/by-username?username=john_doe
 router.patch(
   "/booking/:id/status/by-username",
+  authMiddleware.requireAuth,
   bookingController.updateBookingStatusByUsername
 );
 
 router.delete(
   "/booking/:id/by-username",
+  authMiddleware.requireAuth,
   bookingController.deleteBookingByUsername
 );
 
@@ -44,7 +44,8 @@ router.get(
 );
 
 // e.g. POST /api/book/booking/by-names
-router.post("/booking/create-by-names", bookingController.createBookingByNames);
+router.post("/booking/create-by-names",   authMiddleware.requireAuth,
+  bookingController.createBookingByNames);
 
 // to delete bookings using room name 
 router.get("/bookings/by-room/:roomName", bookingController.getAllBookingsByRoomName);

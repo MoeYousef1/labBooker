@@ -14,6 +14,7 @@ const UpdateBooking = ({ onSuccess }) => {
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [errors, setErrors] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const token = localStorage.getItem("token");
 
   const resetMessages = () => {
     setErrors("");
@@ -87,7 +88,12 @@ const handleUpdate = async () => {
   try {
     const response = await axios.patch(
       `http://localhost:5000/api/book/booking/${selectedBookingId}/status/by-username?username=${username}`,
-      { status }
+      { status },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
     );
     
     if (response.status === 200) {
