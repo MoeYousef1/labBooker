@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   User,
   Home,
-  Settings,
   LogOut,
   ChevronDown,
 } from "lucide-react";

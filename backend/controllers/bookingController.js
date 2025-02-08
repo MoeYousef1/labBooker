@@ -6,6 +6,7 @@ const User = require("../models/User");
 const Config = require("../models/Config");
 const nodemailer = require("nodemailer");
 const notificationsController = require("../controllers/notificationsController");
+const moment = require('moment-timezone'); // Add this line
 
 // Constants
 const BOOKING_CONSTANTS = {
@@ -13,6 +14,9 @@ const BOOKING_CONSTANTS = {
     PENDING: "Pending",
     CONFIRMED: "Confirmed",
     CANCELED: "Canceled",
+    COMPLETED: "Completed",
+    ACTIVE: "Active",
+    MISSED: "Missed"
   },
   MAX_DURATION: 3,
   MIN_DURATION: 0,
@@ -466,48 +470,6 @@ class BookingController {
         .json({
           success: false,
           message: "Failed to fetch your bookings",
-          error: error.message,
-        });
-    }
-  };
-
-  // PATCH /booking/:id/status (User update, not used in admin scenario)
-  updateBookingStatus = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { status } = req.body;
-      const userId = req.user.id;
-      const validStatuses = Object.values(BOOKING_CONSTANTS.STATUSES);
-      if (!validStatuses.includes(status)) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Invalid status", validStatuses });
-      }
-      const booking = await Booking.findOne({ _id: id, userId });
-      if (!booking) {
-        return res
-          .status(404)
-          .json({
-            success: false,
-            message: "Booking not found or unauthorized",
-          });
-      }
-      booking.status = status;
-      await booking.save();
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Booking status updated successfully",
-          booking,
-        });
-    } catch (error) {
-      console.error("updateBookingStatus - Error:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: "Failed to update booking status",
           error: error.message,
         });
     }
@@ -1105,6 +1067,416 @@ class BookingController {
         });
     }
   };
+
+
+  // these functions are used for the next booking card in the homepage along with the delete booking function located above.
+
+  updateBookingStatus = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+  
+      const booking = await Booking.findById(id);
+      if (!booking) {
+        return res.status(404).json({
+          success: false,
+          message: "Booking not found"
+        });
+      }
+
+      const room = await Room.findById(booking.roomId);
+      if (!room) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Room not found" });
+      }
+  
+      booking.status = status;
+      await booking.save();
+  
+      // Create notification based on status
+      let notificationMessage;
+      if (status === 'Missed') {
+        notificationMessage = `Your booking for room ${room.name} has been marked as missed.`;
+      } else if (status === 'Completed') {
+        notificationMessage = `Your booking for room ${room.name} has been completed.`;
+      }
+  
+      if (notificationMessage) {
+        try {
+          await notificationsController.createNotification(
+            booking.userId,
+            notificationMessage,
+            `booking${status}`
+          );
+        } catch (notifError) {
+          console.error("Failed to create status update notification:", notifError);
+        }
+      }
+  
+      return res.status(200).json({
+        success: true,
+        message: `Booking status updated to ${status}`,
+        booking
+      });
+    } catch (error) {
+      console.error("updateBookingStatus - Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update booking status",
+        error: error.message
+      });
+    }
+  };
+
+getNextUpcomingBooking = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+
+    const nextBooking = await Booking.findOne({
+      $or: [{ userId }, { additionalUsers: userId }],
+      status: { $nin: [BOOKING_CONSTANTS.STATUSES.CANCELED, 
+                       BOOKING_CONSTANTS.STATUSES.COMPLETED, 
+                       BOOKING_CONSTANTS.STATUSES.MISSED] },
+      date: { $gte: todayStr }
+    })
+    .sort({ date: 1, startTime: 1 })
+    .populate("roomId", "name type")
+    .populate("userId", "username email");
+
+    return res.status(200).json({
+      success: true,
+      booking: nextBooking // Will be null if no upcoming bookings
+    });
+  } catch (error) {
+    console.error("getNextUpcomingBooking - Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch next upcoming booking",
+      error: error.message
+    });
+  }
+};
+
+// lateCheckIn = async (req, res) => {
+//   try {
+//     const bookingId = req.params.id;
+//     const { wasPresent } = req.body;
+
+//     const booking = await Booking.findById(bookingId)
+//       .populate('roomId', 'name')
+//       .populate('userId', 'username email');
+
+//     if (!booking) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Booking not found"
+//       });
+//     }
+
+//     // Update booking status based on presence
+//     booking.status = wasPresent ? 'Completed' : 'Missed';
+//     if (wasPresent) {
+//       booking.checkedIn = true;
+//       booking.checkedInAt = new Date(`${booking.date}T${booking.startTime}`);
+//     }
+
+//     await booking.save();
+
+//     // Create notification with appropriate message
+//     const notificationMessage = wasPresent
+//       ? `Booking for room ${booking.roomId.name} has been marked as completed.`
+//       : `Booking for room ${booking.roomId.name} has been marked as missed.`;
+
+//     try {
+//       await notificationsController.createNotification(
+//         booking.userId._id,
+//         notificationMessage,
+//         wasPresent ? "bookingCompleted" : "bookingMissed"
+//       );
+//     } catch (notificationError) {
+//       console.error("Notification error:", notificationError.message);
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: wasPresent ? "Booking marked as completed" : "Booking marked as missed",
+//       booking
+//     });
+
+//   } catch (error) {
+//     console.error("lateCheckIn - Error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to process late check-in",
+//       error: error.message
+//     });
+//   }
+// };
+
+checkInToBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const userId = req.user.id;
+
+    // Find the booking
+    const booking = await Booking.findById(bookingId)
+      .populate('roomId', 'name')
+      .populate('userId', 'username email');
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found"
+      });
+    }
+
+    // Verify user is authorized
+    const isAuthorized = 
+      booking.userId._id.toString() === userId || 
+      booking.additionalUsers.includes(userId);
+
+    if (!isAuthorized) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to check in to this booking"
+      });
+    }
+
+    // Check if booking is active
+    const now = new Date();
+    const bookingStart = new Date(`${booking.date}T${booking.startTime}:00`);
+    const bookingEnd = new Date(`${booking.date}T${booking.endTime}:00`);
+
+    // If trying to check in more than 15 minutes after start time
+    if (now > new Date(bookingStart.getTime() + 15 * 60000)) {
+      booking.status = BOOKING_CONSTANTS.STATUSES.MISSED;
+      await booking.save();
+
+      // Create missed booking notification
+      try {
+        await notificationsController.createNotification(
+          booking.userId._id,
+          `You missed your booking for room ${booking.roomId.name}. The booking has been marked as missed.`,
+          "bookingMissed"
+        );
+      } catch (notificationError) {
+        console.error("Missed booking notification error:", notificationError.message);
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: "Booking has been marked as missed due to late check-in"
+      });
+    }
+
+    if (now > bookingEnd) {
+      return res.status(400).json({
+        success: false,
+        message: "Booking has already ended"
+      });
+    }
+
+    // Update booking status
+    booking.status = BOOKING_CONSTANTS.STATUSES.ACTIVE;
+    booking.checkedIn = true;
+    booking.checkedInAt = now;
+    await booking.save();
+
+    // Create check-in notification
+    try {
+      await notificationsController.createNotification(
+        booking.userId._id,
+        `Successfully checked in to room ${booking.roomId.name}.`,
+        "bookingCheckIn"
+      );
+    } catch (notificationError) {
+      console.error("Check-in notification error:", notificationError.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Successfully checked in to booking",
+      booking
+    });
+
+  } catch (error) {
+    console.error("checkInToBooking - Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to check in to booking",
+      error: error.message
+    });
+  }
+};
+
+updatePastBookings = async (req, res) => {
+  try {
+    const now = new Date();
+    const bookingsToUpdate = await Booking.find({
+      status: { $nin: [BOOKING_CONSTANTS.STATUSES.CANCELED, 
+                       BOOKING_CONSTANTS.STATUSES.COMPLETED, 
+                       BOOKING_CONSTANTS.STATUSES.MISSED] },
+      date: { $lte: now.toISOString().split('T')[0] }
+    });
+
+    let updatedCount = 0;
+    for (const booking of bookingsToUpdate) {
+      const bookingEnd = new Date(`${booking.date}T${booking.endTime}:00`);
+      
+      if (bookingEnd < now) {
+        // If checked in, mark as completed
+        if (booking.checkedIn) {
+          booking.status = BOOKING_CONSTANTS.STATUSES.COMPLETED;
+        } else {
+          booking.status = BOOKING_CONSTANTS.STATUSES.MISSED;
+          
+          // Create notification for missed booking
+          try {
+            await notificationsController.createNotification(
+              booking.userId,
+              `You missed your booking for room ${booking.roomId.name}`,
+              "bookingMissed"
+            );
+          } catch (notifError) {
+            console.error("Failed to create missed booking notification:", notifError);
+          }
+        }
+        
+        await booking.save();
+        updatedCount++;
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `${updatedCount} booking(s) updated`
+    });
+  } catch (error) {
+    console.error("updatePastBookings - Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update past bookings",
+      error: error.message
+    });
+  }
+};
+
+// getMissedBooking = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     const now = new Date();
+    
+//     // Find the most recent booking that should be marked as missed
+//     const missedBooking = await Booking.findOne({
+//       $or: [
+//         { userId },
+//       ],
+//       userId: userId,
+//       date: { $lte: now.toISOString().split('T')[0] },
+//       status: { $nin: ['Completed', 'Canceled', 'Missed'] },
+//       checkedIn: false,
+//       endTime: { $lt: now.toLocaleTimeString('en-US', { hour12: false }) }
+//     })
+//     .populate('roomId', 'name')
+//     .sort({ date: -1, endTime: -1 })
+//     .limit(1);
+
+//     return res.status(200).json({
+//       success: true,
+//       booking: missedBooking
+//     });
+//   } catch (error) {
+//     console.error("getMissedBooking - Error:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch missed booking",
+//       error: error.message
+//     });
+//   }
+// };
+
+updatePastBookingsCron = async () => {
+  try {
+    const timezone = 'Asia/Jerusalem'; // For Jerusalem time
+    const now = moment().tz(timezone);
+
+    // Debug logs
+    console.log(`[${now.format()}] Running booking status update...`);
+
+    const bookingsToUpdate = await Booking.find({
+      status: { $nin: ["Canceled", "Completed", "Missed"] },
+      $expr: {
+        $lte: [
+          {
+            $dateFromString: {
+              dateString: { $concat: ["$date", "T", "$endTime", ":00"] },
+              timezone: timezone
+            }
+          },
+          now.toDate()
+        ]
+      }
+    })
+    .populate("roomId", "name")
+    .populate("userId", "email");
+
+    console.log(`Found ${bookingsToUpdate.length} bookings to process`);
+
+    let updatedCount = 0;
+
+    for (const booking of bookingsToUpdate) {
+      try {
+        const bookingEnd = moment.tz(`${booking.date}T${booking.endTime}:00`, timezone);
+        const timeDiff = now.diff(bookingEnd, 'seconds');
+
+        console.log(`Processing booking ${booking._id}:`);
+        console.log(`- End Time: ${bookingEnd.format()}`);
+        console.log(`- Current Time: ${now.format()}`);
+        console.log(`- Time Difference: ${timeDiff} seconds`);
+
+        if (timeDiff >= 0) {
+          const newStatus = booking.checkedIn ? "Completed" : "Missed";
+          console.log(`- Updating status to: ${newStatus}`);
+
+          booking.status = newStatus;
+          await booking.save();
+
+          // Send notification
+          const message = `Your booking for ${booking.roomId.name} `
+            + `(ended ${bookingEnd.format('HH:mm')}) has been marked as ${newStatus}.`;
+            
+          await notificationsController.createNotification(
+            booking.userId._id,
+            message,
+            `booking${newStatus}`
+          );
+
+          updatedCount++;
+        }
+      } catch (bookingError) {
+        console.error(`Error processing booking ${booking._id}:`, bookingError);
+      }
+    }
+
+    return {
+      success: true,
+      message: `Successfully updated ${updatedCount} booking(s)`,
+      updatedCount
+    };
+    
+  } catch (error) {
+    console.error("updatePastBookingsCron - Error:", error);
+    return {
+      success: false,
+      message: "Failed to update past bookings",
+      error: error.message
+    };
+  }
+};
+
 }
 
 module.exports = new BookingController();

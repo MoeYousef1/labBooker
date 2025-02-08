@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useCallback, useRef, useState } from "react";
+import React, { useLayoutEffect, useCallback, useRef, useState, useEffect } from "react";
 import RoomImg from "../assets/room.jpg";
 import iconMapping from "../utils/iconMapping";
 import RoomCardBookingForm from "./roomCardBookingForm";
@@ -48,19 +48,30 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
     setExtraCount(hiddenCount > 0 ? hiddenCount : 0);
   }, [room.amenities]);
 
-  const debouncedCalculate = useCallback(debounce(calculateVisibleAmenities, 100), [calculateVisibleAmenities]);
+  const debouncedCalculateRef = useRef();
+  useEffect(() => {
+    // Create the debounced function
+    debouncedCalculateRef.current = debounce(calculateVisibleAmenities, 100);
+    
+    // Cleanup on unmount
+    return () => {
+      debouncedCalculateRef.current?.cancel();
+    };
+  }, [calculateVisibleAmenities]);
 
   useLayoutEffect(() => {
-    calculateVisibleAmenities();
-    const resizeObserver = new ResizeObserver(() => {
-      debouncedCalculate();
-    });
+    const handleResize = () => {
+      debouncedCalculateRef.current?.();
+    };
+
+    const resizeObserver = new ResizeObserver(handleResize);
     if (containerRef.current) resizeObserver.observe(containerRef.current);
+    
     return () => {
       resizeObserver.disconnect();
-      debouncedCalculate.cancel();
+      debouncedCalculateRef.current?.cancel();
     };
-  }, [calculateVisibleAmenities, debouncedCalculate]);
+  }, []);
 
   useLayoutEffect(() => {
     calculateVisibleAmenities();

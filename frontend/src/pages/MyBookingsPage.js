@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from '../utils/axiosConfig';
 import Navbar from "../components/Navbar";
@@ -78,7 +78,7 @@ const MyBookingsPage = () => {
     };
   };
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -96,7 +96,7 @@ const MyBookingsPage = () => {
           userId: user._id,
           email: user.email,
           page: 1,
-          limit: 50 // Adjust as needed
+          limit: 50
         }
       });
 
@@ -113,11 +113,11 @@ const MyBookingsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [fetchBookings]);
 
   const handleCancelBooking = async () => {
     try {

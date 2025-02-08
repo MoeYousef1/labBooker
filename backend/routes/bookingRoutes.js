@@ -11,6 +11,18 @@ const authMiddleware = require("../middleware/authMiddleware");
 // };
 
 // Routes
+// Route to get the next upcoming booking for the logged-in user
+router.get("/booking/next", authMiddleware.requireAuth, bookingController.getNextUpcomingBooking);
+
+// router.get("/booking/missed", authMiddleware.requireAuth, bookingController.getMissedBooking);
+
+
+// 2. System Maintenance Routes
+router.get("/booking/update-past", 
+  authMiddleware.requireAuth, 
+  bookingController.updatePastBookings
+);
+
 router.get("/bookings", bookingController.getBookings);
 router.get("/booking/:id",  bookingController.getBookingById);
 router.post("/booking",  bookingController.createBooking);
@@ -49,5 +61,11 @@ router.post("/booking/create-by-names",   authMiddleware.requireAuth,
 
 // to delete bookings using room name 
 router.get("/bookings/by-room/:roomName", bookingController.getAllBookingsByRoomName);
+
+router.post("/booking/:id/check-in", authMiddleware.requireAuth, bookingController.checkInToBooking);
+
+// router.post("/booking/:id/late-check-in", authMiddleware.requireAuth, bookingController.lateCheckIn);
+
+
 
 module.exports = router;

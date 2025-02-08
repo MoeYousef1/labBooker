@@ -47,8 +47,15 @@ const bookingSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Confirmed", "Canceled"],
+      enum: ["Pending", "Confirmed", "Canceled", "Completed", "Active", "Missed"],
       default: "Pending",
+    },
+    checkedIn: {
+      type: Boolean,
+      default: false
+    },
+    checkedInAt: {
+      type: Date
     },
     additionalUsers: [
       {
@@ -83,17 +90,20 @@ bookingSchema.pre('save', function(next) {
     return next(new Error('End time must be after start time'));
   }
 
-  // Validate booking is for a future date
-  const bookingDate = new Date(`${this.date}T00:00:00`);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Only validate that the booking date is in the future on creation.
+  if (this.isNew) {
+    const bookingDate = new Date(`${this.date}T00:00:00`);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  if (bookingDate < today) {
-    return next(new Error('Booking date must be in the future'));
+    if (bookingDate < today) {
+      return next(new Error('Booking date must be in the future'));
+    }
   }
 
   next();
 });
+
 
 // Add static method to handle soft deletion
 bookingSchema.statics.softDelete = async function(bookingId) {

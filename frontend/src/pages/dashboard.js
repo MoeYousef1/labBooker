@@ -8,7 +8,6 @@ import {
   Calendar, 
   Settings, 
   UserPlus, 
-  BookmarkPlus,
   AlertTriangle,
   CheckCircle2,
   XOctagon

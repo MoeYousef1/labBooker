@@ -6,6 +6,10 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
+//Moe added this
+require("./utils/cron");
+
+
 // Verbose logging for route imports
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");

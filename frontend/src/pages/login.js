@@ -3,8 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/axiosConfig";
 
 // Import assets
-import lapLogo from "../assets/laptop.png";
-import headerImage from "../assets/header-bg.jpg";
 import collegeLogoWhite from "../assets/collegeLogoWhite.png";
 
 // FormInput Component
@@ -117,7 +115,6 @@ const LogInPage = () => {
     email: "",
     verificationCode: "",
   });
-  const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendDisabled, setResendDisabled] = useState(false);
@@ -191,7 +188,6 @@ const LogInPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
     setGeneralError("");
   };
 
@@ -207,7 +203,7 @@ const LogInPage = () => {
         return;
       }
 
-      const response = await api.post("/auth/login", {
+       await api.post("/auth/login", {
         email: formData.email,
       });
 

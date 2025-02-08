@@ -13,7 +13,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [relatedBookings, setRelatedBookings] = useState([]);
-  const [loadingBookings, setLoadingBookings] = useState(false);
+  // const [loadingBookings, setLoadingBookings] = useState(false);
 
   // Reset messages
   const resetMessages = () => {
@@ -66,7 +66,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
   };
 
   const fetchRelatedBookings = async (roomName) => {
-    setLoadingBookings(true);
+    // setLoadingBookings(true);
     try {
       const response = await axios.get(
         `http://localhost:5000/api/book/bookings/by-room/${roomName}`,
@@ -79,7 +79,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
     } catch (err) {
       setRelatedBookings([]);
     } finally {
-      setLoadingBookings(false);
+      // setLoadingBookings(false);
     }
   };
 
