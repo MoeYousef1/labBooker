@@ -15,7 +15,12 @@ import {
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
-const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) => {
+const NextBooking = ({
+  showToast,
+  setIsModalOpen,
+  setModalConfig,
+  userInfo,
+}) => {
   const [booking, setBooking] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -27,6 +32,7 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
   const [shouldRefetch, setShouldRefetch] = useState(true);
   const [lastCheckInReminder, setLastCheckInReminder] = useState(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const intervalRef = useRef(null);
   const bookingRef = useRef(null);
@@ -42,7 +48,8 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
     return `${hrs.toString().padStart(2, "0")}:${mins
-      .toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+      .toString()
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }, []);
 
   const handleCheckIn = async () => {
@@ -50,7 +57,7 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
     if (userInfo.email !== booking.userId.email) return;
     try {
       setIsUpdatingStatus(true);
-      setBooking(prev => ({ ...prev, checkedIn: true }));
+      setBooking((prev) => ({ ...prev, checkedIn: true }));
       setIsTransitioning(true);
       const response = await api.post(`/book/booking/${booking._id}/check-in`);
       if (response.data.success) {
@@ -75,7 +82,7 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
 
   const handleCancelBooking = async () => {
     if (!booking || !userInfo) return;
-    
+
     if (booking.userId.email !== userInfo.email) {
       showToast("error", "Only the booking owner can cancel the reservation");
       return;
@@ -97,7 +104,7 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
       console.error("Error cancelling booking:", error);
       showToast(
         "error",
-        error.response?.data?.message || "Failed to cancel booking"
+        error.response?.data?.message || "Failed to cancel booking",
       );
     }
   };
@@ -128,7 +135,9 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
       "END:VCALENDAR",
     ].join("\r\n");
 
-    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+    const blob = new Blob([icsContent], {
+      type: "text/calendar;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -142,9 +151,11 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
   const getGoogleCalendarUrl = useCallback((booking) => {
     if (!booking) return "";
 
-    const eventTitle = encodeURIComponent(`Lab Booking: ${booking.roomId.name}`);
+    const eventTitle = encodeURIComponent(
+      `Lab Booking: ${booking.roomId.name}`,
+    );
     const eventDetails = encodeURIComponent(
-      `Your lab booking for room ${booking.roomId.name}`
+      `Your lab booking for room ${booking.roomId.name}`,
     );
     const formatDateForGoogle = (dateStr, timeStr) => {
       const date = new Date(`${dateStr}T${timeStr}:00`);
@@ -170,7 +181,7 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
   useEffect(() => {
     const fetchNextBooking = async () => {
       if (!shouldRefetch) return;
-      
+
       try {
         setIsLoading(true);
         const response = await api.get("/book/booking/next");
@@ -218,28 +229,33 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
       const timeToStart = bookingStart.getTime() - now.getTime();
       const timeToEnd = bookingEnd.getTime() - now.getTime();
 
-     // 1) If booking end time is past, just clear it
-  if (timeToEnd <= 0) {
-    clearInterval(intervalRef.current);
-    setShouldRefetch(true);
-    setBooking(null);
-    return;
-  }
-      
+      // 1) If booking end time is past, just clear it
+      if (timeToEnd <= 0) {
+        clearInterval(intervalRef.current);
+        setShouldRefetch(true);
+        setBooking(null);
+        return;
+      }
 
       if (timeToStart > 0) {
         setTimeRemaining(Math.floor(timeToStart / 1000));
         setBookingState("upcoming");
         setCanCancel(timeToStart > 2 * 60 * 60 * 1000);
-        const totalWaitTime = bookingStart.getTime() - new Date(booking.createdAt).getTime();
-        const elapsedWaitTime = now.getTime() - new Date(booking.createdAt).getTime();
-        setProgress(Math.max(0, Math.min((elapsedWaitTime / totalWaitTime) * 100, 100)));
+        const totalWaitTime =
+          bookingStart.getTime() - new Date(booking.createdAt).getTime();
+        const elapsedWaitTime =
+          now.getTime() - new Date(booking.createdAt).getTime();
+        setProgress(
+          Math.max(0, Math.min((elapsedWaitTime / totalWaitTime) * 100, 100)),
+        );
       } else {
         setTimeRemaining(Math.floor(timeToEnd / 1000));
         setBookingState("active");
         const totalDuration = bookingEnd.getTime() - bookingStart.getTime();
         const elapsed = now.getTime() - bookingStart.getTime();
-        setProgress(Math.max(0, Math.min((elapsed / totalDuration) * 100, 100)));
+        setProgress(
+          Math.max(0, Math.min((elapsed / totalDuration) * 100, 100)),
+        );
 
         const minutesLeft = Math.floor(timeToEnd / (1000 * 60));
         if (!booking.checkedIn) {
@@ -275,7 +291,7 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
 
   useEffect(() => {
     const updateStatus = async () => {
-      if (booking?.status === 'active' && timeRemaining <= 0) {
+      if (booking?.status === "active" && timeRemaining <= 0) {
         setIsTransitioning(true);
         // Force immediate refresh
         setShouldRefetch(true);
@@ -333,7 +349,8 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
   );
 
   const renderAlerts = () => {
-    if (!booking || bookingState !== "active" || !booking.checkedIn) return null;
+    if (!booking || bookingState !== "active" || !booking.checkedIn)
+      return null;
     if (showLeaveAlert === "warning") {
       return (
         <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
@@ -341,7 +358,8 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
             <Clock className="h-5 w-5 text-yellow-400" />
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
-                Your booking will end in less than 15 minutes. Please prepare to leave the room.
+                Your booking will end in less than 15 minutes. Please prepare to
+                leave the room.
               </p>
             </div>
           </div>
@@ -355,7 +373,8 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
             <AlertTriangle className="h-5 w-5 text-red-400" />
             <div className="ml-3">
               <p className="text-sm text-red-700">
-                Your booking ends in less than 3 minutes! Please leave the room immediately.
+                Your booking ends in less than 3 minutes! Please leave the room
+                immediately.
               </p>
             </div>
           </div>
@@ -376,8 +395,12 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
               <Clock className="w-6 h-6 text-blue-600" />
             </div>
           </div>
-          <p className="text-gray-800 text-lg font-medium mb-2">Loading your booking</p>
-          <p className="text-gray-500 text-sm">Please wait while we fetch your details</p>
+          <p className="text-gray-800 text-lg font-medium mb-2">
+            Loading your booking
+          </p>
+          <p className="text-gray-500 text-sm">
+            Please wait while we fetch your details
+          </p>
         </div>
       </div>
     );
@@ -385,189 +408,315 @@ const NextBooking = ({ showToast, setIsModalOpen, setModalConfig, userInfo }) =>
 
   if (!booking) {
     return (
-      <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-md mb-8 transform transition-all duration-300 ease-in-out">
-        <div className="text-center py-8">
-          <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
-            No Upcoming Bookings
-          </h3>
-          <p className="text-gray-600">
-            You don't have any upcoming reservations
-          </p>
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg mb-8 overflow-hidden transition-all duration-300 ease-in-out">
+        {/* Collapsible Header */}
+        <div
+          className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center justify-between p-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-2 bg-blue-100 rounded-lg transition-all duration-300 hover:bg-blue-200">
+                <Clock className="w-6 h-6 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 hover:text-blue-700 transition-colors duration-300">
+                Booking Overview
+              </h2>
+            </div>
+            <button
+              className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+            >
+              <svg
+                className={`w-6 h-6 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Collapsible Content */}
+        <div
+          className={`transition-all duration-300 ease-in-out ${isExpanded ? "opacity-100 max-h-[1000px]" : "opacity-0 max-h-0"}`}
+        >
+          <div className="p-6">
+            <div className="text-center py-8 transform transition-all duration-300 hover:-translate-y-1">
+              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4 transition-colors hover:text-blue-500" />
+              <h3 className="text-xl font-semibold text-gray-800 mb-2 hover:text-blue-700 transition-colors">
+                No Upcoming Bookings
+              </h3>
+              <p className="text-gray-600 hover:text-gray-700 transition-colors">
+                You don't have any upcoming reservations
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`bg-white/70 backdrop-blur-sm rounded-xl p-8 shadow-md mb-8 transform  ease-in-out transition-opacity duration-300 ${
-        isTransitioning ? "opacity-0" : "opacity-100"
-      }`}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 space-x-1">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-            <Clock className="w-6 h-6 mr-3 text-blue-600" />
-            {bookingState === "active" ? "Current Booking" : "Upcoming Booking"}
-          </h2>
-          {bookingState === "active" && booking.checkedIn && (
-            <span className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-              <Activity className="w-4 h-4 mr-1" />
-              Currently Active
-            </span>
-          )}
-        </div>
-        <div className="w-20 h-20">
-          <CircularProgressbar
-            value={progress}
-            text={`${Math.round(progress)}%`}
-            styles={buildStyles({
-              pathColor:
-                bookingState === "active"
-                  ? `rgba(22, 163, 74, ${progress / 100})`
-                  : `rgba(59, 130, 246, ${progress / 100})`,
-              textColor:
-                bookingState === "active" ? "#15803d" : "#1e40af",
-              trailColor: "#ddd",
-            })}
-          />
-        </div>
-      </div>
-
-      {renderAlerts()}
-
-      {/* Booking Details */}
-      <div className="grid md:grid-cols-3 gap-6 mb-6">
-        {/* Date */}
-        <div className="bg-blue-50/50 rounded-xl p-4">
-          <div className="flex items-center space-x-3">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <Calendar className="w-5 h-5 text-blue-600" />
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg mb-8 overflow-hidden transition-all duration-300 ease-in-out">
+      {/* Collapsible Header */}
+      <div
+        className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center justify-between p-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-2 bg-blue-100 rounded-lg transition-all duration-300 hover:bg-blue-200">
+              <Clock className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Date</p>
-              <p className="font-semibold text-gray-800">{booking.date}</p>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center space-x-3 group">
+                <span className="group-hover:text-blue-700 transition-colors duration-300">
+                  {booking
+                    ? bookingState === "active"
+                      ? "Current Session"
+                      : "Upcoming Reservation"
+                    : "Booking Overview"}
+                </span>
+              </h2>
+              {booking && bookingState === "active" && booking.checkedIn && (
+                <span className="inline-flex items-center mt-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200 hover:bg-green-200 transition-colors">
+                  <Activity className="w-3.5 h-3.5 mr-1.5" />
+                  Active Now
+                </span>
+              )}
             </div>
           </div>
-        </div>
-        {/* Room */}
-        <div className="bg-green-50/50 rounded-xl p-4">
-          <div className="flex items-center space-x-3">
-            <div className="bg-green-100 p-2 rounded-lg">
-              <MapPin className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Room</p>
-              <p className="font-semibold text-gray-800">{booking.roomId.name}</p>
-            </div>
-          </div>
-        </div>
-        {/* Time */}
-        <div className="bg-purple-50/50 rounded-xl p-4">
-          <div className="flex items-center space-x-3">
-            <div className="bg-purple-100 p-2 rounded-lg">
-              <Clock className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">
-                {bookingState === "active" ? "Ends at" : "Starts at"}
-              </p>
-              <p className="font-semibold text-gray-800">
-                {bookingState === "active" ? booking.endTime : booking.startTime}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Time Remaining */}
-      <div className="bg-gray-50/50 rounded-xl p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <span className="text-gray-600">
-            {bookingState === "active" ? "Time Remaining" : "Time Until Start"}
-          </span>
-          <span
-            className={`text-2xl font-bold ${
-              bookingState === "active" ? "text-green-600" : "text-blue-600"
-            }`}
-          >
-            {formatTime(timeRemaining)}
-          </span>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4">
-        {bookingState === "upcoming" && (
-          <>
-            {/* Cancel Button */}
-            {canCancel && booking.userId.email === userInfo.email ? (
-              <button
-                onClick={() => {
-                  setModalConfig({
-                    title: "Cancel Booking",
-                    message: <ModalContent />,
-                    onConfirm: handleCancelBooking,
-                    confirmText: "Cancel Booking",
-                    cancelText: "Keep Booking"
-                  });
-                  setIsModalOpen(true);
-                }}
-                className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2"
-              >
-                <X className="w-5 h-5" />
-                <span>Cancel Booking</span>
-              </button>
-            ) : (
-              <div className="flex-1 bg-gray-100 text-gray-500 font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2">
-                <Lock className="w-5 h-5" />
-                <span>Cannot Cancel</span>
-              </div>
-            )}
-            {/* Calendar Buttons */}
-            <button
-              onClick={handleDownloadICS}
-              className="flex-1 bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2"
-            >
-              <Download className="w-5 h-5" />
-              <span>Download ICS</span>
-            </button>
-            <a
-              href={getGoogleCalendarUrl(booking)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2"
-            >
-              <CalendarIcon className="w-5 h-5" />
-              <span>Add to Google Calendar</span>
-            </a>
-          </>
-        )}
-
-{/* {bookingState === "active" && !booking.checkedIn && (
-  <button
-    disabled={userInfo.email !== booking.userId.email}
-    className={`w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2 ${userInfo.email !== booking.userId.email ? 'opacity-50 cursor-not-allowed' : ''}`}
-  >
-    {userInfo.email !== booking.userId.email
-      ? "Only main booker can check in"
-      : "Check In"}
-  </button>
-)} */}
-
-{bookingState === "active" && !booking.checkedIn && (
           <button
-            onClick={handleCheckIn}
-            disabled={userInfo.email !== booking.userId.email}
-            className={`w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2 ${userInfo.email !== booking.userId.email ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700 transition-all"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+          >
+            <svg
+              className={`w-6 h-6 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-            <CheckCircle className="w-5 h-5" />
-            <span>{userInfo.email !== booking.userId.email
-      ? "Only main booker can check in"
-      : "I'm in the room"}</span>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </button>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div
+        className={`transition-all duration-300 ease-in-out ${isExpanded ? "opacity-100 max-h-[1000px]" : "opacity-0 max-h-0"}`}
+      >
+        {isLoading ? (
+          <div className="p-6">
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="relative w-16 h-16 mb-4">
+                <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                <div className="absolute inset-[6px] bg-blue-50 rounded-full flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+              <p className="text-gray-800 text-lg font-medium mb-2">
+                Loading your booking
+              </p>
+              <p className="text-gray-500 text-sm">
+                Please wait while we fetch your details
+              </p>
+            </div>
+          </div>
+        ) : !booking ? (
+          <div className="p-6">
+            <div className="text-center py-8">
+              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                No Upcoming Bookings
+              </h3>
+              <p className="text-gray-600">
+                You don't have any upcoming reservations
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div
+            className={`p-6 pt-4 ${isTransitioning ? "opacity-0" : "opacity-100"}`}
+          >
+            {renderAlerts()}
+
+            {/* Progress Section */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="w-20 h-20 hover:scale-105 transition-transform duration-300">
+                <CircularProgressbar
+                  value={progress}
+                  text={`${Math.round(progress)}%`}
+                  styles={buildStyles({
+                    pathTransitionDuration: 0.5,
+                    pathColor:
+                      bookingState === "active" ? "#16a34a" : "#2563eb",
+                    textColor:
+                      bookingState === "active" ? "#15803d" : "#1e40af",
+                    trailColor: "#f3f4f6",
+                    textSize: "32px",
+                  })}
+                />
+              </div>
+              <div className="flex-1 ml-6">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">
+                      {bookingState === "active"
+                        ? "Time Remaining"
+                        : "Time Until Start"}
+                    </span>
+                    <span
+                      className={`text-xl font-semibold ${
+                        bookingState === "active"
+                          ? "text-green-600"
+                          : "text-blue-600"
+                      } hover:scale-105 transition-transform`}
+                    >
+                      {formatTime(timeRemaining)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Detail Cards with Hover Effects */}
+            <div className="grid md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-blue-100 p-2 rounded-lg hover:bg-blue-200 transition-colors">
+                    <Calendar className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Date</p>
+                    <p className="font-semibold text-gray-800 hover:text-blue-700 transition-colors">
+                      {booking.date}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-green-100 p-2 rounded-lg hover:bg-green-200 transition-colors">
+                    <MapPin className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Room</p>
+                    <p className="font-semibold text-gray-800 hover:text-green-700 transition-colors">
+                      {booking.roomId.name}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-purple-100 p-2 rounded-lg hover:bg-purple-200 transition-colors">
+                    <Clock className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">
+                      {bookingState === "active" ? "Ends at" : "Starts at"}
+                    </p>
+                    <p className="font-semibold text-gray-800 hover:text-purple-700 transition-colors">
+                      {bookingState === "active"
+                        ? booking.endTime
+                        : booking.startTime}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {bookingState === "upcoming" && (
+                <>
+                  {canCancel && booking.userId.email === userInfo.email ? (
+                    <button
+                      onClick={() => {
+                        setModalConfig({
+                          title: "Cancel Booking",
+                          message: <ModalContent />,
+                          onConfirm: handleCancelBooking,
+                          confirmText: "Confirm Cancellation",
+                          cancelText: "Keep Booking",
+                        });
+                        setIsModalOpen(true);
+                      }}
+                      className="flex items-center justify-center space-x-2 p-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-all duration-300 border border-red-200 hover:shadow-sm hover:-translate-y-0.5"
+                    >
+                      <X className="w-5 h-5" />
+                      <span>Cancel Booking</span>
+                    </button>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2 p-3 bg-gray-100 text-gray-500 rounded-lg border border-gray-200">
+                      <Lock className="w-5 h-5" />
+                      <span>Cancel Unavailable</span>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleDownloadICS}
+                    className="flex items-center justify-center space-x-2 p-3 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5"
+                  >
+                    <Download className="w-5 h-5" />
+                    <span>Download .ICS</span>
+                  </button>
+
+                  <a
+                    href={getGoogleCalendarUrl(booking)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center space-x-2 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5"
+                  >
+                    <CalendarIcon className="w-5 h-5" />
+                    <span>Google Calendar</span>
+                  </a>
+                </>
+              )}
+
+              {bookingState === "active" && !booking.checkedIn && (
+                <button
+                  onClick={handleCheckIn}
+                  disabled={userInfo.email !== booking.userId.email}
+                  className={`col-span-full flex items-center justify-center space-x-2 p-3 rounded-lg transition-all duration-300 ${
+                    userInfo.email !== booking.userId.email
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-green-600 hover:bg-green-700 text-white hover:shadow-sm hover:-translate-y-0.5"
+                  }`}
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  <span>
+                    {userInfo.email !== booking.userId.email
+                      ? "Check In Unavailable"
+                      : "Confirm Arrival"}
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>
