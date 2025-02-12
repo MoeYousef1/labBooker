@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "../components/SideBar";
+import { SidebarLayout } from "../components/SidebarLayout";
+import { TbClockX } from "react-icons/tb";
+
 import { 
   Users, 
   BookOpen, 
@@ -28,6 +30,7 @@ const DashBoard = () => {
     pending: 0,
     confirmed: 0,
     canceled: 0,
+    missed: 0,
   });
 
   // Loading & Error States
@@ -91,8 +94,8 @@ const DashBoard = () => {
       });
       if (response.status === 200) {
         // destructure out total, pending, confirmed, canceled
-        const { total, pending, confirmed, canceled } = response.data.counts;
-        setBookingCounts({ total, pending, confirmed, canceled });
+        const { total, pending, confirmed, canceled, missed } = response.data.counts;
+        setBookingCounts({ total, pending, confirmed, canceled, missed });
       }
     } catch (error) {
       setErrors(
@@ -105,144 +108,158 @@ const DashBoard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-
-      <div className="flex-1 flex flex-col px-6 sm:px-8 md:px-12 mt-16 sm:mt-0 sm:ml-64 py-10 mx-auto">
-        
+    <SidebarLayout>
+      <div className="w-full flex flex-col px-4 sm:px-6 md:px-8 py-6 sm:py-8 overflow-hidden">
         {/* Header Section */}
-        <div className="mb-8 flex flex-col justify-between sm:flex-row sm:items-center">
-          <h1 className="text-3xl font-bold text-gray-800 flex items-center">
-            <BookOpen className="mr-3 text-green-500" />
-            Dashboard
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 shrink-0" />
+              <span>Dashboard</span>
+            </div>
           </h1>
-          <p className="text-gray-600 mt-2 sm:mt-0">
+          <p className="text-gray-600 mt-2 sm:mt-0 text-sm sm:text-base">
             Welcome, {userInfo.username}!
           </p>
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Card: Total Users */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
+              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
                 Total Users
               </h3>
-              <Users className="text-green-500" />
+              <div className="flex items-center justify-center">
+                <Users className="w-6 h-6 text-green-500 shrink-0" />
+              </div>
             </div>
             {loading ? (
-              <p className="mt-2 text-gray-600">Loading...</p>
+              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">{userCount}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{userCount}</p>
             )}
-            {errors && <p className="mt-1 text-red-600">{errors}</p>}
+            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
           </div>
 
           {/* Card: Total Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
+              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
                 Total Bookings
               </h3>
-              <Calendar className="text-green-500" />
+              <div className="flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-green-500 shrink-0" />
+              </div>
             </div>
             {loading ? (
-              <p className="mt-2 text-gray-600">Loading...</p>
+              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">{bookingCounts.total}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.total}</p>
             )}
-            {errors && <p className="mt-1 text-red-600">{errors}</p>}
+            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
           </div>
         </div>
 
         {/* Detailed Booking Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Pending Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
-                Pending
-              </h3>
-              <AlertTriangle className="text-yellow-500" />
-            </div>
-            {loading ? (
-              <p className="mt-2 text-gray-600">Loading...</p>
-            ) : (
-              <p className="text-3xl font-bold text-gray-800">{bookingCounts.pending}</p>
-            )}
-            {errors && <p className="mt-1 text-red-600">{errors}</p>}
-          </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          
           {/* Confirmed Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
+              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
                 Confirmed
               </h3>
-              <CheckCircle2 className="text-green-500" />
+              <div className="flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0" />
+              </div>
             </div>
             {loading ? (
-              <p className="mt-2 text-gray-600">Loading...</p>
+              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">{bookingCounts.confirmed}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.confirmed}</p>
             )}
-            {errors && <p className="mt-1 text-red-600">{errors}</p>}
+            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
+          </div>
+
+          {/* Pending Bookings */}
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
+                Pending
+              </h3>
+              <div className="flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-yellow-500 shrink-0" />
+              </div>
+            </div>
+            {loading ? (
+              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
+            ) : (
+              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.pending}</p>
+            )}
+            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
           </div>
 
           {/* Canceled Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-6 transition-all duration-300 border border-gray-100 flex flex-col">
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-sm uppercase font-semibold tracking-wider">
+              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
                 Canceled
               </h3>
-              <XOctagon className="text-red-500" />
+              <div className="flex items-center justify-center">
+                <XOctagon className="w-6 h-6 text-red-500 shrink-0" />
+              </div>
             </div>
             {loading ? (
-              <p className="mt-2 text-gray-600">Loading...</p>
+              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
             ) : (
-              <p className="text-3xl font-bold text-gray-800">{bookingCounts.canceled}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.canceled}</p>
             )}
-            {errors && <p className="mt-1 text-red-600">{errors}</p>}
+            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
+          </div>
+
+          {/* Missed Bookings */}
+          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
+                Missed
+              </h3>
+              <div className="flex items-center justify-center">
+                <TbClockX  className="w-6 h-6 text-red-500 shrink-0" />
+              </div>
+            </div>
+            {loading ? (
+              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
+            ) : (
+              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.missed}</p>
+            )}
+            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
           </div>
         </div>
 
         {/* Management Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          <button
-            onClick={() => navigate("/usermanagement")}
-            className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
-          >
-            <UserPlus className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />
-            Manage Users
-          </button>
-
-          <button
-            onClick={() => navigate("/roomOperationpage")}
-            className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
-          >
-            <BookOpen className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />
-            Manage Rooms
-          </button>
-
-          <button
-            onClick={() => navigate("/bookingOperationpage")}
-            className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
-          >
-            <Calendar className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />
-            Manage Bookings
-          </button>
-
-          <button
-            onClick={() => navigate("/configmanagement")}
-            className="flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
-          >
-            <Settings className="mr-3 text-green-500 group-hover:scale-110 transition-transform" />
-            Configurations
-          </button>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          {[
+            { icon: UserPlus, label: "Manage Users", path: "/usermanagement" },
+            { icon: BookOpen, label: "Manage Rooms", path: "/roomOperationpage" },
+            { icon: Calendar, label: "Manage Bookings", path: "/bookingOperationpage" },
+            { icon: Settings, label: "Configurations", path: "/configmanagement" }
+          ].map(({ icon: Icon, label, path }) => (
+            <button
+              key={path}
+              onClick={() => navigate(path)}
+              className="min-h-[80px] sm:min-h-0 flex flex-col sm:flex-row items-center justify-center p-4 sm:p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+                <Icon className="w-6 h-6 text-green-500 shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm text-center sm:text-left">{label}</span>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 };
 

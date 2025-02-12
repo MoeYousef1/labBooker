@@ -334,38 +334,36 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-6xl mx-auto p-10 bg-gray-50 rounded-lg shadow-xl mb-4"
+      className="w-full bg-gray-50 rounded-lg shadow-xl p-4 sm:p-6 md:p-8 lg:p-10"
     >
-      <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 text-center mb-6 sm:mb-8">
         Create a Booking
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-10">
+      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 md:space-y-10">
         {/* Section: Basic Details */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+        <div className="space-y-4 sm:space-y-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
             Booking Details
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
                 Room Name <span className="text-red-500">*</span>
               </label>
-              <div className="flex items-center">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   name="roomName"
                   value={formData.roomName}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
                   placeholder="e.g. Large Seminar Room A"
                 />
-              </div>
-              <div className="mt-1">
                 <button
                   type="button"
                   onClick={fetchRoomDetails}
-                  className="px-6 py-3 rounded-lg shadow-md transition-colors bg-white text-green-500 hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
+                  className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md transition-colors bg-white text-green-500 hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400 text-sm sm:text-base whitespace-nowrap"
                 >
                   Fetch Details
                 </button>
@@ -381,7 +379,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
                 placeholder="e.g. jdoe"
               />
             </div>
@@ -389,26 +387,25 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
         </div>
 
         {/* Section: Additional Users */}
-        <div>
-          {roomType && (
+        {roomType && (
+          <div className="space-y-4">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
                 {roomType === "Open" ? (
                   "Additional users are not allowed for Open rooms."
                 ) : (
-                  <>
-                    Add Additional User <span className="text-red-500">*</span>
-                    <span className="text-sm text-gray-600 ml-2">
-                      (Exactly {requiredUsers} user
-                      {requiredUsers > 1 ? "s" : ""} required)
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <span>Add Additional User <span className="text-red-500">*</span></span>
+                    <span className="text-xs sm:text-sm text-gray-600">
+                      (Exactly {requiredUsers} user{requiredUsers > 1 ? "s" : ""} required)
                     </span>
-                  </>
+                  </div>
                 )}
               </label>
 
               {roomType !== "Open" && (
-                <div className="space-y-2">
-                  <div className="flex space-x-2">
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="email"
                       value={colleagueEmail}
@@ -417,65 +414,46 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                         setFormError("");
                         setSuccessMessage("");
                       }}
-                      className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 
-                          ${
-                            formData.colleagues.length === requiredUsers
-                              ? "border-green-500"
-                              : "border-gray-300"
-                          }`}
+                      className={`w-full p-2 sm:p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base
+                        ${formData.colleagues.length === requiredUsers ? "border-green-500" : "border-gray-300"}`}
                       placeholder="Enter user email"
                       disabled={formData.colleagues.length >= requiredUsers}
-                      required
                     />
                     <button
                       type="button"
                       onClick={handleAddColleague}
-                      disabled={
-                        !colleagueEmail.trim() ||
-                        formData.colleagues.length >= requiredUsers
-                      }
-                      className={`px-4 py-2 rounded-lg shadow-md transition-colors ${
-                        !colleagueEmail.trim() ||
-                        formData.colleagues.length >= requiredUsers
+                      disabled={!colleagueEmail.trim() || formData.colleagues.length >= requiredUsers}
+                      className={`px-4 py-2 rounded-lg shadow-md transition-colors text-sm sm:text-base whitespace-nowrap
+                        ${!colleagueEmail.trim() || formData.colleagues.length >= requiredUsers
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-green-500 text-white hover:bg-green-600 focus:ring-2 focus:ring-green-400"
-                      }`}
+                        }`}
                     >
-                      Add
+                      Add User
                     </button>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <p
-                      className={`text-sm ${
-                        formData.colleagues.length === requiredUsers
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {formData.colleagues.length}/{requiredUsers} user
-                      {requiredUsers > 1 ? "s" : ""} added
+
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <p className={`text-xs sm:text-sm ${
+                      formData.colleagues.length === requiredUsers ? "text-green-600" : "text-red-600"
+                    }`}>
+                      {formData.colleagues.length}/{requiredUsers} user{requiredUsers > 1 ? "s" : ""} added
                     </p>
                     {formData.colleagues.length !== requiredUsers && (
-                      <p className="text-sm text-red-600">
-                        {requiredUsers - formData.colleagues.length} more user
-                        {requiredUsers - formData.colleagues.length > 1
-                          ? "s"
-                          : ""}{" "}
-                        required
+                      <p className="text-xs sm:text-sm text-red-600">
+                        {requiredUsers - formData.colleagues.length} more user{requiredUsers - formData.colleagues.length > 1 ? "s" : ""} required
                       </p>
                     )}
                   </div>
+
                   {formData.colleagues.length > 0 && (
                     <div className="mt-2">
-                      <p className="text-sm font-medium text-gray-700">
-                        Added emails:
-                      </p>
-                      <div className="flex flex-wrap gap-2 mt-1">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Added emails:</p>
+                      <div className="flex flex-wrap gap-2">
                         {formData.colleagues.map((email, index) => (
                           <span
                             key={index}
-                            className="inline-flex items-center px-3 py-1 rounded-full text-sm 
-                                bg-green-100 text-green-800"
+                            className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm bg-green-100 text-green-800"
                           >
                             {email}
                             <button
@@ -493,19 +471,19 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Section: Availability */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+        <div className="space-y-4 sm:space-y-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
             Check Availability
           </h3>
           <button
             type="button"
             onClick={fetchAvailability}
             disabled={loadingAvailability || !roomType}
-            className={`px-6 py-3 rounded-lg shadow-md transition-colors ${
+            className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md transition-colors text-sm sm:text-base ${
               loadingAvailability || !roomType
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-white text-green-500 hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
@@ -519,11 +497,13 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
               <label className="block text-sm font-medium text-gray-700">
                 Select Date <span className="text-red-500">*</span>
               </label>
-              <CustomDatepicker
-                onDateChange={handleDateSelected}
-                availableDates={availableDates}
-                theme="green"
-              />
+              <div className="max-w-full overflow-x-auto">
+                <CustomDatepicker
+                  onDateChange={handleDateSelected}
+                  availableDates={availableDates}
+                  theme="green"
+                />
+              </div>
             </div>
           )}
 
@@ -534,14 +514,10 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                 Select Time Slot <span className="text-red-500">*</span>
               </label>
               {displaySlots.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
                   {displaySlots.map((slot, index) => {
-                    const isSelected =
-                      formData.startTime === slot.startTime &&
-                      formData.endTime === slot.endTime;
-
+                    const isSelected = formData.startTime === slot.startTime && formData.endTime === slot.endTime;
                     let slotStatus = "Available";
-
                     if (slot.status !== "Available") {
                       slotStatus = "Booked";
                     } else if (slot.isPast) {
@@ -552,20 +528,15 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                       return (
                         <div
                           key={index}
-                          className="relative px-4 py-3 bg-gray-200 text-gray-500 border border-gray-300 rounded-lg flex items-center justify-center"
-                          aria-label={`${slot.startTime} - ${slot.endTime} ${slotStatus}`}
+                          className="relative px-3 py-2 sm:px-4 sm:py-3 bg-gray-200 text-gray-500 border border-gray-300 rounded-lg flex items-center justify-center text-xs sm:text-sm"
                         >
                           <span className="line-through">
                             {slot.startTime} - {slot.endTime}
                           </span>
-                          <div className="absolute bottom-0 right-2">
-                            <span
-                              className={`text-[10px] uppercase font-semibold ${
-                                slotStatus === "Booked"
-                                  ? "text-red-500"
-                                  : "text-gray-500"
-                              }`}
-                            >
+                          <div className="absolute bottom-0 right-1 sm:right-2">
+                            <span className={`text-[8px] sm:text-[10px] uppercase font-semibold ${
+                              slotStatus === "Booked" ? "text-red-500" : "text-gray-500"
+                            }`}>
                               {slotStatus}
                             </span>
                           </div>
@@ -578,14 +549,12 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                         key={index}
                         onClick={() => handleSlotSelect(slot)}
                         type="button"
-                        className={`px-4 py-3 border rounded-lg transition ${
+                        className={`px-3 py-2 sm:px-4 sm:py-3 border rounded-lg transition text-xs sm:text-sm ${
                           isSelected
                             ? "bg-green-500 text-white border-green-500"
                             : "bg-white text-gray-800 border-gray-300 hover:bg-green-50"
                         }`}
                         disabled={slotStatus !== "Available"}
-                        aria-pressed={isSelected}
-                        aria-label={`${slot.startTime} - ${slot.endTime} ${slotStatus}`}
                       >
                         {slot.startTime} - {slot.endTime}
                       </button>
@@ -593,31 +562,21 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                   })}
                 </div>
               ) : (
-                <div className="text-center p-4 border border-gray-200 rounded-lg">
-                  <p className="text-red-500">
-                    No available slots for {formData.date}
-                  </p>
+                <div className="text-center p-3 sm:p-4 border border-gray-200 rounded-lg">
+                  <p className="text-red-500 text-sm">No available slots for {formData.date}</p>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Section: Error and Success Messages */}
+        {/* Messages */}
         <div className="text-center">
           {formError && (
-            <Message
-              message={formError}
-              type="error"
-              onClose={() => setFormError("")}
-            />
+            <Message message={formError} type="error" onClose={() => setFormError("")} />
           )}
           {successMessage && (
-            <Message
-              message={successMessage}
-              type="success"
-              onClose={() => setSuccessMessage("")}
-            />
+            <Message message={successMessage} type="success" onClose={() => setSuccessMessage("")} />
           )}
         </div>
 
@@ -625,26 +584,19 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={
-              isSubmitting ||
-              (roomType !== "Open" &&
-                formData.colleagues.length !== requiredUsers)
-            }
-            className={`px-6 py-3 rounded-lg shadow-md transition-colors ${
-              isSubmitting ||
-              (roomType !== "Open" &&
-                formData.colleagues.length !== requiredUsers)
+            disabled={isSubmitting || (roomType !== "Open" && formData.colleagues.length !== requiredUsers)}
+            className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md transition-colors text-sm sm:text-base ${
+              isSubmitting || (roomType !== "Open" && formData.colleagues.length !== requiredUsers)
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-white text-green-500 hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
             }`}
           >
             {isSubmitting
               ? "Creating..."
-              : roomType !== "Open" &&
-                  formData.colleagues.length !== requiredUsers
-                ? `Add ${
-                    requiredUsers - formData.colleagues.length
-                  } More User${requiredUsers - formData.colleagues.length > 1 ? "s" : ""}`
+              : roomType !== "Open" && formData.colleagues.length !== requiredUsers
+                ? `Add ${requiredUsers - formData.colleagues.length} More User${
+                    requiredUsers - formData.colleagues.length > 1 ? "s" : ""
+                  }`
                 : "Create Booking"}
           </button>
         </div>

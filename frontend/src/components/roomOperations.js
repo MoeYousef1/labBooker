@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Plus, Edit, Trash } from 'lucide-react';
 
 const RoomOperations = ({ setOperation, setRoomId, setRoomDetails, operation }) => {
   const handleOperationChange = (newOperation) => {
@@ -13,9 +14,15 @@ const RoomOperations = ({ setOperation, setRoomId, setRoomDetails, operation }) 
   const buttonVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    hover: { scale: 1.05 },
-    tap: { scale: 0.95 },
+    hover: { scale: 1.02 },
+    tap: { scale: 0.98 },
   };
+
+  const operations = [
+    { label: "Create Room", operation: "create", icon: Plus },
+    { label: "Update Room", operation: "update", icon: Edit },
+    { label: "Delete Room", operation: "delete", icon: Trash },
+  ];
 
   return (
     <motion.div
@@ -23,26 +30,27 @@ const RoomOperations = ({ setOperation, setRoomId, setRoomDetails, operation }) 
       animate="animate"
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
+      className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8"
     >
-      {[
-        { label: "Create Room", operation: "create" },
-        { label: "Update Room", operation: "update" },
-        { label: "Delete Room", operation: "delete" },
-      ].map(({ label, operation: currentOperation }) => (
+      {operations.map(({ label, operation: currentOperation, icon: Icon }) => (
         <motion.button
           key={currentOperation}
           variants={buttonVariants}
           whileHover="hover"
           whileTap="tap"
           onClick={() => handleOperationChange(currentOperation)}
-          className={`flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group ${
+          className={`min-h-[64px] sm:min-h-0 flex flex-col sm:flex-row items-center justify-center p-4 sm:p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group ${
             operation === currentOperation
               ? "ring-2 ring-green-500 bg-green-50 text-green-700"
               : ""
           }`}
         >
-          {label}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 shrink-0" />
+            <span className="text-xs sm:text-sm md:text-base text-center sm:text-left">
+              {label}
+            </span>
+          </div>
         </motion.button>
       ))}
     </motion.div>

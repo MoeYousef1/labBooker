@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   User,
   Home,
   LogOut,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -16,108 +18,88 @@ const DASHBOARD_PATHS = [
   "/configmanagement",
 ];
 
-export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
+export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
   const [showDashboardSubmenu, setShowDashboardSubmenu] = useState(false);
-
-  const [, setUserInfo] = useState({ email: "", username: "" });
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Authentication and user check
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (!user) {
-      navigate("/login");
-    } else {
-      try {
-        const parsedUser = JSON.parse(user);
-        setUserInfo({
-          email: parsedUser.email || "",
-          username: parsedUser.username || "",
-        });
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    }
-  }, [navigate]);
-
-  // Open submenu if the current path is inside DASHBOARD_PATHS
+  // Auto-open submenu if current path is in DASHBOARD_PATHS
   useEffect(() => {
     if (DASHBOARD_PATHS.includes(location.pathname)) {
       setShowDashboardSubmenu(true);
     }
   }, [location.pathname]);
 
-  const toggleSidebar = () => {
-    setIsOpen((prev) => !prev);
-  };
-
   const handleToggleDashboardSubmenu = () => {
+    if (!isExpanded) toggleSidebar();
     setShowDashboardSubmenu((prev) => !prev);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    setUserInfo(null);
-    navigate("/login");
+  const handleNavigation = (path) => {
+    if (!isExpanded) toggleSidebar();
+    navigate(path);
   };
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="flex h-full relative">
-      <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 shadow-xl transition-all duration-300 z-40 ${
-          isOpen ? "block" : "hidden sm:block"
-        }`}
+    <div
+  className="fixed top-0 left-0 h-screen z-40 transition-all duration-300 bg-white border-r border-gray-200 shadow-xl"
+  style={{ 
+    width: isExpanded ? 225 : 80,
+    transform: isMobile && !isExpanded ? 'translateX(calc(-100% + 80px))' : 'none',
+  }}
+>
+      {/* Toggle Button positioned within the sidebar */}
+      <button
+        onClick={toggleSidebar}
+        className="absolute -right-3 top-5 bg-white p-1.5 rounded-full shadow-md border border-gray-200 hover:bg-gray-100 z-50"
       >
-        {/* Header / Brand */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800">LabBooker</h2>
-          <button className="sm:hidden p-2 text-gray-600" onClick={toggleSidebar}>
-            <svg
-              className="w-6 h-6"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+        {isExpanded ? (
+          <ChevronLeft className="w-5 h-5" />
+        ) : (
+          <ChevronRight className="w-5 h-5" />
+        )}
+      </button>
+
+      <div className="h-full flex flex-col justify-between">
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200">
+          <h2
+            className={`text-xl font-bold text-gray-800 transition-opacity ${
+              isExpanded ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            LabBooker
+          </h2>
         </div>
 
-        {/* NAV LINKS */}
-        <ul className="py-4">
-          {/* Dashboard w/ Submenu */}
-          <li className="relative">
+        {/* Navigation Items */}
+        <ul className="flex-1 py-4">
+          <li>
             <div
-              className={`flex items-center justify-between py-3 px-6 cursor-pointer hover:bg-gray-100 ${
+              className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 ${
                 showDashboardSubmenu ? "bg-gray-100" : ""
               }`}
               onClick={handleToggleDashboardSubmenu}
             >
-              <div className="flex items-center space-x-3">
-                <LayoutDashboard className="w-5 h-5 text-green-500" />
-                <span className="text-gray-800">Dashboard</span>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-500 transition-transform ${
-                  showDashboardSubmenu ? "rotate-180" : ""
+              <LayoutDashboard className="w-6 h-6 text-green-500 min-w-[24px]" />
+              <span
+                className={`ml-3 transition-opacity ${
+                  isExpanded ? "opacity-100" : "opacity-0"
                 }`}
+              >
+                Dashboard
+              </span>
+              <ChevronDown
+                className={`ml-auto w-4 h-4 transition-transform ${
+                  showDashboardSubmenu ? "rotate-180" : ""
+                } ${isExpanded ? "opacity-100" : "opacity-0"}`}
               />
             </div>
 
-            {/* Submenu */}
-            {showDashboardSubmenu && (
-              <ul className="space-y-1 bg-gray-50 py-2">
+            {showDashboardSubmenu && isExpanded && (
+              <ul className="bg-gray-50 py-2">
                 {[
                   { path: "/dashboard", label: "Overview" },
                   { path: "/usermanagement", label: "Manage Users" },
@@ -127,7 +109,7 @@ export function Sidebar() {
                 ].map((item) => (
                   <li
                     key={item.path}
-                    className={`py-2 px-12 cursor-pointer hover:bg-gray-100 ${
+                    className={`px-12 py-2 cursor-pointer hover:bg-gray-100 ${
                       isActive(item.path)
                         ? "bg-green-50 text-green-600"
                         : "text-gray-700"
@@ -141,76 +123,52 @@ export function Sidebar() {
             )}
           </li>
 
-          {/* Other Menu Items - Combined Profile & Settings */}
           {[
-            { 
-              icon: User, 
-              label: "Profile & Settings", 
-              path: "/accountSettings" // New combined path
-            },
-            { 
-              icon: Home, 
-              label: "Home", 
-              path: "/homepage" 
-            },
+            { icon: User, label: "Profile", path: "/accountSettings" },
+            { icon: Home, label: "Home", path: "/homepage" },
           ].map((item) => (
             <li
               key={item.path}
-              className={`py-3 px-6 hover:bg-gray-100 cursor-pointer flex items-center space-x-3 ${
+              className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 ${
                 isActive(item.path)
                   ? "bg-green-50 text-green-600"
                   : "text-gray-800"
               }`}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigation(item.path)}
             >
-              <item.icon className="w-5 h-5 text-green-500" />
-              <span>{item.label}</span>
+              <item.icon className="w-6 h-6 text-green-500 min-w-[24px]" />
+              <span
+                className={`ml-3 transition-opacity ${
+                  isExpanded ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                {item.label}
+              </span>
             </li>
           ))}
         </ul>
 
         {/* Logout */}
-        <div className="absolute bottom-0 w-full border-t border-gray-200">
+        <div className="border-t border-gray-200">
           <div
-            className="py-4 px-6 flex items-center space-x-3 cursor-pointer hover:bg-gray-100 text-gray-800"
-            onClick={handleLogout}
+            className="flex items-center px-4 py-4 cursor-pointer hover:bg-gray-100"
+            onClick={() => {
+              localStorage.removeItem("user");
+              localStorage.removeItem("token");
+              navigate("/login");
+            }}
           >
-            <LogOut className="w-5 h-5 text-red-500" />
-            <span>Log Out</span>
+            <LogOut className="w-6 h-6 text-red-500 min-w-[24px]" />
+            <span
+              className={`ml-3 transition-opacity ${
+                isExpanded ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              Log Out
+            </span>
           </div>
         </div>
       </div>
-
-      {/* Mobile Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 sm:hidden z-30"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-
-      {/* Mobile Toggle Button */}
-      {!isOpen && (
-        <button
-          className="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md"
-          onClick={toggleSidebar}
-        >
-          <svg
-            className="w-6 h-6 text-gray-600"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            />
-          </svg>
-        </button>
-      )}
     </div>
   );
 }

@@ -163,155 +163,158 @@ const UpdateRoomForm = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-6xl mx-auto p-10 bg-gray-50 rounded-lg shadow-xl mb-4"
+      className="w-full bg-gray-50 rounded-lg shadow-xl p-4 sm:p-6 md:p-8 lg:p-10"
     >
-      <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 text-center mb-6 sm:mb-8">
         Update Room
       </h2>
-      <div>
-      <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-6">
-              Select Room
-            </h3>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-        Available Rooms
-        </label>
 
-        <select
-          value={roomId}
-          onChange={(e) => setRoomId(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-        >
-          <option value="" disabled>
-            Choose a Room
-          </option>
-          {roomsList.map((room) => (
-            <option key={room._id} value={room.name}>
-              {room.name}
-            </option>
-          ))}
-        </select>
-
-
+      {/* Room Selection Section */}
+      <div className="space-y-4 sm:space-y-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
+          Select Room
+        </h3>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Available Rooms
+          </label>
+          <select
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
+            className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
+          >
+            <option value="" disabled>Choose a Room</option>
+            {roomsList.map((room) => (
+              <option key={room._id} value={room.name}>{room.name}</option>
+            ))}
+          </select>
+        </div>
 
         {/* Messages */}
         <div className="text-center">
-        {["Please select a valid room.", "Failed to fetch room", "Failed to load rooms list."].includes(error) && (
-  <Message
-    message={error}
-    type="error"
-    onClose={() => setError("")}
-  />
-)}
-
+          {["Please select a valid room.", "Failed to fetch room", "Failed to load rooms list."].includes(error) && (
+            <Message message={error} type="error" onClose={() => setError("")} />
+          )}
           {successMessage && (
-            <Message
-              message={successMessage}
-              type="success"
-              onClose={() => setSuccessMessage("")}
-            />
+            <Message message={successMessage} type="success" onClose={() => setSuccessMessage("")} />
           )}
         </div>
+
         <button
           type="button"
           onClick={handleRoomFetch}
-          className="w-full py-2 mt-4 bg-white text-green-500 shadow-md rounded-lg hover:bg-green-500 hover:text-white transition"
+          className="w-full py-2 sm:py-3 px-4 sm:px-6 bg-white text-green-500 text-sm sm:text-base rounded-lg shadow-md hover:bg-green-500 hover:text-white transition-all duration-300 focus:ring-2 focus:ring-green-400"
         >
           {fetchingRoom ? "Fetching..." : "Get Room Details"}
         </button>
       </div>
 
+      {/* Update Form */}
       {showForm && (
         <motion.form
           onSubmit={handleSubmit}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="space-y-10 mt-10"
+          className="space-y-6 sm:space-y-8 mt-6 sm:mt-8"
         >
           {/* Basic Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Room Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
+              Basic Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              {/* Name Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Room Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Room Type
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="" disabled>
-                  Select Room Type
-                </option>
-                <option value="Open">Open</option>
-                <option value="Small Seminar">Small Seminar</option>
-                <option value="Large Seminar">Large Seminar</option>
-              </select>
-            </div>
+              {/* Type Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Room Type
+                </label>
+                <select
+                  name="type"
+                  value={formData.type}
+                  onChange={handleInputChange}
+                  className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
+                >
+                  <option value="" disabled>Select Room Type</option>
+                  <option value="Open">Open</option>
+                  <option value="Small Seminar">Small Seminar</option>
+                  <option value="Large Seminar">Large Seminar</option>
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Capacity
-              </label>
-              <input
-                type="number"
-                name="capacity"
-                value={formData.capacity}
-                onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
+              {/* Capacity Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Capacity
+                </label>
+                <input
+                  type="number"
+                  name="capacity"
+                  value={formData.capacity}
+                  onChange={handleInputChange}
+                  className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              ></textarea>
+              {/* Description Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base min-h-[80px]"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Amenities */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+          {/* Amenities Section */}
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
               Amenities
             </h3>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setShowAmenitiesDropdown((prev) => !prev)}
-                className="w-full p-3 border border-gray-300 rounded-lg flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                Select Amenities
-                <ChevronDown className="w-5 h-5 text-gray-500" />
+                <span className="text-sm sm:text-base">
+                  {selectedAmenities.length > 0
+                    ? `${selectedAmenities.length} amenities selected`
+                    : "Select Amenities"}
+                </span>
+                <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
               </button>
+
               {showAmenitiesDropdown && (
-                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-h-60 overflow-y-auto">
+                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg p-3 sm:p-4 max-h-48 sm:max-h-60 overflow-y-auto">
                   <input
                     type="text"
                     placeholder="Search amenities..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="w-full p-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                   />
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {availableAmenities
                       .filter((amenity) =>
                         amenity.toLowerCase().includes(searchQuery.toLowerCase())
@@ -319,15 +322,15 @@ const UpdateRoomForm = ({
                       .map((amenity) => (
                         <label
                           key={amenity}
-                          className="flex items-center space-x-2"
+                          className="flex items-center space-x-2 p-1 hover:bg-gray-50 rounded cursor-pointer text-sm"
                         >
-                          {iconMapping[amenity]}
-                          <span className="capitalize">{amenity}</span>
+                          <span className="w-5 h-5">{iconMapping[amenity]}</span>
+                          <span className="capitalize flex-1">{amenity}</span>
                           <input
                             type="checkbox"
                             checked={selectedAmenities.includes(amenity)}
                             onChange={() => handleAmenityToggle(amenity)}
-                            className="form-checkbox focus:ring-green-500 text-green-500"
+                            className="form-checkbox h-4 w-4 text-green-500 focus:ring-green-500 border-gray-300 rounded"
                           />
                         </label>
                       ))}
@@ -337,41 +340,33 @@ const UpdateRoomForm = ({
             </div>
           </div>
 
-          {/* Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Upload Image
-            </label>
+          {/* Image Upload Section */}
+          <div className="space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
+              Update Image
+            </h3>
             <input
               type="file"
               onChange={handleImageChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              accept="image/*"
+              className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
             />
           </div>
 
           {/* Messages */}
-        <div className="text-center">
-          {error && (
-            <Message
-              message={error}
-              type="error"
-              onClose={() => setError("")}
-            />
-          )}
-          {successMessage && (
-            <Message
-              message={successMessage}
-              type="success"
-              onClose={() => setSuccessMessage("")}
-            />
-          )}
-        </div>
+          <div className="text-center">
+            {error && <Message message={error} type="error" onClose={() => setError("")} />}
+            {successMessage && (
+              <Message message={successMessage} type="success" onClose={() => setSuccessMessage("")} />
+            )}
+          </div>
 
+          {/* Submit Button */}
           <div className="flex justify-end">
             <button
               type="submit"
-              className="px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
               disabled={loading}
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400 text-sm sm:text-base transition-all duration-300"
             >
               {loading ? "Updating..." : "Update Room"}
             </button>

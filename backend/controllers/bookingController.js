@@ -720,7 +720,7 @@ class BookingController {
       const query = {};
       if (req.query.roomId) query.roomId = req.query.roomId;
       if (req.query.userId) query.userId = req.query.userId;
-      const [total, pending, confirmed, canceled] = await Promise.all([
+      const [total, pending, confirmed, canceled, missed] = await Promise.all([
         Booking.countDocuments(query),
         Booking.countDocuments({
           ...query,
@@ -734,10 +734,14 @@ class BookingController {
           ...query,
           status: BOOKING_CONSTANTS.STATUSES.CANCELED,
         }),
+        Booking.countDocuments({
+          ...query,
+          status: BOOKING_CONSTANTS.STATUSES.MISSED,
+        }),
       ]);
       res.status(200).json({
         success: true,
-        counts: { total, pending, confirmed, canceled },
+        counts: { total, pending, confirmed, canceled, missed },
       });
     } catch (error) {
       console.error("getBookingCounts - Error:", error);

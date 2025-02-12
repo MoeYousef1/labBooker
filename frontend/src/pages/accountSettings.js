@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "../components/SideBar";
+import { SidebarLayout } from "../components/SidebarLayout";
 import { User, Bell, Shield, Upload, XCircle } from "lucide-react";
 import Message from "../components/Error_successMessage";
 import VerificationModal from "../components/VerificationModal";
@@ -21,7 +21,7 @@ const ProfileSettings = () => {
     profilePicture: null,
   });
 
-  // Edit form
+  // Edit form state
   const [editForm, setEditForm] = useState({
     email: "",
     name: "",
@@ -35,14 +35,13 @@ const ProfileSettings = () => {
   const [errors, setErrors] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Email verification modal
+  // Email verification modal state
   const [verificationModal, setVerificationModal] = useState({
     isOpen: false,
     email: "",
     code: "",
-    error: "",   // <-- Added for modal-specific errors
+    error: "",
   });
-  
 
   // Cropper state
   const [showCropper, setShowCropper] = useState(false);
@@ -72,21 +71,20 @@ const ProfileSettings = () => {
     fetchProfile();
   }, []);
 
-  // Whenever the user interacts with inputs, clear previous messages
+  // Clear messages on input interactions
   const clearMessages = () => {
     if (errors) setErrors("");
     if (successMessage) setSuccessMessage("");
   };
 
-  // Handle file pick
+  // Handle file selection
   const handleImageChange = (e) => {
     clearMessages();
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
 
-    // Validate
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (!validTypes.includes(file.type)) {
       setErrors("Please upload a valid image file (JPEG, PNG)");
       return;
@@ -108,7 +106,7 @@ const ProfileSettings = () => {
     []
   );
 
-  // Confirm Crop
+  // Confirm cropping
   const handleCropComplete = async () => {
     clearMessages();
     try {
@@ -126,14 +124,14 @@ const ProfileSettings = () => {
     }
   };
 
-  // Cancel Crop
+  // Cancel cropping
   const handleCropCancel = () => {
     clearMessages();
     setShowCropper(false);
     setRawImage(null);
   };
 
-  // Remove existing profile picture
+  // Remove profile picture
   const handleRemoveImage = () => {
     clearMessages();
     setEditForm((prev) => ({
@@ -144,7 +142,7 @@ const ProfileSettings = () => {
     }));
   };
 
-  // handle email changes
+  // Handle email changes
   const handleEmailChange = async (newEmail) => {
     clearMessages();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -163,32 +161,31 @@ const ProfileSettings = () => {
         isOpen: true,
         email: userInfo.email,
         code: "",
+        error: "",
       });
     } catch (error) {
       setErrors("Failed to initiate email change");
     }
   };
 
-  // In ProfileSettings component
-const cancelEmailChangeRequest = async () => {
-  try {
-    await api.post("/user/cancel-email-change"); // Adjust URL/method as needed
-    setSuccessMessage("Email change request cancelled.");
-    // Also update any local state if you’re showing pending email changes.
-  } catch (error) {
-    setErrors(error.response?.data?.message || "Failed to cancel email change request");
-  }
-};
+  const cancelEmailChangeRequest = async () => {
+    try {
+      await api.post("/user/cancel-email-change");
+      setSuccessMessage("Email change request cancelled.");
+    } catch (error) {
+      setErrors(
+        error.response?.data?.message ||
+          "Failed to cancel email change request"
+      );
+    }
+  };
 
-
-  // verify email code
   const handleVerifyEmail = async () => {
-    clearMessages(); // still clears main page errors/success
+    clearMessages();
     try {
       await api.post("/user/verify-email-change", {
         verificationCode: verificationModal.code,
       });
-      // If success, close the modal and show success in the main area
       setUserInfo((prev) => ({
         ...prev,
         email: verificationModal.email,
@@ -197,28 +194,23 @@ const cancelEmailChangeRequest = async () => {
       setSuccessMessage("Email updated successfully");
       setIsEditing(false);
     } catch (error) {
-      // Instead of setting main `errors`, we set the modal-specific error
       setVerificationModal((prev) => ({
         ...prev,
         error: error.response?.data?.message || "Invalid verification code",
       }));
     }
   };
-  
 
-  // Save changes (name, image, etc.)
   const handleSaveChanges = async () => {
     clearMessages();
     try {
       setLoading(true);
 
-      // If changed email
       if (editForm.email !== userInfo.email) {
         await handleEmailChange(editForm.email);
-        return; // Stop here so user can confirm code
+        return;
       }
 
-      // Validate name
       if (editForm.name !== userInfo.name) {
         if (editForm.name.length < 2 || editForm.name.length > 50) {
           setErrors("Name must be between 2 and 50 characters");
@@ -227,7 +219,6 @@ const cancelEmailChangeRequest = async () => {
         }
       }
 
-      // Build form data
       const formData = new FormData();
       if (editForm.name !== userInfo.name) {
         formData.append("name", editForm.name);
@@ -239,7 +230,6 @@ const cancelEmailChangeRequest = async () => {
         formData.append("removeImage", "true");
       }
 
-      // if no changes
       const hasNameChange = editForm.name !== userInfo.name;
       const hasImageChange = editForm.image || editForm.removeImage;
       if (!hasNameChange && !hasImageChange) {
@@ -248,7 +238,6 @@ const cancelEmailChangeRequest = async () => {
         return;
       }
 
-      // Send request
       const response = await api.put("/user/profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -267,7 +256,9 @@ const cancelEmailChangeRequest = async () => {
       setIsEditing(false);
       setSuccessMessage("Profile updated successfully");
     } catch (error) {
-      setErrors(error.response?.data?.message || "Failed to update profile");
+      setErrors(
+        error.response?.data?.message || "Failed to update profile"
+      );
     } finally {
       setLoading(false);
     }
@@ -276,7 +267,6 @@ const cancelEmailChangeRequest = async () => {
   const handleEditToggle = () => {
     clearMessages();
     if (isEditing) {
-      // Cancel editing
       setEditForm({
         email: userInfo.email,
         name: userInfo.name,
@@ -289,32 +279,30 @@ const cancelEmailChangeRequest = async () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
-
+    <SidebarLayout>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex-1 flex flex-col items-center justify-center px-6 sm:px-8 md:px-12 mt-16 sm:mt-0 sm:ml-64"
+        className="w-full flex flex-col items-center min-h-screen px-4 sm:px-6 md:px-8 lg:px-12 py-6 sm:py-8 md:py-10 overflow-x-hidden"
       >
         {/* Header */}
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl font-extrabold text-gray-800 text-center mb-8 mt-4"
+          className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-6 sm:mb-8"
         >
           Profile Settings
         </motion.h1>
-
+  
         {/* Tabs Navigation */}
         <div className="w-full max-w-4xl">
           <motion.div
             initial="initial"
             animate="animate"
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8"
           >
             {[
               { label: "Profile", id: "profile", icon: User },
@@ -335,46 +323,49 @@ const cancelEmailChangeRequest = async () => {
                   clearMessages();
                   setActiveTab(id);
                 }}
-                className={`flex items-center justify-center p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group ${
+                className={`flex items-center justify-center p-3 sm:p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group ${
                   activeTab === id
                     ? "ring-2 ring-green-500 bg-green-50 text-green-700"
                     : ""
                 }`}
               >
-                <div className="flex items-center justify-center space-x-2">
-                  <Icon className="min-w-[20px] w-6 h-6 sm:min-w-[16px] sm:w-4 sm:h-4 md:min-w-[20px] md:w-5 md:h-5" />
-                  <span className="text-lg sm:text-base whitespace-nowrap">{label}</span>
+                <div className="flex flex-col sm:flex-row items-center justify-center sm:space-x-2">
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <span className="text-xs sm:text-sm md:text-base mt-1 sm:mt-0">
+                    {label}
+                  </span>
                 </div>
               </motion.button>
             ))}
           </motion.div>
         </div>
-
+  
         {/* Main Content Area */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-4xl mt-6"
+          className="w-full max-w-4xl"
         >
-          <div className="max-w-6xl mx-auto p-10 bg-gray-50 rounded-lg shadow-xl mb-4">
+          <div className="bg-gray-50 rounded-lg shadow-xl p-4 sm:p-6 md:p-10">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
+                className="space-y-6 sm:space-y-10"
               >
                 {activeTab === "profile" && (
-                  <div className="space-y-10">
+                  <div className="space-y-6 sm:space-y-10">
                     {/* Profile Picture Section */}
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                       <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
                         Profile Picture
                       </h3>
-                      <div className="flex items-center space-x-6">
+                      <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
                         <div className="relative">
-                          <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100">
                             {editForm.previewUrl ? (
                               <img
                                 src={editForm.previewUrl}
@@ -382,14 +373,14 @@ const cancelEmailChangeRequest = async () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-gray-400">
+                              <div className="w-full h-full flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-400">
                                 {userInfo.username?.[0]?.toUpperCase()}
                               </div>
                             )}
                           </div>
-
+  
                           {isEditing && (
-                            <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50">
                               <Upload className="w-4 h-4 text-gray-600" />
                               <input
                                 type="file"
@@ -400,8 +391,8 @@ const cancelEmailChangeRequest = async () => {
                             </label>
                           )}
                         </div>
-
-                        <div>
+  
+                        <div className="text-center sm:text-left">
                           <h3 className="text-lg font-medium text-gray-900">
                             {userInfo.name}
                           </h3>
@@ -424,15 +415,15 @@ const cancelEmailChangeRequest = async () => {
                         </div>
                       </div>
                     </div>
-
+  
                     {/* Profile Information Section */}
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                       <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
                         Basic Information
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         {/* Username Field */}
-                        <div>
+                        <div className="w-full">
                           <label className="block text-sm font-medium text-gray-700">
                             Username
                           </label>
@@ -446,9 +437,9 @@ const cancelEmailChangeRequest = async () => {
                             Username cannot be changed
                           </p>
                         </div>
-
+  
                         {/* Name Field */}
-                        <div>
+                        <div className="w-full">
                           <label className="block text-sm font-medium text-gray-700">
                             Name
                             {isEditing && <span className="text-red-500 ml-1">*</span>}
@@ -469,9 +460,9 @@ const cancelEmailChangeRequest = async () => {
                             }`}
                           />
                         </div>
-
+  
                         {/* Email Field */}
-                        <div className="md:col-span-2">
+                        <div className="md:col-span-2 w-full">
                           <label className="block text-sm font-medium text-gray-700">
                             Email
                             {isEditing && <span className="text-red-500 ml-1">*</span>}
@@ -494,7 +485,7 @@ const cancelEmailChangeRequest = async () => {
                         </div>
                       </div>
                     </div>
-
+  
                     {/* Messages */}
                     <div className="text-center">
                       {errors && (
@@ -512,21 +503,21 @@ const cancelEmailChangeRequest = async () => {
                         />
                       )}
                     </div>
-
+  
                     {/* Action Buttons */}
-                    <div className="flex justify-end space-x-3">
+                    <div className="flex justify-end space-x-2 sm:space-x-3">
                       {isEditing ? (
                         <>
                           <button
                             onClick={handleEditToggle}
-                            className="px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md hover:bg-gray-50 focus:ring-2 focus:ring-green-400 border border-gray-300 transition-all duration-300"
+                            className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white text-gray-700 rounded-lg shadow-md hover:bg-gray-50 focus:ring-2 focus:ring-green-400 border border-gray-300"
                           >
                             Cancel
                           </button>
                           <button
                             onClick={handleSaveChanges}
                             disabled={loading}
-                            className="px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400 transition-all duration-300"
+                            className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
                           >
                             {loading ? "Saving..." : "Save Changes"}
                           </button>
@@ -534,7 +525,7 @@ const cancelEmailChangeRequest = async () => {
                       ) : (
                         <button
                           onClick={handleEditToggle}
-                          className="px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400 transition-all duration-300"
+                          className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
                         >
                           Edit Profile
                         </button>
@@ -542,45 +533,41 @@ const cancelEmailChangeRequest = async () => {
                     </div>
                   </div>
                 )}
-
+  
                 {activeTab === "security" && (
-                  <div className="space-y-10">
-                    <div className="space-y-6">
+                  <div className="space-y-6">
+                    <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
                         Password & Security
                       </h3>
-                      <div className="grid grid-cols-1 gap-6">
-                        <div className="bg-white p-6 rounded-lg shadow-md">
-                          <p className="text-gray-600 mb-4">
-                            Manage your password and security settings
-                          </p>
-                          <button
-                            onClick={() => navigate("/changepassword")}
-                            className="px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400 transition-all duration-300"
-                          >
-                            Change Password
-                          </button>
-                        </div>
+                      <div className="bg-white rounded-lg p-4 sm:p-6">
+                        <p className="text-sm sm:text-base text-gray-600 mb-4">
+                          Manage your password and security settings
+                        </p>
+                        <button
+                          onClick={() => navigate("/changepassword")}
+                          className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
+                        >
+                          Change Password
+                        </button>
                       </div>
                     </div>
                   </div>
                 )}
-
+  
                 {activeTab === "notifications" && (
-                  <div className="space-y-10">
-                    <div className="space-y-6">
+                  <div className="space-y-6">
+                    <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
                         Notification Preferences
                       </h3>
-                      <div className="grid grid-cols-1 gap-6">
-                        <div className="bg-white p-6 rounded-lg shadow-md">
-                          <h4 className="text-lg font-medium text-gray-900 mb-4">
-                            Coming Soon
-                          </h4>
-                          <p className="text-gray-600">
-                            Notification settings will be available in a future update.
-                          </p>
-                        </div>
+                      <div className="bg-white rounded-lg p-4 sm:p-6">
+                        <h4 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+                          Coming Soon
+                        </h4>
+                        <p className="text-sm sm:text-base text-gray-600">
+                          Notification settings will be available in a future update.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -589,29 +576,31 @@ const cancelEmailChangeRequest = async () => {
             </AnimatePresence>
           </div>
         </motion.div>
-
+  
         {/* Verification Modal */}
         <VerificationModal
-  isOpen={verificationModal.isOpen}
-  email={verificationModal.email}
-  code={verificationModal.code}
-  error={verificationModal.error}
-  onCodeChange={(code) => setVerificationModal((prev) => ({ ...prev, code }))}
-  onConfirm={handleVerifyEmail}
-  onClose={() => setVerificationModal({ isOpen: false, email: "", code: "", error: "" })}
-  onCancelEmailChange={cancelEmailChangeRequest}
-/>
-
-
-
+          isOpen={verificationModal.isOpen}
+          email={verificationModal.email}
+          code={verificationModal.code}
+          error={verificationModal.error}
+          onCodeChange={(code) =>
+            setVerificationModal((prev) => ({ ...prev, code }))
+          }
+          onConfirm={handleVerifyEmail}
+          onClose={() =>
+            setVerificationModal({ isOpen: false, email: "", code: "", error: "" })
+          }
+          onCancelEmailChange={cancelEmailChangeRequest}
+        />
+  
         {/* Cropper Modal */}
         {showCropper && (
           <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white p-6 rounded-lg shadow-xl relative w-full max-w-md">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl relative w-full max-w-sm sm:max-w-md">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
                 Crop your photo
               </h2>
-              <div className="relative w-full h-64 bg-gray-200">
+              <div className="relative w-full h-48 sm:h-64 bg-gray-200">
                 <Cropper
                   image={rawImage && URL.createObjectURL(rawImage)}
                   crop={crop}
@@ -654,7 +643,7 @@ const cancelEmailChangeRequest = async () => {
           </div>
         )}
       </motion.div>
-    </div>
+    </SidebarLayout>
   );
 };
 

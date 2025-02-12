@@ -103,20 +103,22 @@ const CreateRoomForm = ({ onSuccess }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-6xl mx-auto p-10 bg-gray-50 rounded-lg shadow-xl mb-4"
+      className="w-full bg-gray-50 rounded-lg shadow-xl p-4 sm:p-6 md:p-8 lg:p-10"
     >
-      <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
-      Create a New Room
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 text-center mb-6 sm:mb-8">
+        Create a New Room
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-10">
+
+      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 md:space-y-10">
         {/* Section: Basic Details */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+        <div className="space-y-4 sm:space-y-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
             Basic Details
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {/* Room Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Room Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -124,32 +126,32 @@ const CreateRoomForm = ({ onSuccess }) => {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className=" w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="Enter room name"
               />
             </div>
 
+            {/* Room Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Room Type <span className="text-red-500">*</span>
               </label>
               <select
                 name="type"
                 value={formData.type}
                 onChange={handleInputChange}
-                className=" w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="" disabled>
-                  Select Room Type
-                </option>
+                <option value="" disabled>Select Room Type</option>
                 <option value="Open">Open</option>
                 <option value="Small Seminar">Small Seminar</option>
                 <option value="Large Seminar">Large Seminar</option>
               </select>
             </div>
 
+            {/* Capacity */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Capacity <span className="text-red-500">*</span>
               </label>
               <input
@@ -157,50 +159,56 @@ const CreateRoomForm = ({ onSuccess }) => {
                 name="capacity"
                 value={formData.capacity}
                 onChange={handleInputChange}
-                className=" w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="Enter capacity"
               />
             </div>
 
+            {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Description
               </label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                className=" w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 min-h-[80px]"
                 placeholder="Enter room description"
-              ></textarea>
+              />
             </div>
           </div>
         </div>
 
         {/* Section: Amenities */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+        <div className="space-y-4 sm:space-y-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
             Amenities
           </h3>
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowAmenitiesDropdown((prev) => !prev)}
-              className="w-full p-3 border border-gray-300 rounded-lg flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             >
-              Select Amenities
-              <ChevronDown className="w-5 h-5 text-gray-500" />
+              <span className="text-sm sm:text-base">
+                {selectedAmenities.length > 0
+                  ? `${selectedAmenities.length} amenities selected`
+                  : "Select Amenities"}
+              </span>
+              <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
             </button>
+
             {showAmenitiesDropdown && (
-              <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-h-60 overflow-y-auto">
+              <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg p-3 sm:p-4 max-h-48 sm:max-h-60 overflow-y-auto">
                 <input
                   type="text"
                   placeholder="Search amenities..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full p-2 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                 />
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {availableAmenities
                     .filter((amenity) =>
                       amenity.toLowerCase().includes(searchQuery.toLowerCase())
@@ -208,15 +216,15 @@ const CreateRoomForm = ({ onSuccess }) => {
                     .map((amenity) => (
                       <label
                         key={amenity}
-                        className="flex items-center space-x-2"
+                        className="flex items-center space-x-2 p-1 hover:bg-gray-50 rounded cursor-pointer text-sm"
                       >
-                        {iconMapping[amenity]}
-                        <span className="capitalize">{amenity}</span>
+                        <span className="w-5 h-5">{iconMapping[amenity]}</span>
+                        <span className="capitalize flex-1">{amenity}</span>
                         <input
                           type="checkbox"
                           checked={selectedAmenities.includes(amenity)}
                           onChange={() => handleAmenityToggle(amenity)}
-                          className="form-checkbox focus:ring-green-500 text-green-500"
+                          className="form-checkbox h-4 w-4 text-green-500 focus:ring-green-500 border-gray-300 rounded"
                         />
                       </label>
                     ))}
@@ -227,18 +235,19 @@ const CreateRoomForm = ({ onSuccess }) => {
         </div>
 
         {/* Section: Image Upload */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+        <div className="space-y-4">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
             Upload Image
           </h3>
           <input
             type="file"
             onChange={handleImageChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            accept="image/*"
+            className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
           />
         </div>
 
-        {/* Error and Success Messages */}
+        {/* Messages */}
         <div className="text-center">
           {errors && (
             <Message
@@ -260,8 +269,8 @@ const CreateRoomForm = ({ onSuccess }) => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
             disabled={loading}
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400 text-sm sm:text-base transition-all duration-300"
           >
             {loading ? "Creating..." : "Create Room"}
           </button>

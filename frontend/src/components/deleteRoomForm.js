@@ -130,153 +130,22 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
     }
   };
 
-  // Modal content component
-  const ModalContent = () => {
-    const selectedRoom = roomsList.find((room) => room.name === roomId);
-
-    return (
-      <div className="space-y-6">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-14 w-14 text-red-500">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-full w-full"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Confirm Room Deletion
-          </h3>
-          <p className="text-gray-500">
-            Are you sure you want to delete this room? This action cannot be
-            undone.
-          </p>
-        </div>
-
-        {selectedRoom && (
-          <div className="space-y-4">
-            {/* Room Details */}
-            <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-              <div className="px-4 py-3 bg-gray-100 border-b border-gray-200">
-                <h4 className="text-sm font-medium text-gray-700">
-                  Room Details
-                </h4>
-              </div>
-              <div className="p-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1">
-                    <span className="text-xs text-gray-500 uppercase">
-                      Name
-                    </span>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRoom.name}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-xs text-gray-500 uppercase">
-                      Type
-                    </span>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRoom.type}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-xs text-gray-500 uppercase">
-                      Capacity
-                    </span>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRoom.capacity}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Related Bookings */}
-            {relatedBookings.length > 0 && (
-              <div className="bg-red-50 rounded-lg border border-red-200 overflow-hidden">
-                <div className="px-4 py-3 bg-red-100 border-b border-red-200">
-                  <h4 className="text-sm font-medium text-red-700">
-                    Associated Bookings to be Deleted ({relatedBookings.length})
-                  </h4>
-                </div>
-                <div className="p-4">
-                  <div className="max-h-48 overflow-y-auto space-y-2">
-                    {relatedBookings.map((booking, index) => (
-                      <div
-                        key={booking._id}
-                        className="p-3 text-sm border-l-4 border-red-300 bg-red-100"
-                      >
-                        <div className="text-red-700">
-                          Date: {booking.date} | Time: {booking.startTime} -{" "}
-                          {booking.endTime}
-                        </div>
-                        <div className="text-red-600 text-xs mt-1">
-                          Booked by: {booking.userId?.username}
-                          {booking.additionalUsers?.length > 0 && (
-                            <span className="ml-2">
-                              | With:{" "}
-                              {booking.additionalUsers
-                                .map((user) => user.username)
-                                .join(", ")}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="text-center">
-          <p className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
-            <svg
-              className="w-4 h-4 inline mr-1 -mt-0.5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            This will permanently delete the room and {relatedBookings.length}{" "}
-            associated booking(s)
-          </p>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-6xl mx-auto p-10 bg-gray-50 rounded-lg shadow-xl mb-4"
+        className="w-full bg-gray-50 rounded-lg shadow-xl p-4 sm:p-6 md:p-8 lg:p-10"
       >
-        <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 text-center mb-6 sm:mb-8">
           Delete Room
         </h2>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Room Selection */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-700 border-b pb-2">
               Select Room
             </h3>
             <div>
@@ -286,12 +155,10 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
               <select
                 value={roomId}
                 onChange={handleRoomSelect}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
                 disabled={loadingRooms}
               >
-                <option value="" disabled>
-                  Choose a Room
-                </option>
+                <option value="" disabled>Choose a Room</option>
                 {roomsList.map((room) => (
                   <option key={room._id} value={room.name}>
                     {room.name} - {room.type} (Capacity: {room.capacity})
@@ -302,29 +169,27 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
 
             {/* Room Details Preview */}
             {roomId && (
-              <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="mt-4 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">
                   Selected Room Details
                 </h4>
                 {(() => {
                   const selectedRoom = roomsList.find(
-                    (room) => room.name === roomId,
+                    (room) => room.name === roomId
                   );
                   return selectedRoom ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                      <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
+                      <div className="space-y-1">
                         <span className="block text-gray-500">Name</span>
                         <span className="font-medium">{selectedRoom.name}</span>
                       </div>
-                      <div>
+                      <div className="space-y-1">
                         <span className="block text-gray-500">Type</span>
                         <span className="font-medium">{selectedRoom.type}</span>
                       </div>
-                      <div>
+                      <div className="space-y-1">
                         <span className="block text-gray-500">Capacity</span>
-                        <span className="font-medium">
-                          {selectedRoom.capacity}
-                        </span>
+                        <span className="font-medium">{selectedRoom.capacity}</span>
                       </div>
                     </div>
                   ) : null;
@@ -368,12 +233,12 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-4">
+          <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
             {roomId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
               >
                 Reset
               </button>
@@ -382,11 +247,10 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
               type="button"
               onClick={handleDeleteClick}
               disabled={loading || !roomId}
-              className={`px-6 py-3 rounded-lg shadow-md transition-colors
-                ${
-                  loading || !roomId
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-white text-red-500 hover:bg-red-500 hover:text-white focus:ring-2 focus:ring-red-400"
+              className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md transition-colors text-sm sm:text-base
+                ${loading || !roomId
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-white text-red-500 hover:bg-red-500 hover:text-white focus:ring-2 focus:ring-red-400"
                 }`}
             >
               {loading ? "Deleting..." : "Delete Room"}
@@ -395,13 +259,125 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
         </div>
       </motion.div>
 
-      {/* Confirmation Modal */}
+      {/* Modal Content */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmDelete}
         title=""
-        message={<ModalContent />}
+        message={
+          <div className="space-y-4 sm:space-y-6">
+            <div className="text-center">
+              <div className="mx-auto mb-4 h-12 w-12 sm:h-14 sm:w-14 text-red-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-full w-full"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+                Confirm Room Deletion
+              </h3>
+              <p className="text-sm sm:text-base text-gray-500">
+                Are you sure you want to delete this room? This action cannot be undone.
+              </p>
+            </div>
+
+            {roomId && roomsList.find((room) => room.name === roomId) && (
+              <div className="space-y-4">
+                {/* Room Details */}
+                <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 bg-gray-100 border-b border-gray-200">
+                    <h4 className="text-sm font-medium text-gray-700">
+                      Room Details
+                    </h4>
+                  </div>
+                  <div className="p-3 sm:p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                      <div className="space-y-1">
+                        <span className="text-xs text-gray-500 uppercase">Name</span>
+                        <p className="text-sm font-medium text-gray-900">
+                          {roomsList.find((room) => room.name === roomId).name}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs text-gray-500 uppercase">Type</span>
+                        <p className="text-sm font-medium text-gray-900">
+                          {roomsList.find((room) => room.name === roomId).type}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs text-gray-500 uppercase">Capacity</span>
+                        <p className="text-sm font-medium text-gray-900">
+                          {roomsList.find((room) => room.name === roomId).capacity}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Related Bookings */}
+                {relatedBookings.length > 0 && (
+                  <div className="bg-red-50 rounded-lg border border-red-200 overflow-hidden">
+                    <div className="px-3 sm:px-4 py-2 sm:py-3 bg-red-100 border-b border-red-200">
+                      <h4 className="text-sm font-medium text-red-700">
+                        Associated Bookings ({relatedBookings.length})
+                      </h4>
+                    </div>
+                    <div className="p-3 sm:p-4">
+                      <div className="max-h-40 sm:max-h-48 overflow-y-auto space-y-2">
+                        {relatedBookings.map((booking) => (
+                          <div
+                            key={booking._id}
+                            className="p-2 sm:p-3 text-xs sm:text-sm border-l-4 border-red-300 bg-red-100"
+                          >
+                            <div className="text-red-700">
+                              Date: {booking.date} | Time: {booking.startTime} - {booking.endTime}
+                            </div>
+                            <div className="text-red-600 text-xs mt-1">
+                              Booked by: {booking.userId?.username}
+                              {booking.additionalUsers?.length > 0 && (
+                                <span className="ml-2">
+                                  | With: {booking.additionalUsers.map(user => user.username).join(", ")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="text-center">
+              <p className="text-xs sm:text-sm text-red-600 bg-red-50 px-3 sm:px-4 py-2 rounded-lg">
+                <svg
+                  className="w-4 h-4 inline mr-1 -mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                This will permanently delete the room and {relatedBookings.length} associated booking(s)
+              </p>
+            </div>
+          </div>
+        }
         confirmText={loading ? "Deleting..." : "Delete Room"}
         cancelText="Cancel"
       />

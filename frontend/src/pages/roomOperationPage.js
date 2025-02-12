@@ -1,9 +1,10 @@
+// RoomPage.jsx
 import React, { useState } from "react";
 import RoomOperations from "../components/roomOperations";
 import CreateRoomForm from "../components/createRoomForm";
 import UpdateRoomForm from "../components/updateRoomForm";
 import DeleteRoomForm from "../components/deleteRoomForm";
-import { Sidebar } from "../components/SideBar";
+import { SidebarLayout } from "../components/SidebarLayout";
 import { motion } from "framer-motion";
 
 const RoomPage = () => {
@@ -18,22 +19,18 @@ const RoomPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Content Area */}
+    <SidebarLayout>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex-1 flex flex-col items-center justify-center px-6 sm:px-8 md:px-12 mt-16 sm:mt-0 sm:ml-64"
+        className="w-full flex flex-col items-center px-4 sm:px-6 md:px-8 py-6 sm:py-8 overflow-x-hidden"
       >
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl font-extrabold text-gray-800 text-center mb-8 mt-4"
+          className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-6 sm:mb-8"
         >
           Room Management
         </motion.h1>
@@ -53,7 +50,7 @@ const RoomPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-4xl mt-6"
+          className="w-full max-w-4xl mt-4 sm:mt-6"
         >
           {operation === "create" && (
             <CreateRoomForm operation={operation} onSuccess={handleSuccess} />
@@ -73,7 +70,7 @@ const RoomPage = () => {
           )}
         </motion.div>
       </motion.div>
-    </div>
+    </SidebarLayout>
   );
 };
 
