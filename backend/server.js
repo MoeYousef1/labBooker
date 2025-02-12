@@ -187,7 +187,7 @@ try {
     { path: "/api/book", routes: bookingRoutes },
     { path: "/api/upload", routes: uploadRoutes },
     { path: "/api/config", routes: configRoutes },
-    { path: "/api/dashboard", routes: dashboardRoutes },
+    { path: "/api/dashboard", routes: dashboardRoutes},
     { path: "/api/notifications", routes: notificationsRoutes }
 
   ];
