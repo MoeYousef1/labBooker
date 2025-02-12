@@ -20,6 +20,7 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const configRoutes = require("./routes/configRoutes");
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const notificationsRoutes = require("./routes/notificationsRoutes");
+const healthRoutes = require("./routes/healthRoutes");
 console.log("[IMPORT] Route imports completed");
 
 // Debugging function for route registration
@@ -72,6 +73,7 @@ app.use(
 
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ['X-System-Health', 'X-Response-Time'],
     credentials: true,
   })
 );
@@ -99,6 +101,15 @@ const authLimiter = rateLimit({
   message: "Too many login attempts, please try again later",
 });
 app.use("/api/auth/", authLimiter);
+
+// Add after existing rate limit configuration
+const healthLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60, // Limit each IP to 60 requests per minute
+  message: "Too many health check requests",
+});
+
+app.use("/api/health", healthLimiter);
 
 // Database Connection and TTL Index Setup
 mongoose
@@ -188,7 +199,8 @@ try {
     { path: "/api/upload", routes: uploadRoutes },
     { path: "/api/config", routes: configRoutes },
     { path: "/api/dashboard", routes: dashboardRoutes},
-    { path: "/api/notifications", routes: notificationsRoutes }
+    { path: "/api/notifications", routes: notificationsRoutes },
+    { path: "/api/health", routes: healthRoutes }
 
   ];
 
@@ -221,6 +233,12 @@ app.use((err, req, res, next) => {
   };
 
   res.status(statusCode).json(errorResponse);
+});
+
+// Add this with your other middleware
+app.use((req, res, next) => {
+  res.set('X-Response-Time', `${Date.now() - req.startTime}ms`);
+  next();
 });
 
 // Graceful Shutdown

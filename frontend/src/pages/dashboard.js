@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { SidebarLayout } from "../components/SidebarLayout";
 import { TbClockX } from "react-icons/tb";
+import SystemStatusBanner from '../components/SystemStatusBanner';
+
 
 import { 
   Users, 
@@ -108,158 +110,123 @@ const DashBoard = () => {
   };
 
   return (
-    <SidebarLayout>
-      <div className="w-full flex flex-col px-4 sm:px-6 md:px-8 py-6 sm:py-8 overflow-hidden">
-        {/* Header Section */}
-        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
-            <div className="flex items-center gap-3">
-              <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 shrink-0" />
-              <span>Dashboard</span>
-            </div>
-          </h1>
-          <p className="text-gray-600 mt-2 sm:mt-0 text-sm sm:text-base">
-            Welcome, {userInfo.username}!
-          </p>
+   // Dashboard component with improved styling
+<SidebarLayout>
+  <div className="w-full flex flex-col px-4 sm:px-6 md:px-8 py-6 sm:py-8 overflow-hidden">
+    {/* Header Section */}
+    <div className="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gradient-to-r from-green-50 to-green-100 px-6 py-4 rounded-2xl">
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-green-500 rounded-xl shadow-lg">
+          <BookOpen className="w-8 h-8 text-white" />
         </div>
-
-        {/* Stats Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {/* Card: Total Users */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
-                Total Users
-              </h3>
-              <div className="flex items-center justify-center">
-                <Users className="w-6 h-6 text-green-500 shrink-0" />
-              </div>
-            </div>
-            {loading ? (
-              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{userCount}</p>
-            )}
-            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
-          </div>
-
-          {/* Card: Total Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
-                Total Bookings
-              </h3>
-              <div className="flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-green-500 shrink-0" />
-              </div>
-            </div>
-            {loading ? (
-              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.total}</p>
-            )}
-            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
-          </div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Dashboard Overview</h1>
+          <p className="text-gray-600 mt-1 text-sm">Welcome back, <span className="font-semibold text-green-600">{userInfo.username}</span></p>
         </div>
+      </div>
+      <div className="mt-4 sm:mt-0 flex items-center gap-3">
+        <div className="hidden sm:block h-8 w-px bg-gray-200"></div>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <span className="hidden sm:inline">Account:</span>
+          <span className="font-medium text-green-600">{userInfo.email}</span>
+        </div>
+      </div>
+    </div>
 
-        {/* Detailed Booking Breakdown */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          
-          {/* Confirmed Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
-                Confirmed
-              </h3>
-              <div className="flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0" />
+    {/* Main Content Grid */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Left Column - Key Metrics */}
+      <div className="lg:col-span-2 space-y-6">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Total Users Card */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Total Users</p>
+                <p className="text-3xl font-bold text-gray-800">{userCount}</p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-lg">
+                <Users className="w-6 h-6 text-green-600" />
               </div>
             </div>
-            {loading ? (
-              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.confirmed}</p>
-            )}
-            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <span className="text-sm text-green-600 font-medium">+2.4% from last month</span>
+            </div>
           </div>
 
-          {/* Pending Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
-                Pending
-              </h3>
-              <div className="flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-yellow-500 shrink-0" />
+          {/* Total Bookings Card */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Total Bookings</p>
+                <p className="text-3xl font-bold text-gray-800">{bookingCounts.total}</p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-blue-600" />
               </div>
             </div>
-            {loading ? (
-              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.pending}</p>
-            )}
-            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
-          </div>
-
-          {/* Canceled Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
-                Canceled
-              </h3>
-              <div className="flex items-center justify-center">
-                <XOctagon className="w-6 h-6 text-red-500 shrink-0" />
-              </div>
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <span className="text-sm text-blue-600 font-medium">+12.6% from last month</span>
             </div>
-            {loading ? (
-              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.canceled}</p>
-            )}
-            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
-          </div>
-
-          {/* Missed Bookings */}
-          <div className="bg-white rounded-xl shadow-md hover:shadow-xl p-4 sm:p-6 transition-all duration-300 border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-gray-500 text-xs sm:text-sm uppercase font-semibold tracking-wider">
-                Missed
-              </h3>
-              <div className="flex items-center justify-center">
-                <TbClockX  className="w-6 h-6 text-red-500 shrink-0" />
-              </div>
-            </div>
-            {loading ? (
-              <p className="mt-2 text-gray-600 text-sm">Loading...</p>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800">{bookingCounts.missed}</p>
-            )}
-            {errors && <p className="mt-1 text-red-600 text-sm">{errors}</p>}
           </div>
         </div>
 
-        {/* Management Buttons */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        {/* Booking Status Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           {[
-            { icon: UserPlus, label: "Manage Users", path: "/usermanagement" },
-            { icon: BookOpen, label: "Manage Rooms", path: "/roomOperationpage" },
-            { icon: Calendar, label: "Manage Bookings", path: "/bookingOperationpage" },
-            { icon: Settings, label: "Configurations", path: "/configmanagement" }
-          ].map(({ icon: Icon, label, path }) => (
-            <button
-              key={path}
-              onClick={() => navigate(path)}
-              className="min-h-[80px] sm:min-h-0 flex flex-col sm:flex-row items-center justify-center p-4 sm:p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group"
-            >
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-                <Icon className="w-6 h-6 text-green-500 shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-center sm:text-left">{label}</span>
+            { status: 'Confirmed', value: bookingCounts.confirmed, icon: CheckCircle2, color: 'green' },
+            { status: 'Pending', value: bookingCounts.pending, icon: AlertTriangle, color: 'yellow' },
+            { status: 'Canceled', value: bookingCounts.canceled, icon: XOctagon, color: 'red' },
+            { status: 'Missed', value: bookingCounts.missed, icon: TbClockX, color: 'orange' },
+          ].map((item, index) => (
+            <div key={index} className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">{item.status}</p>
+                  <p className="text-2xl font-bold text-gray-800 mt-1">{item.value}</p>
+                </div>
+                <div className={`p-2 bg-${item.color}-100 rounded-lg`}>
+                  <item.icon className={`w-6 h-6 text-${item.color}-600`} />
+                </div>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       </div>
-    </SidebarLayout>
+
+      {/* Right Column - Quick Actions */}
+      <div className="lg:col-span-1">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-800 mb-6">Management Tools</h3>
+          <div className="grid grid-cols-1 gap-3">
+            {[
+              { icon: UserPlus, label: "Manage Users", path: "/usermanagement" },
+              { icon: BookOpen, label: "Manage Rooms", path: "/roomOperationpage" },
+              { icon: Calendar, label: "Manage Bookings", path: "/bookingOperationpage" },
+              { icon: Settings, label: "Configurations", path: "/configmanagement" }
+            ].map(({ icon: Icon, label, path }, index) => (
+              <button
+                key={index}
+                onClick={() => navigate(path)}
+                className="group flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                  <Icon className="w-5 h-5 text-green-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* System Status Banner */}
+    <SystemStatusBanner />
+    
+  </div>
+</SidebarLayout>
   );
 };
 

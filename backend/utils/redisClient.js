@@ -30,6 +30,18 @@ class RedisClient {
       console.error('Redis connection error:', error);
     }
   }
+  
+//added ping check
+  async ping() {
+    try {
+      const start = process.hrtime.bigint();
+      const result = await this.client.ping();
+      const latency = Number(process.hrtime.bigint() - start) / 1_000_000;
+      return { success: result === 'PONG', latency };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
   async get(key) {
     try {
