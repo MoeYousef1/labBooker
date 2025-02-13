@@ -176,7 +176,6 @@ class BookingController {
     }
   };
 
-  // POST /booking
   createBooking = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -189,6 +188,7 @@ class BookingController {
         endTime,
         additionalUsers = [],
       } = req.body;
+
       if (!roomId || !userId || !date || !startTime || !endTime) {
         return res
           .status(400)
@@ -206,6 +206,15 @@ class BookingController {
         return res
           .status(404)
           .json({ success: false, message: "User not found" });
+      // Check weekly booking limit
+      const WEEKLY_BOOKING_LIMIT = 4;
+      if (user.weeklyLimit >= WEEKLY_BOOKING_LIMIT) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Weekly booking limit reached. Maximum 4 bookings per week allowed.",
+        });
+      }
 
       // Format date for comparison
       const [year, day, month] = date.split("-");
@@ -223,20 +232,23 @@ class BookingController {
       const bookingDateTime = new Date(formattedDate);
       bookingDateTime.setHours(startHour, startMinute, 0);
       const currentDateTime = new Date();
+
       if (bookingDateTime < currentDateTime) {
         return res.status(400).json({
           success: false,
           message: "Cannot book for past date and time",
         });
       }
+
       if (startHour < 8 || endHour > 22) {
         return res.status(400).json({
           success: false,
           message: "Bookings are only available between 9 AM and 6 PM",
         });
       }
+
       const thirtyMinutesFromNow = new Date(
-        currentDateTime.getTime() + 30 * 60000,
+        currentDateTime.getTime() + 30 * 60000
       );
       if (bookingDateTime < thirtyMinutesFromNow) {
         return res.status(400).json({
@@ -246,7 +258,7 @@ class BookingController {
       }
 
       const invalidEmails = additionalUsers.filter(
-        (email) => !BookingController.validateEmail(email),
+        (email) => !BookingController.validateEmail(email)
       );
       if (invalidEmails.length > 0) {
         return res.status(400).json({
@@ -255,6 +267,7 @@ class BookingController {
           invalidEmails,
         });
       }
+
       let additionalUserIds = [];
       if (additionalUsers.length > 0) {
         const users = await User.find({
@@ -271,7 +284,7 @@ class BookingController {
 
       const duration = BookingController.calculateDurationInHours(
         startTime,
-        endTime,
+        endTime
       );
       if (
         duration <= BOOKING_CONSTANTS.MIN_DURATION ||
@@ -310,6 +323,10 @@ class BookingController {
         status: bookingStatus,
       });
 
+      // Increment user's weekly limit
+      user.weeklyLimit += 1;
+      await user.save({ session });
+
       await booking.save({ session });
 
       // Send notification based on room type
@@ -325,12 +342,12 @@ class BookingController {
         await notificationsController.createNotification(
           user._id,
           message,
-          "bookingCreation",
+          "bookingCreation"
         );
       } catch (notificationError) {
         console.error(
           "Booking creation notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
 
@@ -361,7 +378,7 @@ class BookingController {
 
       await session.commitTransaction();
       session.endSession();
-      console.log("date", date, new Date(), new Date(`${date}:${startTime}`));
+
       res.status(201).json({
         success: true,
         message:
@@ -369,6 +386,7 @@ class BookingController {
             ? "Booking created and pending admin approval"
             : "Booking created successfully",
         booking: populatedBooking,
+        weeklyBookingsRemaining: WEEKLY_BOOKING_LIMIT - user.weeklyLimit,
       });
     } catch (error) {
       await session.abortTransaction();
@@ -453,6 +471,8 @@ class BookingController {
 
   // DELETE /booking/:id
   deleteBooking = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
       const booking = await Booking.findById(req.params.id);
       if (!booking) {
@@ -460,12 +480,22 @@ class BookingController {
           .status(404)
           .json({ success: false, message: "Booking not found" });
       }
+
       const room = await Room.findById(booking.roomId);
       if (!room) {
         return res
           .status(404)
           .json({ success: false, message: "Room not found" });
       }
+
+      // Find the user who made the booking
+      const user = await User.findById(booking.userId);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User not found" });
+      }
+
       if (req.user) {
         if (
           booking.userId.toString() !== req.user.id &&
@@ -486,34 +516,51 @@ class BookingController {
         });
       }
 
+      // Only decrease weeklyLimit if the booking wasn't already canceled
+      if (booking.status !== "Canceled") {
+        // Ensure weeklyLimit doesn't go below 0
+        user.weeklyLimit = Math.max(0, user.weeklyLimit - 1);
+        await user.save({ session });
+      }
+
       const currentDate = new Date();
       booking.status = "Canceled";
       booking.isDeleted = true;
       booking.deletedAt = currentDate;
-      await booking.save();
+      await booking.save({ session });
+
       try {
         await notificationsController.createNotification(
           booking.userId,
           `Your booking for room ${room.name} has been cancelled successfully.`,
-          "bookingDeletion",
+          "bookingDeletion"
         );
       } catch (notificationError) {
         console.error(
           "Booking deletion notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
+
       const updatedBooking = await Booking.findById(booking._id)
         .populate("roomId", "name type")
         .populate("userId", "username email")
         .populate("additionalUsers", "username email");
+
+      await session.commitTransaction();
+      session.endSession();
+
       res.status(200).json({
         success: true,
         message:
           "Booking cancelled successfully and will be permanently deleted in 3 days",
         booking: updatedBooking,
+        updatedWeeklyLimit: user.weeklyLimit,
       });
     } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
       console.error("deleteBooking - Error:", {
         error: error.message,
         stack: error.stack,
@@ -576,12 +623,12 @@ class BookingController {
         await notificationsController.createNotification(
           req.user._id,
           `You just updated the booking successfully for user ${user.username}.`,
-          "bookingUpdateAdmin",
+          "bookingUpdateAdmin"
         );
       } catch (notificationError) {
         console.error(
           "Admin booking update notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
 
@@ -598,12 +645,12 @@ class BookingController {
         await notificationsController.createNotification(
           user._id,
           userMsg,
-          "bookingUpdateUser",
+          "bookingUpdateUser"
         );
       } catch (notificationError) {
         console.error(
           "User booking update notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
 
@@ -666,12 +713,12 @@ class BookingController {
         await notificationsController.createNotification(
           req.user._id,
           `Booking cancelation was successful for user ${user.username}.`,
-          "bookingDeletionAdmin",
+          "bookingDeletionAdmin"
         );
       } catch (notificationError) {
         console.error(
           "Admin deletion notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
 
@@ -680,12 +727,12 @@ class BookingController {
         await notificationsController.createNotification(
           user._id,
           `Your booking for room ${room.name} has been cancelled by admin ${req.user.username}.`,
-          "bookingDeletionUser",
+          "bookingDeletionUser"
         );
       } catch (notificationError) {
         console.error(
           "User deletion notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
 
@@ -856,7 +903,7 @@ class BookingController {
 
       // Validate email format for additional users
       const invalidEmails = additionalUsers.filter(
-        (email) => !BookingController.validateEmail(email),
+        (email) => !BookingController.validateEmail(email)
       );
       if (invalidEmails.length > 0) {
         return res.status(400).json({
@@ -886,7 +933,7 @@ class BookingController {
       // 7) Check duration
       const duration = BookingController.calculateDurationInHours(
         startTime,
-        endTime,
+        endTime
       );
       if (
         duration <= BOOKING_CONSTANTS.MIN_DURATION ||
@@ -942,12 +989,12 @@ class BookingController {
         await notificationsController.createNotification(
           user._id,
           userMsg,
-          "bookingCreationByAdmin",
+          "bookingCreationByAdmin"
         );
       } catch (notificationError) {
         console.error(
           "Booking creation by admin (user) notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
 
@@ -956,12 +1003,12 @@ class BookingController {
         await notificationsController.createNotification(
           req.user._id,
           `You successfully created a booking for user ${user.username}.`,
-          "bookingCreationAdmin",
+          "bookingCreationAdmin"
         );
       } catch (notificationError) {
         console.error(
           "Booking creation by admin (admin) notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
 
@@ -1065,12 +1112,12 @@ class BookingController {
           await notificationsController.createNotification(
             booking.userId,
             notificationMessage,
-            `booking${status}`,
+            `booking${status}`
           );
         } catch (notifError) {
           console.error(
             "Failed to create status update notification:",
-            notifError,
+            notifError
           );
         }
       }
@@ -1255,12 +1302,12 @@ class BookingController {
         await notificationsController.createNotification(
           booking.userId._id,
           `Successfully checked in to room ${booking.roomId.name}.`,
-          "bookingCheckIn",
+          "bookingCheckIn"
         );
       } catch (notificationError) {
         console.error(
           "Check-in notification error:",
-          notificationError.message,
+          notificationError.message
         );
       }
 
@@ -1309,12 +1356,12 @@ class BookingController {
               await notificationsController.createNotification(
                 booking.userId,
                 `You missed your booking for room ${booking.roomId.name}`,
-                "bookingMissed",
+                "bookingMissed"
               );
             } catch (notifError) {
               console.error(
                 "Failed to create missed booking notification:",
-                notifError,
+                notifError
               );
             }
           }
@@ -1405,7 +1452,7 @@ class BookingController {
         try {
           const bookingEnd = moment.tz(
             `${booking.date}T${booking.endTime}:00`,
-            timezone,
+            timezone
           );
           const timeDiff = now.diff(bookingEnd, "seconds");
 
@@ -1424,12 +1471,14 @@ class BookingController {
             // Send notification
             const message =
               `Your booking for ${booking.roomId.name} ` +
-              `(ended ${bookingEnd.format("HH:mm")}) has been marked as ${newStatus}.`;
+              `(ended ${bookingEnd.format(
+                "HH:mm"
+              )}) has been marked as ${newStatus}.`;
 
             await notificationsController.createNotification(
               booking.userId._id,
               message,
-              `booking${newStatus}`,
+              `booking${newStatus}`
             );
 
             updatedCount++;
@@ -1437,7 +1486,7 @@ class BookingController {
         } catch (bookingError) {
           console.error(
             `Error processing booking ${booking._id}:`,
-            bookingError,
+            bookingError
           );
         }
       }
