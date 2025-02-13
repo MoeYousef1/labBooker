@@ -1,7 +1,7 @@
 const redisClient = require('../utils/redisClient');
 const HealthCheck = require('../models/HealthCheck');
 const mongoose = require('mongoose');
-const os = require('os');
+const nodemailer = require('nodemailer');
 const cloudinary = require('cloudinary').v2;
 
 // Database health check
@@ -67,32 +67,6 @@ const checkCloudinary = async () => {
   }
 };
 
-
-
-// Server resources health check
-const checkServerResources = () => {
-  const start = Date.now();
-  try {
-    const freeMemory = os.freemem() / os.totalmem();
-    const loadAverage = os.loadavg()[0];
-    
-    return {
-      status: freeMemory < 0.1 || loadAverage > 2 ? 'degraded' : 'operational',
-      latency: Date.now() - start,
-      details: {
-        memory: `${(freeMemory * 100).toFixed(1)}% free`,
-        load: loadAverage.toFixed(2)
-      }
-    };
-  } catch (error) {
-    return {
-      status: 'degraded',
-      error: error.message,
-      latency: Date.now() - start
-    };
-  }
-};
-
 // Internal health check function
 const getSystemHealthInternal = async () => {
   try {
@@ -100,10 +74,9 @@ const getSystemHealthInternal = async () => {
       checkDatabase(),
       checkRedis(),
       checkCloudinary(),
-      checkServerResources(),
     ]);
 
-    const serviceNames = ['database', 'redis', 'cloudinary','server'];
+    const serviceNames = ['database', 'redis', 'cloudinary'];
     const services = Object.fromEntries(
       serviceNames.map((name, index) => [name, checks[index]])
     );
@@ -165,7 +138,7 @@ exports.getHistoricalStatus = async (req, res) => {
 
     const historicalData = await HealthCheck.find({
       timestamp: { $gte: thirtyDaysAgo }
-    }).sort({ timestamp: 1 });
+    }).sort({ timestamp: -1 });
 
     const totalChecks = historicalData.length;
     const operationalChecks = historicalData.filter(
@@ -176,16 +149,18 @@ exports.getHistoricalStatus = async (req, res) => {
       check => check.status !== 'operational'
     );
 
-    res.json({
-      uptime30d: totalChecks > 0 
-        ? `${((operationalChecks / totalChecks) * 100).toFixed(2)}%` 
-        : 'No data',
-      lastIncident: incidents.length > 0
-        ? incidents[incidents.length - 1].timestamp
-        : null,
-      incidentsLastMonth: incidents.length,
-      dailyBreakdown: calculateDailyBreakdown(historicalData)
-    });
+    // In your health check controller
+res.json({
+  uptime30d: totalChecks > 0 
+    ? `${((operationalChecks / totalChecks) * 100).toFixed(2)}%` 
+    : 'No data',
+  lastIncident: incidents.length > 0
+    ? incidents[incidents.length - 1].timestamp
+    : null,
+  incidentsLastMonth: incidents.length,
+  dailyBreakdown: calculateDailyBreakdown(historicalData),
+  history: historicalData // Add this line to include the raw data
+});
   } catch (error) {
     console.error('[HEALTH] Failed to get historical data:', error);
     res.status(500).json({ error: 'Failed to retrieve historical data' });

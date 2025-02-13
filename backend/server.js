@@ -163,6 +163,29 @@ mongoose
     } catch (error) {
       console.error("❌ Error setting up Notification TTL index:", error);
     }
+    // Setup TTL index for HealthChecks
+try {
+  const HealthCheck = require('./models/HealthCheck');
+  const THIRTY_DAYS_IN_SECONDS = 30 * 24 * 60 * 60; // 2592000 seconds
+  
+  // Drop existing TTL index on timestamp if it exists (index name is typically 'timestamp_1')
+  try {
+    await HealthCheck.collection.dropIndex("timestamp_1");
+    console.log("✅ Existing HealthCheck TTL index dropped successfully");
+  } catch (error) {
+    console.log("ℹ️ No existing TTL index for HealthCheck to drop");
+  }
+  
+  // Create TTL index for HealthCheck documents
+  await HealthCheck.collection.createIndex(
+    { timestamp: 1 },
+    { expireAfterSeconds: THIRTY_DAYS_IN_SECONDS }
+  );
+  console.log("✅ TTL index for HealthCheck created successfully (30 days expiration)");
+} catch (error) {
+  console.error("❌ Error setting up TTL index for HealthCheck:", error);
+}
+
   })
   .catch((err) => {
     console.error("❌ MongoDB Connection Failed:", err.message);

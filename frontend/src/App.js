@@ -22,6 +22,7 @@ import RoomOperationpage from "./pages/roomOperationPage";
 import BookingOperationpage from "./pages/bookingOperationPage";
 import DashBoard from "./pages/dashboard";
 import MyBookingsPage from "./pages/MyBookingsPage";
+import StatusHistoryPage from './components/StatusHistoryPage';
 
 // Page Transition Wrapper
 const PageTransition = ({ children }) => {
@@ -146,6 +147,15 @@ const AnimatedRoutes = () => {
           element={
             <PageTransition>
               <BookingOperationpage />
+            </PageTransition>
+          } 
+        />
+
+<Route 
+          path="/status-page" 
+          element={
+            <PageTransition>
+              <StatusHistoryPage />
             </PageTransition>
           } 
         />
