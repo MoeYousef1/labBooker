@@ -6,26 +6,42 @@ export const useNotifications = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     setLoading(true);
     try {
-      const response = await api.get("/notifications");
+      const response = await api.get("/notifications", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setNotifications(response.data);
-      console.log("Fetched notifications:", response.data);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
+      if (error.response?.status === 401) {
+        // Handle unauthorized error
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchNotifications();
-    // Optionally, set up polling or websockets for real-time updates.
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchNotifications();
+    }
   }, [fetchNotifications]);
 
   const clearAllNotifications = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     try {
-      await api.delete("/notifications/clear-all");
+      await api.delete("/notifications/clear-all", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setNotifications([]);
     } catch (error) {
       console.error("Failed to clear notifications:", error);
@@ -33,12 +49,16 @@ export const useNotifications = () => {
   }, []);
 
   const markNotificationAsRead = useCallback(async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     try {
-      await api.put(`/notifications/${id}/read`);
-      // Update the notification in state so it remains visible but is marked as read.
-      setNotifications((prev) =>
-        prev.map((notif) =>
-          notif._id === id ? { ...notif, isRead: true, readAt: new Date() } : notif
+      await api.put(`/notifications/${id}/read`, null, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif._id === id ? { ...notif, isRead: true } : notif
         )
       );
     } catch (error) {
@@ -47,18 +67,22 @@ export const useNotifications = () => {
   }, []);
 
   const deleteNotification = useCallback(async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     try {
-      await api.delete(`/notifications/${id}`);
-      setNotifications((prev) => prev.filter((notif) => notif._id !== id));
+      await api.delete(`/notifications/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(prev => prev.filter(notif => notif._id !== id));
     } catch (error) {
       console.error("Failed to delete notification:", error);
     }
   }, []);
 
-  // Compute unread count (only notifications with isRead === false)
-  const unreadCount = useMemo(() => {
-    return notifications.filter((notif) => !notif.isRead).length;
-  }, [notifications]);
+  const unreadCount = useMemo(() => (
+    notifications.filter(notif => !notif.isRead).length
+  ), [notifications]);
 
   return {
     notifications,

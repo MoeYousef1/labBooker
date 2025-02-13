@@ -134,31 +134,37 @@ const AnimatedRoutes = () => {
           } 
         />
         <Route 
-          path="/roomOperationpage" 
-          element={
-            <PageTransition>
-              <RoomOperationpage />
-            </PageTransition>
-          } 
-        />
-
-        <Route 
-          path="/bookingOperationpage" 
-          element={
-            <PageTransition>
-              <BookingOperationpage />
-            </PageTransition>
-          } 
-        />
+  path="/roomOperationpage" 
+  element={
+    <PrivateRoute allowedRoles={['admin', 'manager']}>
+      <PageTransition>
+        <RoomOperationpage />
+      </PageTransition>
+    </PrivateRoute>
+  }
+/>
 
 <Route 
-          path="/status-page" 
-          element={
-            <PageTransition>
-              <StatusHistoryPage />
-            </PageTransition>
-          } 
-        />
+  path="/bookingOperationpage" 
+  element={
+    <PrivateRoute allowedRoles={['admin', 'manager']}>
+      <PageTransition>
+        <BookingOperationpage />
+      </PageTransition>
+    </PrivateRoute>
+  }
+/>
+
+<Route 
+  path="/status-page" 
+  element={
+    <PrivateRoute allowedRoles={['admin', 'manager']}>
+      <PageTransition>
+      <StatusHistoryPage />
+      </PageTransition>
+    </PrivateRoute>
+  }
+/>
 
         {/* Protected Routes */}
         <Route
@@ -204,7 +210,7 @@ const AnimatedRoutes = () => {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute>
+            <PrivateRoute allowedRoles={['admin', 'manager']}>
               <PageTransition>
                 <DashBoard />
               </PageTransition>

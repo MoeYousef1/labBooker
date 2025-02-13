@@ -19,6 +19,8 @@ const DASHBOARD_PATHS = [
 ];
 
 export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isAdminOrManager = ['admin', 'manager'].includes(user?.role);
   const [showDashboardSubmenu, setShowDashboardSubmenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,6 +43,25 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  const ProtectedMenuItem = ({ path, label, allowedRoles }) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    
+    if (!allowedRoles.includes(user?.role)) return null;
+  
+    return (
+      <li
+        className={`px-12 py-2 cursor-pointer hover:bg-gray-100 ${
+          isActive(path)
+            ? "bg-green-50 text-green-600"
+            : "text-gray-700"
+        }`}
+        onClick={() => navigate(path)}
+      >
+        {label}
+      </li>
+    );
+  };
 
   return (
     <div
@@ -76,6 +97,7 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
 
         {/* Navigation Items */}
         <ul className="flex-1 py-4">
+        {isAdminOrManager && (
           <li>
             <div
               className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-100 ${
@@ -99,29 +121,38 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
             </div>
 
             {showDashboardSubmenu && isExpanded && (
-              <ul className="bg-gray-50 py-2">
-                {[
-                  { path: "/dashboard", label: "Overview" },
-                  { path: "/usermanagement", label: "Manage Users" },
-                  { path: "/roomOperationpage", label: "Manage Rooms" },
-                  { path: "/bookingOperationpage", label: "Manage Bookings" },
-                  { path: "/configmanagement", label: "Configurations" },
-                ].map((item) => (
-                  <li
-                    key={item.path}
-                    className={`px-12 py-2 cursor-pointer hover:bg-gray-100 ${
-                      isActive(item.path)
-                        ? "bg-green-50 text-green-600"
-                        : "text-gray-700"
-                    }`}
-                    onClick={() => navigate(item.path)}
-                  >
-                    {item.label}
-                  </li>
-                ))}
-              </ul>
-            )}
+  <ul className="bg-gray-50 py-2">
+    <ProtectedMenuItem 
+      path="/dashboard" 
+      label="Overview" 
+      allowedRoles={['admin', 'manager']}
+    />
+    <ProtectedMenuItem 
+      path="/usermanagement" 
+      label="Manage Users" 
+      allowedRoles={['admin']}
+    />
+    <ProtectedMenuItem 
+      path="/roomOperationpage" 
+      label="Manage Rooms" 
+      allowedRoles={['admin', 'manager']}
+    />
+    <ProtectedMenuItem 
+      path="/bookingOperationpage" 
+      label="Manage Bookings" 
+      allowedRoles={['admin', 'manager']}
+    />
+    <ProtectedMenuItem 
+      path="/configmanagement" 
+      label="Configurations" 
+      allowedRoles={['admin']}
+    />
+  </ul>
+)}
+            
           </li>
+        )}
+
 
           {[
             { icon: User, label: "Profile", path: "/accountSettings" },

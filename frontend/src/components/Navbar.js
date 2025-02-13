@@ -40,6 +40,26 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
     return () => window.removeEventListener("scroll", handleScroll);
   }, [enableTransparentOnScroll]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchNotifications();
+    }
+  }, [fetchNotifications]);
+
+  const handleNotificationClick = useCallback(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    setState(prev => ({
+      ...prev,
+      notificationDropdownOpen: !prev.notificationDropdownOpen,
+      profileDropdownOpen: false,
+    }));
+  }, [navigate]);
+
   // Responsive screen size hook
   const useScreenSize = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 460);
@@ -224,7 +244,7 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
   }, [state.profileDropdownOpen, userInfo, profileMenuItems, handleLogout, isMobile]);
 
   const NotificationDropdown = useMemo(() => {
-    if (!state.notificationDropdownOpen) return null;
+    if (!state.notificationDropdownOpen || !userInfo) return null;
     const unreadCount = notifications.filter((notif) => !notif.isRead).length;
     return (
       <div
@@ -311,6 +331,7 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
     deleteNotification,
     isMobile,
     fetchNotifications,
+    userInfo,
   ]);
 
   return (
@@ -330,17 +351,11 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
           {userInfo ? (
             <>
               <div className="relative">
-                <button
-                  id="notification-trigger"
-                  onClick={() =>
-                    setState((prev) => ({
-                      ...prev,
-                      notificationDropdownOpen: !prev.notificationDropdownOpen,
-                      profileDropdownOpen: false,
-                    }))
-                  }
-                  className="text-gray-300 hover:text-white hover:scale-110 transition-all focus:outline-none relative"
-                >
+              <button
+    id="notification-trigger"
+    onClick={handleNotificationClick}
+    className="text-gray-300 hover:text-white hover:scale-110 transition-all focus:outline-none relative"
+  >
                   <Bell className="w-6 h-6" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">

@@ -19,7 +19,11 @@ import { motion, AnimatePresence } from "framer-motion";
 const DashBoard = () => {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({ email: "", username: "" });
-  const [userCount, setUserCount] = useState(0);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalUsers: 0,
+    recentUsers: [],
+    usersByRole: []
+  });
   const [bookingCounts, setBookingCounts] = useState({
     total: 0,
     pending: 0,
@@ -36,10 +40,20 @@ const DashBoard = () => {
     else {
       try {
         const parsedUser = JSON.parse(user);
-        setUserInfo({ email: parsedUser.email || "", username: parsedUser.username || "" });
+        setUserInfo({ 
+          email: parsedUser.email || "", 
+          username: parsedUser.username || "" 
+        });
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!['admin', 'manager'].includes(user?.role)) {
+      navigate('/homepage');
     }
   }, [navigate]);
 
@@ -48,7 +62,7 @@ const DashBoard = () => {
       setLoading(true);
       setErrors("");
       try {
-        await Promise.all([fetchUserCount(), fetchBookingCounts()]);
+        await Promise.all([fetchDashboardStats(), fetchBookingCounts()]);
       } catch (err) {
         setErrors(err?.message || "Failed to fetch data");
       } finally {
@@ -58,15 +72,22 @@ const DashBoard = () => {
     fetchData();
   }, []);
 
-  const fetchUserCount = async () => {
+  const fetchDashboardStats = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/user/count", {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get("http://localhost:5000/api/dashboard/stats", {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      setUserCount(response.data.count);
+      
+      if (response.data.success) {
+        setDashboardStats({
+          totalUsers: response.data.stats.totalUsers,
+          recentUsers: response.data.stats.recentUsers || [],
+          usersByRole: response.data.stats.usersByRole || []
+        });
+      }
     } catch (error) {
-      setErrors(error?.response?.data?.message || "Error fetching user count");
+      setErrors(error?.response?.data?.message || "Error fetching dashboard data");
     }
   };
 
@@ -92,36 +113,36 @@ const DashBoard = () => {
         className="w-full flex flex-col p-4 sm:p-6 md:p-8 overflow-x-hidden min-h-screen"
       >
         {/* Header Section */}
-<motion.div
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gradient-to-r from-green-50 to-green-100 px-4 sm:px-6 py-4 rounded-xl"
->
-  <div className="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-0 flex-1 min-w-0">
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      className="p-2 sm:p-3 bg-green-500 rounded-lg sm:rounded-xl shadow-md flex-shrink-0"
-    >
-      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-    </motion.div>
-    <div className="min-w-0">
-      <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">Dashboard Overview</h1>
-      <p className="text-gray-600 mt-1 text-xs sm:text-sm truncate">
-        Welcome back, <span className="font-semibold text-green-600">{userInfo.username}</span>
-      </p>
-    </div>
-  </div>
-  
-  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-    <div className="hidden sm:block h-6 w-px bg-gray-200"></div>
-    <div className="flex items-center text-xs sm:text-sm text-gray-600 min-w-0 max-w-[200px] sm:max-w-none">
-      <span className="hidden sm:inline mr-1 truncate">Account:</span>
-      <span className="font-medium text-green-600 truncate text-xs sm:text-sm">
-        {userInfo.email}
-      </span>
-    </div>
-  </div>
-</motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gradient-to-r from-green-50 to-green-100 px-4 sm:px-6 py-4 rounded-xl"
+        >
+          <div className="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-0 flex-1 min-w-0">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="p-2 sm:p-3 bg-green-500 rounded-lg sm:rounded-xl shadow-md flex-shrink-0"
+            >
+              <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </motion.div>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">Dashboard Overview</h1>
+              <p className="text-gray-600 mt-1 text-xs sm:text-sm truncate">
+                Welcome back, <span className="font-semibold text-green-600">{userInfo.username}</span>
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="hidden sm:block h-6 w-px bg-gray-200"></div>
+            <div className="flex items-center text-xs sm:text-sm text-gray-600 min-w-0 max-w-[200px] sm:max-w-none">
+              <span className="hidden sm:inline mr-1 truncate">Account:</span>
+              <span className="font-medium text-green-600 truncate text-xs sm:text-sm">
+                {userInfo.email}
+              </span>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Loading and Error States */}
         <AnimatePresence>
@@ -161,7 +182,7 @@ const DashBoard = () => {
                 {[
                   {
                     title: "Total Users",
-                    value: userCount,
+                    value: dashboardStats.totalUsers,
                     icon: Users,
                     color: "green",
                     trend: "+2.4% from last month"
