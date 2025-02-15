@@ -51,14 +51,16 @@ export const useNotifications = () => {
   const markNotificationAsRead = useCallback(async (id) => {
     const token = localStorage.getItem("token");
     if (!token) return;
-
+  
     try {
-      await api.put(`/notifications/${id}/read`, null, {
+      // Change to empty object instead of null
+      await api.put(`/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
       setNotifications(prev =>
         prev.map(notif =>
-          notif._id === id ? { ...notif, isRead: true } : notif
+          notif._id === id ? { ...notif, isRead: true, readAt: new Date() } : notif
         )
       );
     } catch (error) {
