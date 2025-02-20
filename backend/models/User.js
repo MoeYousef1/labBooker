@@ -39,9 +39,11 @@ const userSchema = new mongoose.Schema(
       verificationCode: { type: String, default: null },
       expiresAt: { type: Date, default: null },
     },
-    weeklyLimit: {
-      type: Number,
-      default: 0,
+    cancellationStats: {
+      countLast7Days: { type: Number, default: 0 },
+      lastCancellation: Date,
+      warnings: { type: Number, default: 0 },
+      blockedUntil: Date
     },
   },
   { timestamps: true }

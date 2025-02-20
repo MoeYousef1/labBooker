@@ -1,6 +1,8 @@
 const cron = require('node-cron');
+const mongoose = require('mongoose');
 const bookingController = require("../controllers/bookingController");
 const healthController = require("../controllers/healthController");
+const User = require("../models/User");
 const moment = require('moment-timezone');
 
 // Configure with your timezone
@@ -28,10 +30,47 @@ cron.schedule('0 * * * * *', async () => {
   timezone: TIMEZONE
 });
 
-// 2. Health Check Logging - Run every 5 minutes
+// Cancellation Stats Reset - Run daily at midnight
+cron.schedule('0 0 * * *', async () => {
+  const startTime = moment().tz(TIMEZONE);
+  console.log(`\n[CRON] Starting cancellation stats reset at ${startTime.format('YYYY-MM-DD HH:mm:ss')}`);
+
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const sevenDaysAgo = moment().subtract(7, 'days').toDate();
+      
+      const result = await User.updateMany(
+        {
+          'cancellationStats.lastCancellation': { $lt: sevenDaysAgo }
+        },
+        {
+          $set: {
+            'cancellationStats.countLast7Days': 0,
+            'cancellationStats.warnings': 0
+          }
+        }
+      ).session(session);
+
+      console.log(`[CRON] Reset cancellation stats for ${result.modifiedCount} users`);
+    });
+  } catch (error) {
+    console.error('[CRON] Cancellation stats reset failed:', error);
+  } finally {
+    session.endSession();
+  }
+
+  const duration = moment().tz(TIMEZONE).diff(startTime, 'seconds');
+  console.log(`[CRON] Cancellation stats reset completed in ${duration}s`);
+}, {
+  scheduled: true,
+  timezone: TIMEZONE
+});
+
+//  Health Check Logging - Run every 5 minutes
 // cron.schedule('*/5 * * * *', async () => {
   
-  // 2. Health Check Logging - Run every hour
+  // Health Check Logging - Run every hour
   cron.schedule('0 * * * *', async () => {
     const startTime = moment().tz(TIMEZONE);
     console.log(`\n[CRON] Starting health check at ${startTime.format('YYYY-MM-DD HH:mm:ss')}`);
