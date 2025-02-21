@@ -26,6 +26,12 @@ class UserController {
     this.initiateEmailChange = this.initiateEmailChange.bind(this);
     this.verifyEmailChange = this.verifyEmailChange.bind(this);
     this.cancelEmailChange = this.cancelEmailChange.bind(this);
+    
+    this.getAllUsers = this.getAllUsers.bind(this);
+    this.updateUserRole = this.updateUserRole.bind(this);
+    this.blockUser = this.blockUser.bind(this);
+    this.unblockUser = this.unblockUser.bind(this);
+    this.deleteUser = this.deleteUser.bind(this);
   }
 
   // Send verification code
@@ -435,6 +441,186 @@ class UserController {
       });
     }
   }
+
+
+// Admin: Get all users with filters
+// Fix getAllUsers method in UserController
+async getAllUsers(req, res) {
+  try {
+    const { page = 1, limit = 10, role, search } = req.query;
+    const query = {};
+
+    if (role && role !== 'all') query.role = role;
+    if (search) {
+      query.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      select: '-verificationCode -verificationExpires -emailChangeRequest -__v',
+      sort: { createdAt: -1 },
+      collation: { locale: 'en', strength: 2 } // Case-insensitive sorting
+    };
+
+    const result = await User.paginate(query, options);
+    
+    // Transform the result to match frontend expectations
+    return res.status(200).json({
+      docs: result.docs,
+      total: result.totalDocs,
+      limit: result.limit,
+      page: result.page,
+      totalPages: result.totalPages
+    });
+    
+  } catch (error) {
+    console.error('Get all users error:', error);
+    return res.status(500).json({ 
+      message: "Failed to fetch users", 
+      error: error.message 
+    });
+  }
+}
+
+// Admin: Update user role
+async updateUserRole(req, res) {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    if (!['user', 'admin', 'manager'].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ message: "Cannot modify your own role" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true, runValidators: true }
+    ).select('-verificationCode -verificationExpires');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Create notification
+    await notificationsController.createNotification(
+      user._id,
+      `Your account role has been updated to ${role}`,
+      "roleUpdate"
+    );
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error('Update role error:', error);
+    return res.status(500).json({ 
+      message: "Failed to update role", 
+      error: error.message 
+    });
+  }
+}
+
+// Admin: Block/unblock user
+async blockUser(req, res) {
+  try {
+    const { userId } = req.params;
+    const { blockDuration } = req.body; // in hours
+
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ message: "Cannot block yourself" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const blockUntil = new Date(Date.now() + blockDuration * 60 * 60 * 1000);
+    user.cancellationStats.blockedUntil = blockUntil;
+    await user.save();
+
+    // Create notification
+    await notificationsController.createNotification(
+      user._id,
+      `Your account has been blocked until ${blockUntil.toLocaleDateString()}`,
+      "accountBlocked"
+    );
+
+    return res.status(200).json({
+      message: "User blocked successfully",
+      blockedUntil
+    });
+  } catch (error) {
+    console.error('Block user error:', error);
+    return res.status(500).json({ 
+      message: "Failed to block user", 
+      error: error.message 
+    });
+  }
+}
+
+// Admin: Unblock user
+async unblockUser(req, res) {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.cancellationStats.blockedUntil = null;
+    await user.save();
+
+    // Create notification
+    await notificationsController.createNotification(
+      user._id,
+      "Your account has been unblocked",
+      "accountUnblocked"
+    );
+
+    return res.status(200).json({ message: "User unblocked successfully" });
+  } catch (error) {
+    console.error('Unblock user error:', error);
+    return res.status(500).json({ 
+      message: "Failed to unblock user", 
+      error: error.message 
+    });
+  }
+}
+
+// Admin: Delete user
+async deleteUser(req, res) {
+  try {
+    const { userId } = req.params;
+
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({ message: "Cannot delete yourself" });
+    }
+
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    return res.status(500).json({ 
+      message: "Failed to delete user", 
+      error: error.message 
+    });
+  }
+}
+
 }
 
 module.exports = new UserController();

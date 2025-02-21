@@ -20,6 +20,7 @@ import RoomGuidelines from "./pages/roomGuidelines ";
 import ContactPage from "./pages/contact";
 import RoomOperationpage from "./pages/roomOperationPage";
 import BookingOperationpage from "./pages/bookingOperationPage";
+import UserManagement from "./pages/UserManagement";
 import DashBoard from "./pages/dashboard";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import StatusHistoryPage from './components/StatusHistoryPage';
@@ -150,6 +151,17 @@ const AnimatedRoutes = () => {
     <PrivateRoute allowedRoles={['admin', 'manager']}>
       <PageTransition>
         <BookingOperationpage />
+      </PageTransition>
+    </PrivateRoute>
+  }
+/>
+
+<Route 
+  path="/UserManagement" 
+  element={
+    <PrivateRoute allowedRoles={['admin', 'manager']}>
+      <PageTransition>
+        <UserManagement />
       </PageTransition>
     </PrivateRoute>
   }

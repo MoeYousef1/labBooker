@@ -48,5 +48,41 @@ router.post("/verify-email-change",
 
 router.post('/cancel-email-change', authMiddleware.requireAuth, userController.cancelEmailChange);
 
+// Admin routes
+router.get(
+  "/admin/users",
+  authMiddleware.requireAuth,
+  authMiddleware.requireRole('admin'),
+  userController.getAllUsers
+);
+
+router.patch(
+  "/admin/users/:userId/role",
+  authMiddleware.requireAuth,
+  authMiddleware.requireRole('admin'),
+  userController.updateUserRole
+);
+
+router.patch(
+  "/admin/users/:userId/block",
+  authMiddleware.requireAuth,
+  authMiddleware.requireRole('admin'),
+  userController.blockUser
+);
+
+router.patch(
+  "/admin/users/:userId/unblock",
+  authMiddleware.requireAuth,
+  authMiddleware.requireRole('admin'),
+  userController.unblockUser
+);
+
+router.delete(
+  "/admin/users/:userId",
+  authMiddleware.requireAuth,
+  authMiddleware.requireRole('admin'),
+  userController.deleteUser
+);
+
 // Export router
 module.exports = router;
