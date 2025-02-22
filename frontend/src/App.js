@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 
@@ -23,7 +28,9 @@ import BookingOperationpage from "./pages/bookingOperationPage";
 import UserManagement from "./pages/UserManagement";
 import DashBoard from "./pages/dashboard";
 import MyBookingsPage from "./pages/MyBookingsPage";
-import StatusHistoryPage from './components/StatusHistoryPage';
+import StatusHistoryPage from "./components/StatusHistoryPage";
+import IssueReport from "./components/IssueReport";
+import AllIssues from "./pages/AllIssues";
 
 // Page Transition Wrapper
 const PageTransition = ({ children }) => {
@@ -32,13 +39,13 @@ const PageTransition = ({ children }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ 
+      transition={{
         type: "tween",
-        duration: 0.3 
+        duration: 0.3,
       }}
-      style={{ 
-        position: 'absolute', 
-        width: '100%' 
+      style={{
+        position: "absolute",
+        width: "100%",
       }}
     >
       {children}
@@ -54,129 +61,145 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <PageTransition>
               <LandingPage />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             <PageTransition>
               <LoginPage />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/signup" 
+        <Route
+          path="/signup"
           element={
             <PageTransition>
               <SignUpPage />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/forgotpassword" 
+        <Route
+          path="/forgotpassword"
           element={
             <PageTransition>
               <ForgotPassword />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/changepassword" 
+        <Route
+          path="/changepassword"
           element={
             <PageTransition>
               <ChangePasswordPage />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/resetpassword" 
+        <Route
+          path="/resetpassword"
           element={
             <PageTransition>
               <ResetPasswordPage />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/faq" 
+        <Route
+          path="/issuereport"
+          element={
+            <PageTransition>
+              <IssueReport />{" "}
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/issue-report"
+          element={
+            <PageTransition>
+              <AllIssues />{" "}
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/faq"
           element={
             <PageTransition>
               <FAQ />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/about" 
+        <Route
+          path="/about"
           element={
             <PageTransition>
               <ABOUT />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/roomguidelines" 
+        <Route
+          path="/roomguidelines"
           element={
             <PageTransition>
               <RoomGuidelines />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-          path="/contact" 
+        <Route
+          path="/contact"
           element={
             <PageTransition>
               <ContactPage />
             </PageTransition>
-          } 
+          }
         />
-        <Route 
-  path="/roomOperationpage" 
-  element={
-    <PrivateRoute allowedRoles={['admin', 'manager']}>
-      <PageTransition>
-        <RoomOperationpage />
-      </PageTransition>
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/roomOperationpage"
+          element={
+            <PrivateRoute allowedRoles={["admin", "manager"]}>
+              <PageTransition>
+                <RoomOperationpage />
+              </PageTransition>
+            </PrivateRoute>
+          }
+        />
 
-<Route 
-  path="/bookingOperationpage" 
-  element={
-    <PrivateRoute allowedRoles={['admin', 'manager']}>
-      <PageTransition>
-        <BookingOperationpage />
-      </PageTransition>
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/bookingOperationpage"
+          element={
+            <PrivateRoute allowedRoles={["admin", "manager"]}>
+              <PageTransition>
+                <BookingOperationpage />
+              </PageTransition>
+            </PrivateRoute>
+          }
+        />
 
-<Route 
-  path="/UserManagement" 
-  element={
-    <PrivateRoute allowedRoles={['admin', 'manager']}>
-      <PageTransition>
-        <UserManagement />
-      </PageTransition>
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/UserManagement"
+          element={
+            <PrivateRoute allowedRoles={["admin", "manager"]}>
+              <PageTransition>
+                <UserManagement />
+              </PageTransition>
+            </PrivateRoute>
+          }
+        />
 
-<Route 
-  path="/status-page" 
-  element={
-    <PrivateRoute allowedRoles={['admin', 'manager']}>
-      <PageTransition>
-      <StatusHistoryPage />
-      </PageTransition>
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/status-page"
+          element={
+            <PrivateRoute allowedRoles={["admin", "manager"]}>
+              <PageTransition>
+                <StatusHistoryPage />
+              </PageTransition>
+            </PrivateRoute>
+          }
+        />
 
         {/* Protected Routes */}
         <Route
@@ -190,14 +213,14 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
-        path="/bookings"
-        element={
-          <PrivateRoute>
-            <PageTransition>
-              <MyBookingsPage />
-            </PageTransition>
-          </PrivateRoute>
-        } 
+          path="/bookings"
+          element={
+            <PrivateRoute>
+              <PageTransition>
+                <MyBookingsPage />
+              </PageTransition>
+            </PrivateRoute>
+          }
         />
         <Route
           path="/accountsettings"
@@ -222,7 +245,7 @@ const AnimatedRoutes = () => {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute allowedRoles={['admin', 'manager']}>
+            <PrivateRoute allowedRoles={["admin", "manager"]}>
               <PageTransition>
                 <DashBoard />
               </PageTransition>
@@ -237,7 +260,7 @@ const AnimatedRoutes = () => {
 function App() {
   return (
     <Router>
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: "relative" }}>
         <AnimatedRoutes />
       </div>
     </Router>

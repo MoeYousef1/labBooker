@@ -9,7 +9,6 @@ require("dotenv").config();
 //Moe added this
 require("./utils/cron");
 
-
 // Verbose logging for route imports
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -18,9 +17,10 @@ const roomRoutes = require("./routes/roomsRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const configRoutes = require("./routes/configRoutes");
-const dashboardRoutes = require('./routes/dashboardRoutes');
+const dashboardRoutes = require("./routes/dashboardRoutes");
 const notificationsRoutes = require("./routes/notificationsRoutes");
 const healthRoutes = require("./routes/healthRoutes");
+const issueRoutes = require("./routes/issueRoutes");
 console.log("[IMPORT] Route imports completed");
 
 // Debugging function for route registration
@@ -73,7 +73,7 @@ app.use(
 
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: ['X-System-Health', 'X-Response-Time'],
+    exposedHeaders: ["X-System-Health", "X-Response-Time"],
     credentials: true,
   })
 );
@@ -116,12 +116,12 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(async () => {
     console.log("✅ MongoDB Connected Successfully!");
-    
+
     // Setup TTL index for bookings (your existing code)
     try {
-      const Booking = require('./models/Booking');
+      const Booking = require("./models/Booking");
       const THREE_DAYS_IN_SECONDS = 3 * 24 * 60 * 60; // 259200 seconds
-      
+
       // Remove existing index if it exists
       try {
         await Booking.collection.dropIndex("deletedAt_1");
@@ -135,16 +135,18 @@ mongoose
         { deletedAt: 1 },
         { expireAfterSeconds: THREE_DAYS_IN_SECONDS }
       );
-      console.log("✅ TTL index for Bookings created successfully (3 days expiration)");
+      console.log(
+        "✅ TTL index for Bookings created successfully (3 days expiration)"
+      );
     } catch (error) {
       console.error("❌ Error setting up TTL index for Bookings:", error);
     }
 
     // Setup TTL index for notifications
     try {
-      const Notification = require('./models/Notification');
+      const Notification = require("./models/Notification");
       const THREE_DAYS_IN_SECONDS = 3 * 24 * 60 * 60; // 259200 seconds
-      
+
       // Drop existing index on readAt if it exists (the index name is usually 'readAt_1')
       try {
         await Notification.collection.dropIndex("readAt_1");
@@ -159,33 +161,36 @@ mongoose
         { readAt: 1 },
         { expireAfterSeconds: THREE_DAYS_IN_SECONDS }
       );
-      console.log("✅ Notification TTL index created successfully (3 days expiration)");
+      console.log(
+        "✅ Notification TTL index created successfully (3 days expiration)"
+      );
     } catch (error) {
       console.error("❌ Error setting up Notification TTL index:", error);
     }
     // Setup TTL index for HealthChecks
-try {
-  const HealthCheck = require('./models/HealthCheck');
-  const THIRTY_DAYS_IN_SECONDS = 30 * 24 * 60 * 60; // 2592000 seconds
-  
-  // Drop existing TTL index on timestamp if it exists (index name is typically 'timestamp_1')
-  try {
-    await HealthCheck.collection.dropIndex("timestamp_1");
-    console.log("✅ Existing HealthCheck TTL index dropped successfully");
-  } catch (error) {
-    console.log("ℹ️ No existing TTL index for HealthCheck to drop");
-  }
-  
-  // Create TTL index for HealthCheck documents
-  await HealthCheck.collection.createIndex(
-    { timestamp: 1 },
-    { expireAfterSeconds: THIRTY_DAYS_IN_SECONDS }
-  );
-  console.log("✅ TTL index for HealthCheck created successfully (30 days expiration)");
-} catch (error) {
-  console.error("❌ Error setting up TTL index for HealthCheck:", error);
-}
+    try {
+      const HealthCheck = require("./models/HealthCheck");
+      const THIRTY_DAYS_IN_SECONDS = 30 * 24 * 60 * 60; // 2592000 seconds
 
+      // Drop existing TTL index on timestamp if it exists (index name is typically 'timestamp_1')
+      try {
+        await HealthCheck.collection.dropIndex("timestamp_1");
+        console.log("✅ Existing HealthCheck TTL index dropped successfully");
+      } catch (error) {
+        console.log("ℹ️ No existing TTL index for HealthCheck to drop");
+      }
+
+      // Create TTL index for HealthCheck documents
+      await HealthCheck.collection.createIndex(
+        { timestamp: 1 },
+        { expireAfterSeconds: THIRTY_DAYS_IN_SECONDS }
+      );
+      console.log(
+        "✅ TTL index for HealthCheck created successfully (30 days expiration)"
+      );
+    } catch (error) {
+      console.error("❌ Error setting up TTL index for HealthCheck:", error);
+    }
   })
   .catch((err) => {
     console.error("❌ MongoDB Connection Failed:", err.message);
@@ -221,10 +226,10 @@ try {
     { path: "/api/book", routes: bookingRoutes },
     { path: "/api/upload", routes: uploadRoutes },
     { path: "/api/config", routes: configRoutes },
-    { path: "/api/dashboard", routes: dashboardRoutes},
+    { path: "/api/dashboard", routes: dashboardRoutes },
     { path: "/api/notifications", routes: notificationsRoutes },
-    { path: "/api/health", routes: healthRoutes }
-
+    { path: "/api/health", routes: healthRoutes },
+    { path: "/api/issues", routes: issueRoutes },
   ];
 
   routesToRegister.forEach(({ path, routes }) => {
@@ -260,7 +265,7 @@ app.use((err, req, res, next) => {
 
 // Add this with your other middleware
 app.use((req, res, next) => {
-  res.set('X-Response-Time', `${Date.now() - req.startTime}ms`);
+  res.set("X-Response-Time", `${Date.now() - req.startTime}ms`);
   next();
 });
 

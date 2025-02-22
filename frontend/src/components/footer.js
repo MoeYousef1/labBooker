@@ -32,7 +32,8 @@ function Footer() {
     { label: "FAQs", path: "/faq" },
     { label: "Contact", path: "/contact" },
     { label: "Privacy Policy", path: "/privacy" },
-    { label: "Terms of Service", path: "/terms" }
+    { label: "Terms of Service", path: "/terms" },
+    { label: "Report Issue", path: "/issuereport" }
   ];
 
   const contactInfo = [

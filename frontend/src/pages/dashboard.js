@@ -12,7 +12,9 @@ import {
   UserPlus, 
   AlertTriangle,
   CheckCircle2,
-  XOctagon
+  XOctagon,
+  AlertCircle,
+  Filter
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -30,6 +32,13 @@ const DashBoard = () => {
     confirmed: 0,
     canceled: 0,
     missed: 0,
+  });
+  const [issues, setIssues] = useState([]);
+  const [issueStats, setIssueStats] = useState({
+    total: 0,
+    pending: 0,
+    inProgress: 0,
+    resolved: 0
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState("");
@@ -57,12 +66,53 @@ const DashBoard = () => {
     }
   }, [navigate]);
 
+  const fetchIssues = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:5000/api/issues/all", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setIssues(response.data);
+      
+      // Calculate stats
+      const stats = response.data.reduce((acc, issue) => {
+        acc.total++;
+        acc[issue.status]++;
+        return acc;
+      }, { total: 0, pending: 0, "in-progress": 0, resolved: 0 });
+      
+      setIssueStats(stats);
+    } catch (error) {
+      setErrors(error?.response?.data?.message || "Error fetching issues");
+    }
+  };
+
+  const handleStatusUpdate = async (issueId, newStatus) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(
+        `http://localhost:5000/api/issues/update-status/${issueId}`,
+        { status: newStatus },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      fetchIssues(); // Refresh issues after update
+    } catch (error) {
+      setErrors(error?.response?.data?.message || "Error updating status");
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setErrors("");
       try {
-        await Promise.all([fetchDashboardStats(), fetchBookingCounts()]);
+        await Promise.all([
+          fetchDashboardStats(), 
+          fetchBookingCounts(),
+          fetchIssues()
+        ]);
       } catch (err) {
         setErrors(err?.message || "Failed to fetch data");
       } finally {
@@ -280,6 +330,103 @@ const DashBoard = () => {
             </div>
           </motion.div>
         )}
+
+        {/* Issues Management Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-6"
+        >
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-orange-600" />
+                </div>
+                <h2 className="text-lg font-semibold text-gray-800">Issues Management</h2>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate('/issue-report')}
+                  className="text-sm bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  View All Issues
+                </button>
+              </div>
+            </div>
+
+            {/* Issues Stats */}
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              {[
+                { label: "Total Issues", value: issueStats.total, color: "blue" },
+                { label: "Pending", value: issueStats.pending, color: "yellow" },
+                { label: "In Progress", value: issueStats["in-progress"], color: "orange" },
+                { label: "Resolved", value: issueStats.resolved, color: "green" }
+              ].map((stat, index) => (
+                <div
+                  key={index}
+                  className={`bg-${stat.color}-50 p-4 rounded-lg border border-${stat.color}-100`}
+                >
+                  <p className="text-sm text-gray-600">{stat.label}</p>
+                  <p className={`text-xl font-bold text-${stat.color}-600 mt-1`}>
+                    {stat.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Recent Issues Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left text-sm text-gray-500 border-b">
+                    <th className="pb-3 font-medium">Type</th>
+                    <th className="pb-3 font-medium">Description</th>
+                    <th className="pb-3 font-medium">Reported By</th>
+                    <th className="pb-3 font-medium">Status</th>
+                    <th className="pb-3 font-medium">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {issues.slice(0, 5).map((issue) => (
+                    <tr key={issue._id} className="border-b last:border-b-0">
+                      <td className="py-3 text-sm">{issue.issueType}</td>
+                      <td className="py-3 text-sm">
+                        {issue.description.length > 50
+                          ? `${issue.description.substring(0, 50)}...`
+                          : issue.description}
+                      </td>
+                      <td className="py-3 text-sm">{issue.email}</td>
+                      <td className="py-3">
+                        <select
+                          value={issue.status}
+                          onChange={(e) => handleStatusUpdate(issue._id, e.target.value)}
+                          className={`text-sm px-3 py-1 rounded-full border
+                            ${issue.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                            issue.status === 'in-progress' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                            'bg-green-50 text-green-700 border-green-200'}`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="in-progress">In Progress</option>
+                          <option value="resolved">Resolved</option>
+                        </select>
+                      </td>
+                      <td className="py-3">
+                        <button
+                          onClick={() => navigate(`/issue-report/${issue._id}`)}
+                          className="text-sm text-blue-600 hover:text-blue-800"
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </motion.div>
 
         <SystemStatusBanner />
       </motion.div>
