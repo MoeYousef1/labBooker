@@ -556,7 +556,7 @@ async blockUser(req, res) {
 
     return res.status(200).json({
       message: "User blocked successfully",
-      blockedUntil
+      blockedUntil: blockUntil
     });
   } catch (error) {
     console.error('Block user error:', error);
