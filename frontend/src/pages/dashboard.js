@@ -133,12 +133,28 @@ const DashBoard = () => {
         setDashboardStats({
           totalUsers: response.data.stats.totalUsers,
           recentUsers: response.data.stats.recentUsers || [],
-          usersByRole: response.data.stats.usersByRole || []
+          usersByRole: response.data.stats.usersByRole || [],
+          growthStats: response.data.stats.growthStats || {}
         });
       }
     } catch (error) {
       setErrors(error?.response?.data?.message || "Error fetching dashboard data");
     }
+  };
+
+  const formatGrowth = (value) => {
+    if (value === undefined || value === null) return 'N/A';
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue)) return 'N/A';
+    
+    const arrow = numericValue > 0 ? '↑' : numericValue < 0 ? '↓' : '';
+    const colorClass = numericValue > 0 ? 'text-green-600' : numericValue < 0 ? 'text-red-600' : 'text-gray-600';
+    
+    return (
+      <span className={`${colorClass} font-medium`}>
+        {arrow} {Math.abs(numericValue)}% from last month
+      </span>
+    );
   };
 
   const fetchBookingCounts = async () => {
@@ -153,6 +169,23 @@ const DashBoard = () => {
       setErrors(error?.response?.data?.message || "Error fetching bookings");
     }
   };
+
+  const cards = [
+    {
+      title: "Total Users",
+      value: dashboardStats.totalUsers,
+      icon: Users,
+      color: "green",
+      trend: formatGrowth(dashboardStats.growthStats?.userGrowth)
+    },
+    {
+      title: "Total Bookings",
+      value: bookingCounts.total,
+      icon: Calendar,
+      color: "blue",
+      trend: formatGrowth(dashboardStats.growthStats?.bookingGrowth)
+    }
+  ];
 
   return (
     <SidebarLayout>
@@ -229,45 +262,30 @@ const DashBoard = () => {
             <div className="xl:col-span-2 space-y-4 sm:space-y-6">
               {/* Quick Stats */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                {[
-                  {
-                    title: "Total Users",
-                    value: dashboardStats.totalUsers,
-                    icon: Users,
-                    color: "green",
-                    trend: "+2.4% from last month"
-                  },
-                  {
-                    title: "Total Bookings",
-                    value: bookingCounts.total,
-                    icon: Calendar,
-                    color: "blue",
-                    trend: "+12.6% from last month"
-                  }
-                ].map((card, index) => (
-                  <motion.div
-                    key={index}
-                    whileHover={{ y: -2 }}
-                    className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs sm:text-sm font-medium text-gray-500">{card.title}</p>
-                        <p className="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">
-                          {card.value}
-                        </p>
-                      </div>
-                      <div className={`p-2 bg-${card.color}-100 rounded-lg`}>
-                        <card.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${card.color}-600`} />
-                      </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <span className={`text-xs sm:text-sm text-${card.color}-600 font-medium`}>
-                        {card.trend}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
+              {cards.map((card, index) => (
+    <motion.div
+      key={index}
+      whileHover={{ y: -2 }}
+      className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100"
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs sm:text-sm font-medium text-gray-500">{card.title}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">
+            {card.value}
+          </p>
+        </div>
+        <div className={`p-2 bg-${card.color}-100 rounded-lg`}>
+          <card.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${card.color}-600`} />
+        </div>
+      </div>
+      <div className="mt-3 pt-3 border-t border-gray-100">
+        <span className="text-xs sm:text-sm">
+          {card.trend}
+        </span>
+      </div>
+    </motion.div>
+  ))}
               </div>
 
               {/* Status Grid */}

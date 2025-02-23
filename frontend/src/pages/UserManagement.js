@@ -160,15 +160,15 @@ const UserManagement = () => {
               </button>
             </div>
             <select
-              className="p-2.5 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white shadow-sm"
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-            >
-              <option value="all">All Roles</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-            </select>
+  className="p-2.5 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm appearance-none pr-10 bg-no-repeat bg-right-center [background-image:url('data:image/svg+xml;charset=UTF-8,<svg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22currentColor%22><path%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%2F><%2Fsvg>')]"
+  value={selectedRole}
+  onChange={(e) => setSelectedRole(e.target.value)}
+>
+  <option value="all">All Roles</option>
+  <option value="user">User</option>
+  <option value="admin">Admin</option>
+  <option value="manager">Manager</option> {/* Fixed value */}
+</select>
           </motion.form>
 
           {/* Users Table */}
