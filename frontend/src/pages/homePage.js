@@ -228,62 +228,60 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       <Navbar userInfo={userInfo} setUserInfo={setUserInfo} />
-
+  
       <main className="flex-grow pt-24 pb-16 container mx-auto px-4">
         {/* Welcome Section - Enhanced */}
-        <section className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl mb-8">
+        <section className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl mb-8">
           <div className="flex items-center justify-between">
             <div className="space-y-3">
-              <div className="flex items-center space-x-3 text-blue-600">
+              <div className="flex items-center space-x-3 text-blue-600 dark:text-blue-400">
                 <Clock className="w-6 h-6" />
                 <span className="text-sm font-medium">
                   {formatTime(currentTime)}
                 </span>
-                <span className="text-gray-300">•</span>
+                <span className="text-gray-300 dark:text-gray-600">•</span>
                 <span className="text-sm font-medium">
                   {formatDate(currentTime)}
                 </span>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                 Welcome, {userInfo.username}
-                <span className="text-blue-600 ml-2">👋</span>
+                <span className="text-blue-600 dark:text-blue-400 ml-2">👋</span>
               </h1>
-              <p className="text-gray-600 text-lg max-w-3xl">
+              <p className="text-gray-600 dark:text-gray-400 text-lg max-w-3xl">
                 Manage your lab bookings and explore available rooms with
                 real-time status updates.
               </p>
             </div>
             <div className="hidden md:block relative">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl shadow-lg flex items-center justify-center">
-                <Activity className="w-12 h-12 text-blue-600 animate-pulse" />
+              <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-2xl shadow-lg flex items-center justify-center">
+                <Activity className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-pulse" />
               </div>
             </div>
           </div>
         </section>
-
+  
         {/* Room Status Section - Enhanced */}
-        <section className="mb-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
+        <section className="mb-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700">
             <div
               className="flex items-center justify-between cursor-pointer"
               onClick={() => setIsRoomsExpanded(!isRoomsExpanded)}
             >
               <div className="flex items-center space-x-3">
-                <MapPin className="w-6 h-6 text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-900 hover:text-blue-700 transition-colors duration-300">
+                <MapPin className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 hover:text-blue-700 dark:hover:text-blue-400 transition-colors duration-300">
                   Lab Room Status
                 </h2>
               </div>
               <button
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label={
-                  isRoomsExpanded ? "Collapse section" : "Expand section"
-                }
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                aria-label={isRoomsExpanded ? "Collapse section" : "Expand section"}
               >
                 <svg
-                  className={`w-6 h-6 transform transition-transform ${isRoomsExpanded ? "rotate-180" : ""}`}
+                  className={`w-6 h-6 transform transition-transform ${isRoomsExpanded ? "rotate-180" : ""} text-gray-900 dark:text-gray-200`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -298,45 +296,45 @@ const HomePage = () => {
               </button>
             </div>
           </div>
-
+  
           {isRoomsExpanded && (
             <div className="p-6 pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {roomStatuses.map((room) => (
                   <div
                     key={room.id}
-                    className="relative group bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-blue-100 mt-2"
+                    className="relative group bg-white dark:bg-gray-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 dark:border-gray-600 hover:border-blue-100 dark:hover:border-blue-400 mt-2"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-1">
                           {room.name}
                         </h3>
                         <div className="flex items-center space-x-2">
                           <span
-                            className={`inline-block w-2 h-2 rounded-full ${room.isActive ? "bg-green-500" : "bg-gray-400"}`}
+                            className={`inline-block w-2 h-2 rounded-full ${room.isActive ? "bg-green-500 dark:bg-green-400" : "bg-gray-400 dark:bg-gray-500"}`}
                           />
                           <p
-                            className={`text-sm font-medium ${room.isActive ? "text-green-600" : "text-gray-500"}`}
+                            className={`text-sm font-medium ${room.isActive ? "text-green-600 dark:text-green-300" : "text-gray-500 dark:text-gray-400"}`}
                           >
                             {room.isActive ? "Occupied" : "Available"}
                           </p>
                         </div>
                       </div>
                       <div
-                        className={`p-2 rounded-lg ${room.isActive ? "bg-green-50" : "bg-gray-50"}`}
+                        className={`p-2 rounded-lg ${room.isActive ? "bg-green-50 dark:bg-green-900/30" : "bg-gray-50 dark:bg-gray-600"}`}
                       >
                         <Activity
-                          className={`w-5 h-5 ${room.isActive ? "text-green-600" : "text-gray-400"}`}
+                          className={`w-5 h-5 ${room.isActive ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-300"}`}
                         />
                       </div>
                     </div>
-
+  
                     {room.isActive && (
-                      <div className="mt-4 pt-3 border-t border-gray-100">
+                      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-600">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-500">Until</span>
-                          <span className="font-medium text-gray-700">
+                          <span className="text-gray-500 dark:text-gray-400">Until</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-200">
                             {room.currentBooking?.endTime || "..."}
                           </span>
                         </div>
@@ -356,59 +354,55 @@ const HomePage = () => {
           setModalConfig={setModalConfig}
           userInfo={userInfo}
         />
-
+  
         {/* Quick Actions Grid - Enhanced */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Book a Room Card */}
           <div
             onClick={() => navigate("/labrooms")}
-            className="group bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
+            className="group bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
           >
             <div className="flex items-start space-x-6 relative z-10">
-              {" "}
-              {/* Added z-index layer */}
-              <div className="bg-blue-100 p-4 rounded-xl group-hover:bg-blue-200 transition-colors">
-                <BookOpen className="w-8 h-8 text-blue-600" />
+              <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-xl group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
+                <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
                   Book a Room
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   Reserve available lab spaces in real-time
                 </p>
               </div>
             </div>
-            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-blue-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-blue-50 dark:bg-blue-900/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
           </div>
-
+  
           {/* My Bookings Card */}
           <div
             onClick={() => navigate("/bookings")}
-            className="group bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
+            className="group bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
           >
             <div className="flex items-start space-x-6 relative z-10">
-              {" "}
-              {/* Added z-index layer */}
-              <div className="bg-green-100 p-4 rounded-xl group-hover:bg-green-200 transition-colors">
-                <Calendar className="w-8 h-8 text-green-600" />
+              <div className="bg-green-100 dark:bg-green-900/30 p-4 rounded-xl group-hover:bg-green-200 dark:group-hover:bg-green-800/50 transition-colors">
+                <Calendar className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
                   My Bookings
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   Manage existing reservations and history
                 </p>
               </div>
             </div>
-            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-green-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-green-50 dark:bg-green-900/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
           </div>
         </div>
       </main>
-
+  
       <Footer className="mt-auto" />
-
+  
       {/* Modals and Toasts */}
       <Modal
         isOpen={isModalOpen}
@@ -416,8 +410,8 @@ const HomePage = () => {
         {...modalConfig}
       />
 
-      {/* {showMissedBookingPrompt && missedBooking && <MissedBookingPrompt />} */}
-
+        {/* {showMissedBookingPrompt && missedBooking && <MissedBookingPrompt />} */}
+  
       {toast.isVisible && (
         <div className="fixed bottom-4 right-4 z-50">
           <Toast

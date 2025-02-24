@@ -272,11 +272,11 @@ const MyBookingsPage = () => {
 
   const ModalContent = () => {
     const selectedBooking = bookings.find((b) => b._id === selectedBookingId);
-
+  
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-14 w-14 text-red-500">
+          <div className="mx-auto mb-4 h-14 w-14 text-red-500 dark:text-red-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-full w-full"
@@ -292,53 +292,53 @@ const MyBookingsPage = () => {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             Confirm Booking Cancellation
           </h3>
-          <div className="text-gray-500">
+          <div className="text-gray-500 dark:text-gray-400">
             Are you sure you want to cancel this booking? This action cannot be
             undone.
           </div>
         </div>
-
+  
         {selectedBooking && (
-          <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-            <div className="px-4 py-3 bg-gray-100 border-b border-gray-200">
-              <h4 className="text-sm font-medium text-gray-700">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="px-4 py-3 bg-gray-100 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Booking Details
               </h4>
             </div>
             <div className="p-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="block text-gray-500">Room</span>
-                  <span className="font-medium">
+                  <span className="block text-gray-500 dark:text-gray-400">Room</span>
+                  <span className="font-medium dark:text-gray-200">
                     {selectedBooking.roomId?.name}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-gray-500">Date</span>
-                  <span className="font-medium">
+                  <span className="block text-gray-500 dark:text-gray-400">Date</span>
+                  <span className="font-medium dark:text-gray-200">
                     {formatDate(selectedBooking.date)}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-gray-500">Time</span>
-                  <span className="font-medium">
+                  <span className="block text-gray-500 dark:text-gray-400">Time</span>
+                  <span className="font-medium dark:text-gray-200">
                     {selectedBooking.startTime} - {selectedBooking.endTime}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-gray-500">Status</span>
-                  <span className="font-medium">{selectedBooking.status}</span>
+                  <span className="block text-gray-500 dark:text-gray-400">Status</span>
+                  <span className="font-medium dark:text-gray-200">{selectedBooking.status}</span>
                 </div>
               </div>
             </div>
           </div>
         )}
-
+  
         <div className="text-center">
-          <div className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
+          <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
             <svg
               className="w-4 h-4 inline mr-1 -mt-0.5"
               fill="currentColor"
@@ -356,24 +356,22 @@ const MyBookingsPage = () => {
       </div>
     );
   };
-
-  // ... Rest of your JSX remains the same ...
-
+  
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Navbar userInfo={userInfo} setUserInfo={setUserInfo} />
-
+  
       <main className="container mx-auto px-4 py-8 max-w-7xl pt-20">
         {/* Header Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8 sticky top-20 z-10">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8 sticky top-20 z-10 transition-colors duration-300">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-              <p className="text-md text-gray-600 mt-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Bookings</h1>
+              <p className="text-md text-gray-600 dark:text-gray-400 mt-2">
                 Manage your lab room reservations
               </p>
             </div>
-
+  
             <div className="flex gap-4">
               <button
                 onClick={() => navigate("/labrooms")}
@@ -382,10 +380,10 @@ const MyBookingsPage = () => {
                 <CalendarIcon className="w-5 h-5" />
                 New Booking
               </button>
-
+  
               <button
                 onClick={fetchBookings}
-                className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow flex-1 md:flex-none justify-center"
+                className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow flex-1 md:flex-none justify-center"
                 disabled={loading}
               >
                 <RefreshCw
@@ -395,74 +393,54 @@ const MyBookingsPage = () => {
               </button>
             </div>
           </div>
-
+  
           {/* Filter Section */}
           <div className="mt-6 flex gap-4">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${
-                  filter === "all"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            {['all', 'upcoming', 'past'].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  filter === f
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
-            >
-              All Bookings
-            </button>
-            <button
-              onClick={() => setFilter("upcoming")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${
-                  filter === "upcoming"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-            >
-              Upcoming
-            </button>
-            <button
-              onClick={() => setFilter("past")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${
-                  filter === "past"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-            >
-              Past
-            </button>
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)} Bookings
+              </button>
+            ))}
           </div>
         </div>
-
+  
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-r-lg">
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-800 p-4 mb-6 rounded-r-lg">
             <div className="flex items-center">
-              <AlertCircle className="w-5 h-5 text-red-400 mr-2" />
-              <span className="text-red-700">{error}</span>
+              <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mr-2" />
+              <span className="text-red-700 dark:text-red-300">{error}</span>
             </div>
           </div>
         )}
-
+  
         {/* Content Section */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow-sm">
+          <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-gray-600 text-lg">
+            <p className="mt-4 text-gray-600 dark:text-gray-400 text-lg">
               Loading your bookings...
             </p>
           </div>
         ) : filteredBookings.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-            <Calendar className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <Calendar className="w-20 h-20 text-gray-400 dark:text-gray-500 mx-auto mb-6" />
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
               {filter === "all"
                 ? "No bookings found"
                 : filter === "upcoming"
                   ? "No upcoming bookings"
                   : "No past bookings"}
             </h3>
-            <p className="text-gray-600 mb-8 text-lg">
+            <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
               {filter === "all" && "Ready to book your first lab room?"}
             </p>
             {filter === "all" && (
@@ -481,58 +459,57 @@ const MyBookingsPage = () => {
                 const statusDisplay = getBookingStatusDisplay(booking);
                 const isPast = isBookingPast(booking.date, booking.endTime);
                 const canCancel = isBookingCancelable(booking);
-
+  
                 return (
                   <div
                     key={booking._id}
-                    className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden
-                      ${isPast ? "opacity-75" : ""}`}
+                    className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md dark:hover:shadow-lg transition-all duration-200 overflow-hidden"
                   >
-                    <div className="p-6 border-b border-gray-100">
+                    <div className="p-6 border-b border-gray-100 dark:border-gray-700">
                       <div className="flex justify-between items-start">
-                        <h3 className="text-xl font-semibold text-gray-900">
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                           {booking.roomId?.name || "Coding Room"}
                         </h3>
                         <span
-                          className={`px-4 py-1.5 rounded-full text-sm font-medium ${statusDisplay.color}`}
+                          className={`px-4 py-1.5 rounded-full text-sm font-medium ${statusDisplay.color} dark:bg-opacity-20`}
                         >
                           {statusDisplay.text}
                         </span>
                       </div>
                     </div>
-
+  
                     <div className="p-6 space-y-4">
-                      <div className="flex items-center gap-3 text-gray-700">
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                         <Calendar className="w-5 h-5 text-blue-500" />
                         <span className="text-base">
                           {formatDate(booking.date)}
                           {isPast && (
-                            <span className="ml-2 text-sm text-gray-500">
+                            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
                               (Past)
                             </span>
                           )}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 text-gray-700">
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                         <Clock className="w-5 h-5 text-blue-500" />
                         <span className="text-base">
                           {booking.startTime} - {booking.endTime}
                         </span>
                       </div>
-
+  
                       {booking.additionalUsers?.length > 0 && (
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
                           <p>Other Users in this Booking:</p>
                           <ul className="list-disc pl-5">
                             {booking.userId.email !== userInfo.email && (
-                              <li className="font-medium text-blue-600">
+                              <li className="font-medium text-blue-600 dark:text-blue-400">
                                 {booking.userId.email}
-                                <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                                <span className="ml-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full">
                                   Main Booker
                                 </span>
                               </li>
                             )}
-
+  
                             {booking.additionalUsers
                               .filter((user) => user.email !== userInfo.email)
                               .map((user, index) => (
@@ -541,17 +518,17 @@ const MyBookingsPage = () => {
                           </ul>
                         </div>
                       )}
-
+  
                       {canCancel ? (
                         <button
                           onClick={() => openCancelModal(booking._id)}
-                          className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-200"
+                          className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors border border-red-200 dark:border-red-800"
                         >
                           <X className="w-4 h-4" />
                           Cancel Booking
                         </button>
                       ) : (
-                        <div className="mt-4 text-sm text-gray-500 text-center">
+                        <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 text-center">
                           {booking.status.toLowerCase() === "canceled"
                             ? "This booking has been canceled"
                             : booking.status.toLowerCase() === "active"
@@ -568,9 +545,9 @@ const MyBookingsPage = () => {
                 );
               })}
             </div>
-
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-center text-blue-800 text-sm">
+  
+            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+              <p className="text-center text-blue-800 dark:text-blue-300 text-sm">
                 You can cancel bookings up until their scheduled time. Past
                 bookings cannot be modified. Cancelled bookings will be
                 automatically deleted after 3 days.
@@ -579,7 +556,7 @@ const MyBookingsPage = () => {
           </div>
         )}
       </main>
-
+  
       {/* Confirmation Modal */}
       <Modal
         isOpen={isModalOpen}
@@ -609,7 +586,7 @@ const MyBookingsPage = () => {
         }
         cancelText="Close"
       />
-
+  
       {/* Toast Notification */}
       {toast.isVisible && (
         <Toast
@@ -618,7 +595,7 @@ const MyBookingsPage = () => {
           onClose={() => setToast({ ...toast, isVisible: false })}
         />
       )}
-
+  
       <Footer />
     </div>
   );

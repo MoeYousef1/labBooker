@@ -39,14 +39,21 @@ const RoomOperations = ({ setOperation, setRoomId, setRoomDetails, operation }) 
           whileHover="hover"
           whileTap="tap"
           onClick={() => handleOperationChange(currentOperation)}
-          className={`min-h-[64px] sm:min-h-0 flex flex-col sm:flex-row items-center justify-center p-4 sm:p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group ${
-            operation === currentOperation
-              ? "ring-2 ring-green-500 bg-green-50 text-green-700"
-              : ""
-          }`}
+          className={`min-h-[64px] sm:min-h-0 flex flex-col sm:flex-row items-center justify-center p-4 sm:p-6 
+            bg-white dark:bg-gray-800 
+            text-gray-800 dark:text-gray-200 
+            font-semibold rounded-xl shadow-md hover:shadow-xl 
+            transition-all duration-300 
+            border border-gray-100 dark:border-gray-700 
+            hover:border-green-200 dark:hover:border-green-600 
+            group ${
+              operation === currentOperation
+                ? "ring-2 ring-green-500 dark:ring-green-600 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                : ""
+            }`}
         >
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-            <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 shrink-0" />
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 dark:text-green-400 shrink-0" />
             <span className="text-xs sm:text-sm md:text-base text-center sm:text-left">
               {label}
             </span>

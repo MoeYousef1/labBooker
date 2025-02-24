@@ -24,13 +24,13 @@ const BookingPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full flex flex-col items-center px-4 sm:px-6 md:px-8 py-6 sm:py-8 overflow-x-hidden"
+        className="min-h-screen w-full flex flex-col items-center px-4 sm:px-6 md:px-8 py-6 sm:py-8 overflow-x-hidden dark:bg-gray-900 transition-colors duration-300"
       >
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-6 sm:mb-8"
+          className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-6 sm:mb-8"
         >
           Booking Management
         </motion.h1>

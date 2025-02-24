@@ -31,8 +31,8 @@ function Footer() {
     { label: "About", path: "/about" },
     { label: "FAQs", path: "/faq" },
     { label: "Contact", path: "/contact" },
-    { label: "Privacy Policy", path: "/privacy" },
-    { label: "Terms of Service", path: "/terms" },
+    { label: "Privacy Policy", path: "/privacypolicy" },
+    { label: "Terms of Service", path: "/termsofservice" },
     { label: "Report Issue", path: "/issuereport" }
   ];
 

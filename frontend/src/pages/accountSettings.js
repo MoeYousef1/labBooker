@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { SidebarLayout } from "../components/SidebarLayout";
 import { User, Bell, Shield, Upload, XCircle } from "lucide-react";
 import Message from "../components/Error_successMessage";
@@ -8,10 +7,12 @@ import api from "../utils/axiosConfig";
 import { motion, AnimatePresence } from "framer-motion";
 import Cropper from "react-easy-crop";
 import { getCroppedImg } from "../utils/cropImageUtil";
+import { useContext } from "react";
+import { ThemeContext } from '../contexts/ThemeContext';
 
 const ProfileSettings = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
+  const { toggleTheme, isDarkMode } = useContext(ThemeContext);
 
   // From server
   const [userInfo, setUserInfo] = useState({
@@ -284,14 +285,14 @@ const ProfileSettings = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full flex flex-col items-center min-h-screen px-4 sm:px-6 md:px-8 lg:px-12 py-6 sm:py-8 md:py-10 overflow-x-hidden"
+        className="w-full flex flex-col items-center min-h-screen px-4 sm:px-6 md:px-8 lg:px-12 py-6 sm:py-8 md:py-10 overflow-x-hidden dark:bg-gray-900 transition-colors duration-300"
       >
         {/* Header */}
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-6 sm:mb-8"
+          className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-gray-100 text-center mb-6 sm:mb-8 transition-colors duration-300"
         >
           Profile Settings
         </motion.h1>
@@ -323,9 +324,9 @@ const ProfileSettings = () => {
                   clearMessages();
                   setActiveTab(id);
                 }}
-                className={`flex items-center justify-center p-3 sm:p-6 bg-white text-gray-800 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-200 group ${
+                className={`flex items-center justify-center p-3 sm:p-6 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-semibold rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-600 group ${
                   activeTab === id
-                    ? "ring-2 ring-green-500 bg-green-50 text-green-700"
+                    ? "ring-2 ring-green-500 dark:ring-green-600 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                     : ""
                 }`}
               >
@@ -347,7 +348,7 @@ const ProfileSettings = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-4xl"
         >
-          <div className="bg-gray-50 rounded-lg shadow-xl p-4 sm:p-6 md:p-10">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6 md:p-10 transition-colors duration-300">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
@@ -360,12 +361,12 @@ const ProfileSettings = () => {
                   <div className="space-y-6 sm:space-y-10">
                     {/* Profile Picture Section */}
                     <div className="space-y-4 sm:space-y-6">
-                      <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2 transition-colors duration-300">
                         Profile Picture
                       </h3>
                       <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
                         <div className="relative">
-                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100">
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
                             {editForm.previewUrl ? (
                               <img
                                 src={editForm.previewUrl}
@@ -373,15 +374,15 @@ const ProfileSettings = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-400">
+                              <div className="w-full h-full flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-400 dark:text-gray-300">
                                 {userInfo.username?.[0]?.toUpperCase()}
                               </div>
                             )}
                           </div>
   
                           {isEditing && (
-                            <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50">
-                              <Upload className="w-4 h-4 text-gray-600" />
+                            <label className="absolute bottom-0 right-0 bg-white dark:bg-gray-700 rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300">
+                              <Upload className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                               <input
                                 type="file"
                                 className="hidden"
@@ -393,18 +394,18 @@ const ProfileSettings = () => {
                         </div>
   
                         <div className="text-center sm:text-left">
-                          <h3 className="text-lg font-medium text-gray-900">
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 transition-colors duration-300">
                             {userInfo.name}
                           </h3>
                           {isEditing && (
                             <>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Click the icon to choose a new profile picture
                               </p>
                               {editForm.previewUrl && (
                                 <button
                                   onClick={handleRemoveImage}
-                                  className="mt-2 px-3 py-1 inline-flex items-center text-sm rounded-md text-red-600 hover:bg-red-50"
+                                  className="mt-2 px-3 py-1 inline-flex items-center text-sm rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors duration-300"
                                 >
                                   <XCircle className="w-4 h-4 mr-1" />
                                   Remove
@@ -418,71 +419,71 @@ const ProfileSettings = () => {
   
                     {/* Profile Information Section */}
                     <div className="space-y-4 sm:space-y-6">
-                      <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2 transition-colors duration-300">
                         Basic Information
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         {/* Username Field */}
                         <div className="w-full">
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
                             Username
                           </label>
                           <input
                             type="text"
                             value={userInfo.username}
                             disabled
-                            className="mt-1 w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                            className="mt-1 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors duration-300"
                           />
-                          <p className="mt-1 text-sm text-gray-500">
+                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             Username cannot be changed
                           </p>
                         </div>
   
                         {/* Name Field */}
-                        <div className="w-full">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Name
-                            {isEditing && <span className="text-red-500 ml-1">*</span>}
-                          </label>
-                          <input
-                            type="text"
-                            value={isEditing ? editForm.name : userInfo.name}
-                            onChange={(e) => {
-                              clearMessages();
-                              setEditForm((prev) => ({
-                                ...prev,
-                                name: e.target.value,
-                              }));
-                            }}
-                            disabled={!isEditing}
-                            className={`mt-1 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                              !isEditing && "bg-gray-50"
-                            }`}
-                          />
-                        </div>
-  
-                        {/* Email Field */}
-                        <div className="md:col-span-2 w-full">
-                          <label className="block text-sm font-medium text-gray-700">
-                            Email
-                            {isEditing && <span className="text-red-500 ml-1">*</span>}
-                          </label>
-                          <input
-                            type="email"
-                            value={isEditing ? editForm.email : userInfo.email}
-                            onChange={(e) => {
-                              clearMessages();
-                              setEditForm((prev) => ({
-                                ...prev,
-                                email: e.target.value,
-                              }));
-                            }}
-                            disabled={!isEditing}
-                            className={`mt-1 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                              !isEditing && "bg-gray-50"
-                            }`}
-                          />
-                        </div>
+<div className="w-full">
+  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+    Name
+    {isEditing && <span className="text-red-500 ml-1">*</span>}
+  </label>
+  <input
+    type="text"
+    value={isEditing ? editForm.name : userInfo.name}
+    onChange={(e) => {
+      clearMessages();
+      setEditForm((prev) => ({
+        ...prev,
+        name: e.target.value,
+      }));
+    }}
+    disabled={!isEditing}
+    className={`mt-1 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+      !isEditing ? "bg-gray-50" : ""
+    } dark:bg-gray-700 transition-colors duration-300 dark:text-gray-200`}
+  />
+</div>
+
+{/* Email Field */}
+<div className="md:col-span-2 w-full">
+  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+    Email
+    {isEditing && <span className="text-red-500 ml-1">*</span>}
+  </label>
+  <input
+    type="email"
+    value={isEditing ? editForm.email : userInfo.email}
+    onChange={(e) => {
+      clearMessages();
+      setEditForm((prev) => ({
+        ...prev,
+        email: e.target.value,
+      }));
+    }}
+    disabled={!isEditing}
+    className={`mt-1 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+      !isEditing ? "bg-gray-50" : ""
+    } dark:bg-gray-700 transition-colors duration-300 dark:text-gray-200`}
+  />
+</div>
                       </div>
                     </div>
   
@@ -510,14 +511,14 @@ const ProfileSettings = () => {
                         <>
                           <button
                             onClick={handleEditToggle}
-                            className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white text-gray-700 rounded-lg shadow-md hover:bg-gray-50 focus:ring-2 focus:ring-green-400 border border-gray-300"
+                            className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-green-400 border border-gray-300 dark:border-gray-600 transition-colors duration-300"
                           >
                             Cancel
                           </button>
                           <button
                             onClick={handleSaveChanges}
                             disabled={loading}
-                            className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
+                            className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white dark:bg-gray-700 text-green-500 dark:text-green-400 rounded-lg shadow-md hover:bg-green-500 dark:hover:bg-green-600 hover:text-white focus:ring-2 focus:ring-green-400 transition-colors duration-300"
                           >
                             {loading ? "Saving..." : "Save Changes"}
                           </button>
@@ -525,7 +526,7 @@ const ProfileSettings = () => {
                       ) : (
                         <button
                           onClick={handleEditToggle}
-                          className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
+                          className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white dark:bg-gray-700 text-green-500 dark:text-green-400 rounded-lg shadow-md hover:bg-green-500 dark:hover:bg-green-600 hover:text-white focus:ring-2 focus:ring-green-400 transition-colors duration-300"
                         >
                           Edit Profile
                         </button>
@@ -534,38 +535,74 @@ const ProfileSettings = () => {
                   </div>
                 )}
   
-                {activeTab === "security" && (
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
-                        Password & Security
-                      </h3>
-                      <div className="bg-white rounded-lg p-4 sm:p-6">
-                        <p className="text-sm sm:text-base text-gray-600 mb-4">
-                          Manage your password and security settings
-                        </p>
-                        <button
-                          onClick={() => navigate("/changepassword")}
-                          className="px-4 sm:px-6 py-2 sm:py-3 text-sm bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400"
-                        >
-                          Change Password
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+  {activeTab === "security" && (
+  // In your Appearance Settings section
+<div className="space-y-4">
+  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2">
+    Appearance Settings
+  </h3>
+  <div className="bg-white dark:bg-gray-700 rounded-lg p-4 sm:p-6">
+    <label className="inline-flex items-center cursor-pointer w-full justify-between">
+      <div>
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
+          Dark Mode
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Toggle between light and dark themes
+        </p>
+      </div>
+      
+      <div className="inline-flex items-center">
+        <input 
+          type="checkbox" 
+          className="sr-only peer"
+          checked={isDarkMode}
+          onChange={toggleTheme}
+        />
+        <div className="
+          relative 
+          w-11 
+          h-6 
+          bg-gray-200 
+          peer-focus:outline-none 
+          peer-focus:ring-4 
+          peer-focus:ring-green-300 
+          dark:peer-focus:ring-green-800 
+          rounded-full 
+          peer 
+          dark:bg-gray-600 
+          peer-checked:bg-green-600 
+          peer-checked:after:translate-x-full 
+          after:content-['']
+          after:absolute 
+          after:top-[2px] 
+          after:start-[2px] 
+          after:bg-white 
+          after:border-gray-300 
+          after:border 
+          after:rounded-full 
+          after:h-5 
+          after:w-5 
+          after:transition-all 
+          dark:border-gray-600
+        " />
+      </div>
+    </label>
+  </div>
+</div>
+)}
   
                 {activeTab === "notifications" && (
                   <div className="space-y-6">
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2 transition-colors duration-300">
                         Notification Preferences
                       </h3>
-                      <div className="bg-white rounded-lg p-4 sm:p-6">
-                        <h4 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+                      <div className="bg-white dark:bg-gray-700 rounded-lg p-4 sm:p-6 transition-colors duration-300">
+                        <h4 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
                           Coming Soon
                         </h4>
-                        <p className="text-sm sm:text-base text-gray-600">
+                        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 transition-colors duration-300">
                           Notification settings will be available in a future update.
                         </p>
                       </div>
@@ -596,11 +633,11 @@ const ProfileSettings = () => {
         {/* Cropper Modal */}
         {showCropper && (
           <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl relative w-full max-w-sm sm:max-w-md">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-xl relative w-full max-w-sm sm:max-w-md transition-colors duration-300">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 transition-colors duration-300">
                 Crop your photo
               </h2>
-              <div className="relative w-full h-48 sm:h-64 bg-gray-200">
+              <div className="relative w-full h-48 sm:h-64 bg-gray-200 dark:bg-gray-700">
                 <Cropper
                   image={rawImage && URL.createObjectURL(rawImage)}
                   crop={crop}
@@ -622,19 +659,19 @@ const ProfileSettings = () => {
                   step={0.1}
                   value={zoom}
                   onChange={(e) => setZoom(Number(e.target.value))}
-                  className="w-2/3"
+                  className="w-2/3 dark:accent-green-500"
                 />
               </div>
               <div className="mt-4 flex justify-end space-x-3">
                 <button
                   onClick={handleCropCancel}
-                  className="px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md hover:bg-gray-50 focus:ring-2 focus:ring-green-400 border border-gray-300 transition-all duration-300"
+                  className="px-6 py-3 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-green-400 border border-gray-300 dark:border-gray-600 transition-all duration-300"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCropComplete}
-                  className="px-6 py-3 bg-white text-green-500 rounded-lg shadow-md hover:bg-green-500 hover:text-white focus:ring-2 focus:ring-green-400 transition-all duration-300"
+                  className="px-6 py-3 bg-white dark:bg-gray-700 text-green-500 dark:text-green-400 rounded-lg shadow-md hover:bg-green-500 dark:hover:bg-green-600 hover:text-white focus:ring-2 focus:ring-green-400 transition-all duration-300"
                 >
                   Confirm Crop
                 </button>

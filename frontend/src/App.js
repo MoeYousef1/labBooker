@@ -7,6 +7,9 @@ import {
 } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
+import { ThemeProvider } from './contexts/ThemeContext';
+
+
 
 // Import all your pages
 import LandingPage from "./pages/landingPage";
@@ -29,7 +32,9 @@ import UserManagement from "./pages/UserManagement";
 import DashBoard from "./pages/dashboard";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import StatusHistoryPage from "./components/StatusHistoryPage";
-import IssueReport from "./components/IssueReport";
+import IssueReport from "./pages/IssueReport";
+import PrivacyPolicy from "./pages/PrivacyPolicy ";
+import TermsOfService from "./pages/TermsOfService";
 import AllIssues from "./pages/AllIssues";
 
 // Page Transition Wrapper
@@ -114,6 +119,22 @@ const AnimatedRoutes = () => {
           element={
             <PageTransition>
               <IssueReport />{" "}
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/privacypolicy"
+          element={
+            <PageTransition>
+              <PrivacyPolicy />{" "}
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/termsofservice"
+          element={
+            <PageTransition>
+              <TermsOfService />{" "}
             </PageTransition>
           }
         />
@@ -259,11 +280,13 @@ const AnimatedRoutes = () => {
 
 function App() {
   return (
+    <ThemeProvider>
     <Router>
       <div style={{ position: "relative" }}>
         <AnimatedRoutes />
       </div>
     </Router>
+    </ThemeProvider>
   );
 }
 

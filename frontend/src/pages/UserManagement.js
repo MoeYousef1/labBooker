@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { SidebarLayout } from "../components/SidebarLayout";
-import { ShieldAlert, User, Trash2, Edit, Ban, CircleX, CheckCircle2, Loader2, Search } from "lucide-react";
+import { User, Trash2, Edit, Ban, CircleX, CheckCircle2, Loader2, Search } from "lucide-react";
 import api from "../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
@@ -110,7 +110,7 @@ const UserManagement = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="w-full p-4 sm:p-6 md:p-8"
+        className="w-full p-4 sm:p-6 md:p-8 dark:bg-gray-900 transition-colors duration-300"
       >
         {loading && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -124,12 +124,12 @@ const UserManagement = () => {
             </motion.div>
           </div>
         )}
-
+  
         <div className="max-w-7xl mx-auto">
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-3xl font-bold text-gray-900 mb-6"
+            className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6"
           >
             User Management
           </motion.h1>
@@ -141,13 +141,13 @@ const UserManagement = () => {
             animate={{ opacity: 1 }}
             className="flex flex-col sm:flex-row gap-3 mb-6"
           >
-            <div className="flex flex-grow gap-2 bg-white rounded-xl shadow-sm border border-gray-100 p-1">
+            <div className="flex flex-grow gap-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-1">
               <div className="relative flex-grow flex items-center">
-                <Search className="h-5 w-5 text-gray-400 ml-3" />
+                <Search className="h-5 w-5 text-gray-400 ml-3 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search users..."
-                  className="w-full p-2.5 pl-2 border-0 focus:ring-0 bg-transparent"
+                  className="w-full p-2.5 pl-2 border-0 focus:ring-0 bg-transparent dark:text-gray-200 dark:placeholder-gray-400"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -160,35 +160,35 @@ const UserManagement = () => {
               </button>
             </div>
             <select
-  className="p-2.5 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm appearance-none pr-10 bg-no-repeat bg-right-center [background-image:url('data:image/svg+xml;charset=UTF-8,<svg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22currentColor%22><path%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%2F><%2Fsvg>')]"
-  value={selectedRole}
-  onChange={(e) => setSelectedRole(e.target.value)}
->
-  <option value="all">All Roles</option>
-  <option value="user">User</option>
-  <option value="admin">Admin</option>
-  <option value="manager">Manager</option> {/* Fixed value */}
-</select>
+              className="p-2.5 border border-gray-100 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 shadow-sm appearance-none pr-10 bg-no-repeat bg-right-center [background-image:url('data:image/svg+xml;charset=UTF-8,<svg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22currentColor%22><path%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%2F><%2Fsvg>')] dark:text-gray-200"
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+            >
+              <option value="all">All Roles</option>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="manager">Manager</option>
+            </select>
           </motion.form>
-
+  
           {/* Users Table */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700"
           >
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-100">
+                <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
                   <tr>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">User</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">Email</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">Role</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">Booking Status</th>
-                    <th className="px-5 py-4 text-center text-sm font-semibold text-gray-700">Actions</th>
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">User</th>
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Email</th>
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Role</th>
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Booking Status</th>
+                    <th className="px-5 py-4 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   <AnimatePresence>
                     {users.map((user) => (
                       <motion.tr
@@ -196,11 +196,11 @@ const UserManagement = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="hover:bg-gray-50/50 transition-colors"
+                        className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors"
                       >
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-100 to-green-100 flex items-center justify-center overflow-hidden">
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-100 to-green-100 dark:from-cyan-900/30 dark:to-green-900/30 flex items-center justify-center overflow-hidden">
                               {user.profilePicture ? (
                                 <img
                                   src={user.profilePicture}
@@ -208,21 +208,23 @@ const UserManagement = () => {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <User className="w-5 h-5 text-gray-500" />
+                                <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                               )}
                             </div>
                             <div className="max-w-[160px]">
-                              <p className="font-medium text-gray-900 truncate">{user.name || user.username}</p>
-                              <p className="text-sm text-gray-500 truncate">@{user.username}</p>
+                              <p className="font-medium text-gray-900 dark:text-gray-200 truncate">{user.name || user.username}</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">@{user.username}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-3 text-gray-600 text-sm max-w-[200px] truncate">{user.email}</td>
+                        <td className="px-5 py-3 text-gray-600 dark:text-gray-400 text-sm max-w-[200px] truncate">{user.email}</td>
                         <td className="px-5 py-3">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide ${
-                            user.role === "admin" ? "bg-red-100 text-red-700" :
-                            user.role === "manager" ? "bg-purple-100 text-purple-700" :
-                            "bg-gray-100 text-gray-700"
+                            user.role === "admin" 
+                              ? "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300" 
+                              : user.role === "manager" 
+                              ? "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300" 
+                              : "bg-gray-100 dark:bg-gray-700 dark:text-gray-300 text-gray-700"
                           }`}>
                             {user.role.toUpperCase()}
                           </span>
@@ -230,12 +232,12 @@ const UserManagement = () => {
                         <td className="px-5 py-3">
                           {user.cancellationStats?.blockedUntil &&
                             new Date(user.cancellationStats.blockedUntil) > new Date() ? (
-                              <span className="text-red-600 flex items-center gap-1.5 text-sm">
+                              <span className="text-red-600 dark:text-red-400 flex items-center gap-1.5 text-sm">
                                 <Ban size={16} className="shrink-0" />
                                 <span>Blocked</span>
                               </span>
                             ) : (
-                              <span className="text-emerald-600 flex items-center gap-1.5 text-sm">
+                              <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 text-sm">
                                 <CheckCircle2 size={16} className="shrink-0" />
                                 <span>Active</span>
                               </span>
@@ -250,7 +252,7 @@ const UserManagement = () => {
                                 setSelectedUser(user);
                                 setShowRoleModal(true);
                               }}
-                              className="p-2 hover:bg-gray-100 rounded-lg text-blue-600 transition-colors tooltip"
+                              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-blue-600 dark:text-blue-400 transition-colors tooltip"
                               data-tip="Edit Role"
                             >
                               <Edit size={18} />
@@ -264,7 +266,7 @@ const UserManagement = () => {
                                   setSelectedUser(user);
                                   setShowUnblockModal(true);
                                 }}
-                                className="p-2 hover:bg-gray-100 rounded-lg text-emerald-600 transition-colors tooltip"
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-emerald-600 dark:text-emerald-400 transition-colors tooltip"
                                 data-tip="Unblock User"
                               >
                                 <CircleX size={18} />
@@ -277,7 +279,7 @@ const UserManagement = () => {
                                   setSelectedUser(user);
                                   setShowBlockModal(true);
                                 }}
-                                className="p-2 hover:bg-gray-100 rounded-lg text-amber-600 transition-colors tooltip"
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-amber-600 dark:text-amber-400 transition-colors tooltip"
                                 data-tip="Block User"
                               >
                                 <Ban size={18} />
@@ -291,7 +293,7 @@ const UserManagement = () => {
                                 setSelectedUser(user);
                                 setShowDeleteModal(true);
                               }}
-                              className="p-2 hover:bg-gray-100 rounded-lg text-red-600 transition-colors tooltip"
+                              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-red-600 dark:text-red-400 transition-colors tooltip"
                               data-tip="Delete User"
                             >
                               <Trash2 size={18} />
@@ -305,7 +307,7 @@ const UserManagement = () => {
               </table>
             </div>
           </motion.div>
-
+  
           {/* Pagination */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -315,20 +317,20 @@ const UserManagement = () => {
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
               disabled={pagination.page === 1}
-              className="px-4 py-2 bg-white border border-gray-200 rounded-lg hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-gray-600 hover:text-gray-800 shadow-sm"
+              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-gray-300 dark:hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-200 shadow-sm"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               Previous
             </button>
-            <span className="text-gray-600 text-sm">
+            <span className="text-gray-600 dark:text-gray-400 text-sm">
               Page {pagination.page} of {pagination.totalPages}
             </span>
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
               disabled={pagination.page === pagination.totalPages}
-              className="px-4 py-2 bg-white border border-gray-200 rounded-lg hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-gray-600 hover:text-gray-800 shadow-sm"
+              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-gray-300 dark:hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-200 shadow-sm"
             >
               Next
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -337,16 +339,16 @@ const UserManagement = () => {
             </button>
           </motion.div>
         </div>
-
+  
         {/* Modals */}
         <RoleEditModal
           isOpen={showRoleModal}
           onClose={() => setShowRoleModal(false)}
           user={selectedUser}
           onSave={handleRoleUpdate}
-          className="z-[100]" // Added z-index
+          className="z-[100]"
         />
-
+  
         <BlockUserModal
           isOpen={showBlockModal}
           onClose={() => setShowBlockModal(false)}
@@ -354,7 +356,7 @@ const UserManagement = () => {
           onConfirm={handleBlockUser}
           className="z-[100]"
         />
-
+  
         <ConfirmationModal
           isOpen={showUnblockModal}
           onClose={() => setShowUnblockModal(false)}
@@ -364,7 +366,7 @@ const UserManagement = () => {
           cancelText="Cancel"
           className="z-[100]"
         />
-
+  
         <ConfirmationModal
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}

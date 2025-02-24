@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 const FAQ = () => {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("general");
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -175,176 +179,182 @@ const FAQ = () => {
     }
   };
 
-  return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 flex flex-col justify-between px-6 sm:px-8 md:px-12 py-12"
-    >
-      {/* Page Title */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-12 text-center"
-      >
-        <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900">
-          Frequently Asked Questions
-        </h2>
-        <p className="text-gray-600 mt-4 text-lg sm:text-xl">
-          Have questions? Find your answers here.
-        </p>
-      </motion.div>
+  // Updated FAQ component with dark mode classes
+return (
+  <motion.section
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.8 }}
+    className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex flex-col justify-between px-6 sm:px-8 md:px-12 py-12"
+  >
 
-      {/* Content */}
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sections Sidebar */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 lg:flex lg:flex-col w-full lg:w-1/4">
-          {Object.keys(sections).map((section) => (
-            <button
-              key={section}
-              onClick={() => {
-                setActiveSection(section);
-                setCurrentQuestionIndex(0);
-              }}
-              className={`px-4 py-3 text-center font-semibold text-lg rounded-lg transition-all ${
-                activeSection === section
-                  ? "bg-blue-500 text-white shadow-md"
-                  : "bg-gray-200 text-gray-900 hover:bg-gray-300"
-              }`}
-            >
-              {section.charAt(0).toUpperCase() + section.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        {/* Divider Line */}
-        <div className="lg:w-px lg:h-auto lg:bg-gray-300 w-full h-px bg-gray-300"></div>
-
-        {/* Questions */}
-        <div className="relative flex-1">
-          {/* Scroll Up Icon */}
-          <button
-            onClick={() => handleScroll("up")}
-            disabled={currentQuestionIndex === 0}
-            className="absolute top-[-10px] left-1/2 transform -translate-x-1/2 p-2 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition disabled:opacity-50"
-          >
-            <FaChevronUp size={24} />
-          </button>
-
-          {/* Questions List */}
-          <motion.div
-            layout
-            className="space-y-8 pt-10 pb-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            {sections[activeSection]
-              .slice(currentQuestionIndex, currentQuestionIndex + 3)
-              .map(({ id, question, answer }) => (
-                <motion.div
-                  key={id}
-                  layout
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                  className="accordion py-6 px-8 border-b border-solid border-gray-300 rounded-lg bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 hover:bg-gradient-to-l hover:from-gray-200 hover:to-gray-100 shadow-md hover:shadow-lg"
-                >
-                  <button
-                    onClick={() => toggleQuestion(id)}
-                    className="accordion-toggle group inline-flex items-center justify-between leading-8 text-gray-900 w-full transition duration-500 text-left hover:text-blue-600"
-                  >
-                    <h5 className="text-xl sm:text-2xl font-semibold">
-                      {question}
-                    </h5>
-                    <svg
-                      className={`text-gray-500 transition duration-500 group-hover:text-blue-600 ${
-                        activeQuestion === id ? "rotate-180" : "rotate-0"
-                      }`}
-                      width="22"
-                      height="22"
-                      viewBox="0 0 22 22"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M16.5 8.25L12.4142 12.3358C11.7475 13.0025 11.4142 13.3358 11 13.3358C10.5858 13.3358 10.2525 13.0025 9.58579 12.3358L5.5 8.25"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      ></path>
-                    </svg>
-                  </button>
-                  <AnimatePresence>
-                    {activeQuestion === id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="w-full px-0 overflow-hidden"
-                      >
-                        <p className="text-base text-gray-800 leading-6 mt-4">
-                          {answer}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
-          </motion.div>
-
-          {/* Scroll Down Icon */}
-          <button
-            onClick={() => handleScroll("down")}
-            disabled={
-              currentQuestionIndex + 3 >= sections[activeSection].length
-            }
-            className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 p-2 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition disabled:opacity-50"
-          >
-            <FaChevronDown size={24} />
-          </button>
-        </div>
-      </div>
-
-      {/* Contact Customer Support */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="mt-12 text-center"
-      >
-        <p className="text-lg text-gray-600">
-          Didn’t find your question?{" "}
-          <a
-            href="/contact-support"
-            className="text-blue-600 font-semibold hover:underline"
-          >
-            Contact Customer Support
-          </a>
-        </p>
-      </motion.div>
-
-      {/* Back Button at Bottom-Left with Motion */}
-      <motion.div
+    {/* Back Button */}
+    <motion.div
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="bottom-8 left-8 z-50"
+        className="absolute top-6 left-4 sm:left-6"
       >
         <button
-          onClick={() => window.history.back()}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none transition-colors shadow"
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-300 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
         >
-          ← Back
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
         </button>
       </motion.div>
-    </motion.section>
-  );
+
+      <div className="mt-10">
+
+    {/* Page Title */}
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mb-12 text-center"
+    >
+      <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100">
+        Frequently Asked Questions
+      </h2>
+      <p className="text-gray-600 dark:text-gray-400 mt-4 text-lg sm:text-xl">
+        Have questions? Find your answers here.
+      </p>
+    </motion.div>
+
+    {/* Content */}
+    <div className="flex flex-col lg:flex-row gap-8">
+      {/* Sections Sidebar */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 lg:flex lg:flex-col w-full lg:w-1/4">
+        {Object.keys(sections).map((section) => (
+          <button
+            key={section}
+            onClick={() => {
+              setActiveSection(section);
+              setCurrentQuestionIndex(0);
+            }}
+            className={`px-4 py-3 text-center font-semibold text-lg rounded-lg transition-all ${
+              activeSection === section
+                ? "bg-blue-500 dark:bg-blue-600 text-white shadow-md"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+            }`}
+          >
+            {section.charAt(0).toUpperCase() + section.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* Divider Line */}
+      <div className="lg:w-px lg:h-auto lg:bg-gray-300 dark:lg:bg-gray-600 w-full h-px bg-gray-300 dark:bg-gray-600"></div>
+
+      {/* Questions */}
+      <div className="relative flex-1">
+        {/* Scroll Up Icon */}
+        <button
+          onClick={() => handleScroll("up")}
+          disabled={currentQuestionIndex === 0}
+          className="absolute top-[-10px] left-1/2 transform -translate-x-1/2 p-2 bg-blue-500 dark:bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-600 dark:hover:bg-blue-700 transition disabled:opacity-50"
+        >
+          <FaChevronUp size={24} />
+        </button>
+
+        {/* Questions List */}
+        <motion.div
+          layout
+          className="space-y-8 pt-10 pb-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {sections[activeSection]
+            .slice(currentQuestionIndex, currentQuestionIndex + 3)
+            .map(({ id, question, answer }) => (
+              <motion.div
+                key={id}
+                layout
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
+                className="accordion py-6 px-8 border-b border-solid border-gray-300 dark:border-gray-600 rounded-lg bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-700 dark:to-gray-600 hover:bg-gradient-to-l hover:from-gray-200 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600 shadow-md hover:shadow-lg transition-colors duration-300"
+              >
+                <button
+                  onClick={() => toggleQuestion(id)}
+                  className="accordion-toggle group inline-flex items-center justify-between leading-8 text-gray-900 dark:text-gray-100 w-full transition duration-500 text-left hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  <h5 className="text-xl sm:text-2xl font-semibold">
+                    {question}
+                  </h5>
+                  <svg
+                    className={`text-gray-500 dark:text-gray-400 transition duration-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 ${
+                      activeQuestion === id ? "rotate-180" : "rotate-0"
+                    }`}
+                    width="22"
+                    height="22"
+                    viewBox="0 0 22 22"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.5 8.25L12.4142 12.3358C11.7475 13.0025 11.4142 13.3358 11 13.3358C10.5858 13.3358 10.2525 13.0025 9.58579 12.3358L5.5 8.25"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    ></path>
+                  </svg>
+                </button>
+                <AnimatePresence>
+                  {activeQuestion === id && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="w-full px-0 overflow-hidden"
+                    >
+                      <p className="text-base text-gray-800 dark:text-gray-300 leading-6 mt-4">
+                        {answer}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+        </motion.div>
+
+        {/* Scroll Down Icon */}
+        <button
+          onClick={() => handleScroll("down")}
+          disabled={
+            currentQuestionIndex + 3 >= sections[activeSection].length
+          }
+          className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 p-2 bg-blue-500 dark:bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-600 dark:hover:bg-blue-700 transition disabled:opacity-50"
+        >
+          <FaChevronDown size={24} />
+        </button>
+      </div>
+    </div>
+
+    {/* Contact Customer Support */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5, duration: 0.5 }}
+      className="mt-12 text-center"
+    >
+      <p className="text-lg text-gray-600 dark:text-gray-400">
+        Didn’t find your question?{" "}
+        <a
+          href="/contact"
+          className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+        >
+          Contact Customer Support
+        </a>
+      </p>
+    </motion.div>
+    </div>
+  </motion.section>
+);
 };
 
 export default FAQ;

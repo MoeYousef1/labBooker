@@ -59,35 +59,35 @@ const LabRooms = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Navbar 
-        userInfo={userInfo} 
-        setUserInfo={setUserInfo} 
-      />
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+  <Navbar 
+    userInfo={userInfo} 
+    setUserInfo={setUserInfo} 
+  />
 
-      {/* Main content with increased top padding and bottom margin */}
-      <main className="flex-grow pt-24 pb-16 container mx-auto px-4">
-        {/* Welcome Section */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center">
-                <BookOpen className="mr-3 text-blue-500" />
-                Lab Rooms
-              </h1>
-              <p className="text-gray-600 text-lg mt-2">
-                Browse and book available laboratory spaces
-              </p>
-            </div>
-          </div>
-        </section>
+  {/* Main content with increased top padding and bottom margin */}
+  <main className="flex-grow pt-24 pb-16 container mx-auto px-4">
+    {/* Welcome Section */}
+    <section className="mb-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
+            <BookOpen className="mr-3 text-blue-500 dark:text-blue-400" />
+            Lab Rooms
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 text-lg mt-2">
+            Browse and book available laboratory spaces
+          </p>
+        </div>
+      </div>
+    </section>
 
-        {/* Rooms Section */}
-        <RoomsSection userInfo={userInfo} />
-      </main>
+    {/* Rooms Section */}
+    <RoomsSection userInfo={userInfo} />
+  </main>
 
-      <Footer />
-    </div>
+  <Footer/>
+</div>
   );
 };
 

@@ -258,49 +258,59 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
   if (activeRoom !== room._id) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fadeIn">
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl p-8 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-60 dark:bg-opacity-80 flex items-center justify-center z-50 animate-fadeIn">
+      <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl p-8 max-h-[90vh] overflow-y-auto transition-colors duration-300">
         {/* Header */}
-        <div className="flex justify-between items-center border-b pb-4 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Booking: {room.name}</h2>
-          <button className="text-gray-500 hover:text-red-500 text-3xl" onClick={closeModal}>
+        <div className="flex justify-between items-center border-b dark:border-gray-700 pb-4 mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            Booking: {room.name}
+          </h2>
+          <button 
+            className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-3xl transition-colors"
+            onClick={closeModal}
+          >
             &times;
           </button>
         </div>
-
+  
         {/* Form Content */}
         <div className="space-y-6">
           {/* Colleague Emails (if applicable) */}
           {room.type !== "Open" &&
             formData.colleagues.map((colleague, index) => (
               <div key={`colleague_${index}`} className="flex flex-col">
-                <label className="text-gray-700 mb-1">Colleague {index + 1} Email</label>
+                <label className="text-gray-700 dark:text-gray-300 mb-1">
+                  Colleague {index + 1} Email
+                </label>
                 <input
                   type="email"
                   name={`colleague_${index}`}
                   value={colleague}
                   onChange={handleInputChange}
-                  className="p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+                  className="p-3 border dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 dark:bg-gray-700 dark:text-gray-200"
                   required
                   placeholder="e.g., colleague@example.com"
                 />
               </div>
             ))}
-
-
+  
           {/* Custom Datepicker */}
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Select Date</label>
+            <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+              Select Date
+            </label>
             <CustomDatepicker
               onDateChange={handleDateSelected}
               availableDates={availableDates}
               placeholder="Choose a date"
             />
           </div>
-
+  
           {/* Time Slot Selector */}
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Select Time Slot</label>
+            <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+              Select Time Slot
+            </label>
             {formData.date ? (
               displaySlots.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -308,32 +318,31 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
                     const isSelected =
                       formData.startTime === slot.startTime &&
                       formData.endTime === slot.endTime;
-
+  
                     let slotStatus = "Available";
-
                     if (slot.status !== "Available") {
                       slotStatus = "Booked";
                     } else if (slot.isPast) {
                       slotStatus = "Past";
                     }
-
-                    // Determine CSS classes based on slot status
-                    let slotClasses = "relative px-4 py-3 border border-gray-300 rounded-md flex items-center justify-center transition";
-
+  
+                    let slotClasses = "relative px-4 py-3 border rounded-md flex items-center justify-center transition ";
+                    slotClasses += "dark:border-gray-600 ";
+  
                     if (slotStatus === "Available") {
-                      slotClasses += "text-gray-800 hover:bg-blue-50 cursor-pointer";
-                    } else if (slotStatus === "Booked") {
-                      slotClasses += " bg-gray-200 text-gray-500 cursor-not-allowed";
-                    } else if (slotStatus === "Past") {
-                      slotClasses += " bg-gray-200 text-gray-500 cursor-not-allowed";
+                      slotClasses += "text-gray-800 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer ";
+                    } else {
+                      slotClasses += "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed ";
                     }
-
+  
                     return (
                       <button
                         key={index}
                         onClick={() => handleSlotSelect(slot)}
                         className={`${slotClasses} ${
-                          isSelected ? "bg-blue-700 text-white border-blue-600 hover:bg-blue-700" : ""
+                          isSelected 
+                            ? "bg-blue-700 dark:bg-blue-600 text-white border-blue-600 hover:bg-blue-700" 
+                            : ""
                         }`}
                         disabled={slotStatus !== "Available"}
                         aria-pressed={isSelected}
@@ -346,7 +355,9 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
                           <div className="absolute bottom-0 right-2">
                             <span
                               className={`text-[10px] uppercase font-semibold ${
-                                slotStatus === "Booked" ? "text-red-500" : "text-gray-500"
+                                slotStatus === "Booked" 
+                                  ? "text-red-500 dark:text-red-400" 
+                                  : "text-gray-500 dark:text-gray-400"
                               }`}
                             >
                               {slotStatus}
@@ -358,16 +369,17 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
                   })}
                 </div>
               ) : (
-                <p className="text-red-500">No available time slots for this date.</p>
+                <p className="text-red-500 dark:text-red-400">No available time slots for this date.</p>
               )
             ) : (
-              <p className="text-gray-500">Please select a date first.</p>
+              <p className="text-gray-500 dark:text-gray-400">Please select a date first.</p>
             )}
           </div>
-
+  
           {/* Error and Success Messages */}
           {(formError || successMessage) && (
             <div className="text-center">
+              {/* Ensure Message component has dark mode support */}
               {formError && (
                 <Message
                   message={formError}
@@ -384,13 +396,13 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
               )}
             </div>
           )}
-
+  
           {/* Submit Button */}
           <button
             onClick={handleProceedBooking}
             disabled={isSubmitting}
-            className={`w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg ${
-              isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+            className={`w-full py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg ${
+              isSubmitting ? "opacity-50 cursor-not-allowed dark:opacity-70" : ""
             }`}
           >
             {isSubmitting ? "Booking..." : "Proceed with Booking"}
