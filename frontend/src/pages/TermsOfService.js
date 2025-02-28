@@ -1,10 +1,113 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import PageEditor from "../components/PageEditor";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import api from "../utils/axiosConfig";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [pageData, setPageData] = useState({
+    title: "Terms of Service",
+    content: "Loading...",
+    lastUpdated: new Date().toISOString()
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Reuse the same Markdown components from PrivacyPolicy
+  const components = {
+    h1: ({ node, ...props }) => (
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+        {props.children}
+      </h1>
+    ),
+    h2: ({ node, ...props }) => (
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-4">
+        {props.children}
+      </h2>
+    ),
+    h3: ({ node, ...props }) => (
+      <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mt-6 mb-3">
+        {props.children}
+      </h3>
+    ),
+    p: ({ node, ...props }) => (
+      <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+        {props.children}
+      </p>
+    ),
+    ul: ({ node, ...props }) => (
+      <ul className="list-disc pl-6 space-y-2 mb-4 text-gray-600 dark:text-gray-300">
+        {props.children}
+      </ul>
+    ),
+    ol: ({ node, ...props }) => (
+      <ol className="list-decimal pl-6 space-y-2 mb-4 text-gray-600 dark:text-gray-300">
+        {props.children}
+      </ol>
+    ),
+    li: ({ node, ...props }) => (
+      <li className="pl-2">{props.children}</li>
+    ),
+    a: ({ node, ...props }) => (
+      <a 
+        className="text-blue-600 dark:text-blue-400 hover:underline font-medium" 
+        href={props.href} 
+        target="_blank" 
+        rel="noopener noreferrer"
+      >
+        {props.children}
+      </a>
+    ),
+    strong: ({ node, ...props }) => (
+      <strong className="font-semibold text-gray-900 dark:text-gray-100">
+        {props.children}
+      </strong>
+    ),
+    blockquote: ({ node, ...props }) => (
+      <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 my-4 italic text-gray-600 dark:text-gray-400">
+        {props.children}
+      </blockquote>
+    )
+  };
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    setUser(storedUser);
+  }, []);
+
+  const fetchPageData = async () => {
+    try {
+      const response = await api.get(`/pages/terms-of-service`);
+      setPageData({
+        title: response.data.title,
+        content: response.data.content,
+        lastUpdated: response.data.lastUpdated
+      });
+      setError(null);
+    } catch (err) {
+      setError("Failed to load terms of service");
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPageData();
+  }, []);
+
+  const handleUpdateSuccess = () => {
+    fetchPageData();
+  };
+
+  const isAdmin = user?.role === 'admin';
 
   return (
     <motion.div
@@ -13,7 +116,6 @@ const TermsOfService = () => {
       transition={{ duration: 0.8 }}
       className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center px-4 sm:px-6 lg:px-8 py-12 relative"
     >
-      {/* Back Button */}
       <motion.div
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -29,175 +131,60 @@ const TermsOfService = () => {
         </button>
       </motion.div>
 
-      {/* Main Content */}
-      <div className="w-full max-w-4xl">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          {/* Header Card */}
-          <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700">
-            <div className="flex items-start gap-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                  Terms of Service
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg">
-                  Effective Date: {new Date().toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+      <div className="w-full max-w-4xl mt-10">
+        {isAdmin && (
+          <PageEditor slug="terms-of-service" onUpdate={handleUpdateSuccess} />
+        )}
 
-        {/* Terms Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 p-6 sm:p-8 space-y-8"
         >
-          <div className="space-y-6">
-            {/* Acceptance of Terms */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                1. Acceptance of Terms
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                By accessing or using the Lab Booking System, you agree to be bound by these Terms of Service. 
-                If you disagree with any part, you may not access the service.
-              </p>
-            </section>
-
-            {/* User Responsibilities */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                2. User Responsibilities
-              </h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>Provide accurate registration information</li>
-                <li>Maintain account security</li>
-                <li>Use services only for lawful purposes</li>
-                <li>Report unauthorized use immediately</li>
-                <li>Comply with all college policies</li>
-              </ul>
-            </section>
-
-            {/* Bookings */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                3. Lab Bookings
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                Users agree to:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>Book only available time slots</li>
-                <li>Cancel unused reservations promptly</li>
-                <li>Follow lab safety protocols</li>
-                <li>Report equipment issues immediately</li>
-              </ul>
-            </section>
-
-            {/* Intellectual Property */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                4. Intellectual Property
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                All system content, features, and functionality are exclusive property 
-                of the college and protected by intellectual property laws.
-              </p>
-            </section>
-
-            {/* Termination */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                5. Termination
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                We may terminate or suspend access immediately for:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>Violations of these terms</li>
-                <li>Security or technical issues</li>
-                <li>Fraudulent or illegal activity</li>
-              </ul>
-            </section>
-
-            {/* Disclaimers */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                6. Disclaimers
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                The service is provided "as-is" without warranties of any kind. 
-                We do not guarantee uninterrupted access or error-free operation.
-              </p>
-            </section>
-
-            {/* Limitation of Liability */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                7. Limitation of Liability
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                The college shall not be liable for any indirect, incidental, 
-                or consequential damages arising from service use.
-              </p>
-            </section>
-
-            {/* Governing Law */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                8. Governing Law
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                These terms shall be governed by the laws of [Your State/Country] 
-                without regard to conflict of law principles.
-              </p>
-            </section>
-
-            {/* Changes to Terms */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                9. Changes to Terms
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                We reserve the right to modify these terms at any time. 
-                Continued use after changes constitutes acceptance.
-              </p>
-            </section>
-
-            {/* Contact */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                10. Contact Information
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                For questions about these Terms:
-              </p>
-              <div className="mt-2">
-                <a
-                  href="mailto:support@labbookings.com"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  support@labbookings.com
-                </a>
+          {loading ? (
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
               </div>
-            </section>
-          </div>
+            </div>
+          ) : error ? (
+            <div className="text-red-500 dark:text-red-400 text-center py-8">
+              {error}
+            </div>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                {pageData.title}
+              </h1>
 
-          {/* Footer */}
-          <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-              These terms were last updated on {new Date().toLocaleDateString()}
-            </p>
-          </div>
+              <article className="prose dark:prose-invert max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                  components={components}
+                >
+                  {pageData.content}
+                </ReactMarkdown>
+              </article>
+
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Last updated:{" "}
+                  {pageData.lastUpdated ? 
+                    new Date(pageData.lastUpdated).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    }) : "No update date available"}
+                </p>
+              </div>
+            </>
+          )}
         </motion.div>
 
-        {/* Back to Home Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

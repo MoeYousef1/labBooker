@@ -1,10 +1,113 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import PageEditor from "../components/PageEditor";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import api from "../utils/axiosConfig";
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [pageData, setPageData] = useState({
+    title: "Privacy Policy",
+    content: "Loading...",
+    lastUpdated: new Date().toISOString()
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Custom Markdown components with Tailwind styling
+  const components = {
+    h1: ({ node, ...props }) => (
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+        {props.children}
+      </h1>
+    ),
+    h2: ({ node, ...props }) => (
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-4">
+        {props.children}
+      </h2>
+    ),
+    h3: ({ node, ...props }) => (
+      <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mt-6 mb-3">
+        {props.children}
+      </h3>
+    ),
+    p: ({ node, ...props }) => (
+      <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+        {props.children}
+      </p>
+    ),
+    ul: ({ node, ...props }) => (
+      <ul className="list-disc pl-6 space-y-2 mb-4 text-gray-600 dark:text-gray-300">
+        {props.children}
+      </ul>
+    ),
+    ol: ({ node, ...props }) => (
+      <ol className="list-decimal pl-6 space-y-2 mb-4 text-gray-600 dark:text-gray-300">
+        {props.children}
+      </ol>
+    ),
+    li: ({ node, ...props }) => (
+      <li className="pl-2">{props.children}</li>
+    ),
+    a: ({ node, ...props }) => (
+      <a 
+        className="text-blue-600 dark:text-blue-400 hover:underline font-medium" 
+        href={props.href} 
+        target="_blank" 
+        rel="noopener noreferrer"
+      >
+        {props.children}
+      </a>
+    ),
+    strong: ({ node, ...props }) => (
+      <strong className="font-semibold text-gray-900 dark:text-gray-100">
+        {props.children}
+      </strong>
+    ),
+    blockquote: ({ node, ...props }) => (
+      <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 my-4 italic text-gray-600 dark:text-gray-400">
+        {props.children}
+      </blockquote>
+    )
+  };
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    setUser(storedUser);
+  }, []);
+
+  const fetchPageData = async () => {
+    try {
+      const response = await api.get(`/pages/privacy-policy`);
+      setPageData({
+        title: response.data.title,
+        content: response.data.content,
+        lastUpdated: response.data.lastUpdated
+      });
+      setError(null);
+    } catch (err) {
+      setError("Failed to load privacy policy");
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPageData();
+  }, []);
+
+  const handleUpdateSuccess = () => {
+    fetchPageData();
+  };
+
+  const isAdmin = user?.role === 'admin';
 
   return (
     <motion.div
@@ -13,7 +116,6 @@ const PrivacyPolicy = () => {
       transition={{ duration: 0.8 }}
       className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center px-4 sm:px-6 lg:px-8 py-12 relative"
     >
-      {/* Back Button */}
       <motion.div
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -29,181 +131,60 @@ const PrivacyPolicy = () => {
         </button>
       </motion.div>
 
-      {/* Main Content */}
-      <div className="w-full max-w-4xl">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          {/* Header Card */}
-          <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700">
-            <div className="flex items-start gap-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                  Privacy Policy
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg">
-                  Last updated: {new Date().toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+      <div className="w-full max-w-4xl mt-10">
+        {isAdmin && (
+          <PageEditor slug="privacy-policy" onUpdate={handleUpdateSuccess} />
+        )}
 
-        {/* Policy Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 p-6 sm:p-8 space-y-8"
         >
-          <div className="space-y-6">
-            {/* Introduction */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                1. Introduction
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                We are committed to protecting your personal information and 
-                your right to privacy. This Privacy Policy explains how we collect, 
-                use, and protect your information when you use our lab booking services.
-              </p>
-            </section>
-
-            {/* Data Collection */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                2. Data We Collect
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                We may collect the following types of information:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>Personal identification information (Name, email, student ID)</li>
-                <li>Booking history and preferences</li>
-                <li>Device and usage data (IP address, browser type)</li>
-                <li>Technical logs and error reports</li>
-              </ul>
-            </section>
-
-            {/* Data Use */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                3. How We Use Your Data
-              </h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>To provide and maintain our services</li>
-                <li>To process lab bookings and reservations</li>
-                <li>To communicate with users about their bookings</li>
-                <li>To improve system security and performance</li>
-                <li>To comply with legal obligations</li>
-              </ul>
-            </section>
-
-            {/* Data Sharing */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                4. Data Sharing
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                We do not share your personal information with third parties except:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>With your explicit consent</li>
-                <li>To comply with legal requirements</li>
-                <li>To protect rights and safety of users</li>
-                <li>With authorized college administrators</li>
-              </ul>
-            </section>
-
-            {/* Data Security */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                5. Data Security
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                We implement appropriate security measures including:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>SSL/TLS encryption for data transmission</li>
-                <li>Secure server infrastructure</li>
-                <li>Regular security audits</li>
-                <li>Access control restrictions</li>
-              </ul>
-            </section>
-
-            {/* User Rights */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                6. Your Rights
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                You have the right to:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>Access your personal data</li>
-                <li>Request correction of inaccurate data</li>
-                <li>Request deletion of your data</li>
-                <li>Object to processing of your data</li>
-                <li>Request data portability</li>
-              </ul>
-            </section>
-
-            {/* Cookies */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                7. Cookies
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                We use essential cookies for:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
-                <li>User authentication</li>
-                <li>Session management</li>
-                <li>System performance monitoring</li>
-              </ul>
-            </section>
-
-            {/* Policy Changes */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                8. Policy Changes
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                We may update this policy periodically. Significant changes will be 
-                notified through our platform or via email.
-              </p>
-            </section>
-
-            {/* Contact */}
-            <section className="space-y-3">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                9. Contact Us
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                For privacy-related inquiries, contact our Data Protection Officer at:
-              </p>
-              <div className="mt-2">
-                <a
-                  href="mailto:privacy@labbookings.com"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  privacy@labbookings.com
-                </a>
+          {loading ? (
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
               </div>
-            </section>
-          </div>
+            </div>
+          ) : error ? (
+            <div className="text-red-500 dark:text-red-400 text-center py-8">
+              {error}
+            </div>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                {pageData.title}
+              </h1>
 
-          {/* Footer */}
-          <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-              This document was last updated on {new Date().toLocaleDateString()}
-            </p>
-          </div>
+              <article className="prose dark:prose-invert max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                  components={components}
+                >
+                  {pageData.content}
+                </ReactMarkdown>
+              </article>
+
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Last updated:{" "}
+                  {pageData.lastUpdated ? 
+                    new Date(pageData.lastUpdated).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    }) : "No update date available"}
+                </p>
+              </div>
+            </>
+          )}
         </motion.div>
 
-        {/* Back to Home Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -21,6 +21,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const notificationsRoutes = require("./routes/notificationsRoutes");
 const healthRoutes = require("./routes/healthRoutes");
 const issueRoutes = require("./routes/issueRoutes");
+const pageRoutes = require('./routes/pageRoutes');
 console.log("[IMPORT] Route imports completed");
 
 // Debugging function for route registration
@@ -230,6 +231,7 @@ try {
     { path: "/api/notifications", routes: notificationsRoutes },
     { path: "/api/health", routes: healthRoutes },
     { path: "/api/issues", routes: issueRoutes },
+    { path: '/api/pages', routes: pageRoutes },
   ];
 
   routesToRegister.forEach(({ path, routes }) => {
