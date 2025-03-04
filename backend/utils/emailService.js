@@ -208,4 +208,42 @@ const sendVerificationEmail = async (email, code) => {
   }
 };
 
-module.exports = { sendVerificationEmail };
+const sendContactEmail = async (name, email, message) => {
+  try {
+    // Email to support
+    await sendEmail(
+      process.env.SUPPORT_EMAIL, // Add SUPPORT_EMAIL to your .env
+      `New Contact Form Submission from ${name}`,
+      `
+        <h3>New Message from ${name}</h3>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong></p>
+        <div style="white-space: pre-wrap">${message}</div>
+        <hr>
+        <p>Received at: ${new Date().toLocaleString()}</p>
+      `,
+    );
+
+    // Confirmation email to user
+    await sendEmail(
+      email,
+      "We Received Your Message",
+      `
+        <h3>Thank you, ${name}!</h3>
+        <p>Your message has been received by our support team.</p>
+        <p><strong>Your message:</strong></p>
+        <div style="white-space: pre-wrap">${message}</div>
+        <hr>
+        <p>We aim to respond within 24-48 hours.</p>
+        <p style="color: #666; font-size: 0.9em;">
+          This is an automated message - please do not reply directly to this email.
+        </p>
+      `,
+    );
+  } catch (error) {
+    console.error("Error sending contact email:", error);
+    throw error;
+  }
+};
+
+module.exports = { sendVerificationEmail, sendContactEmail };
