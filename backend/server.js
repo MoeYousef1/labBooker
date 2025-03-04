@@ -21,7 +21,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const notificationsRoutes = require("./routes/notificationsRoutes");
 const healthRoutes = require("./routes/healthRoutes");
 const issueRoutes = require("./routes/issueRoutes");
-const pageRoutes = require('./routes/pageRoutes');
+const pageRoutes = require("./routes/pageRoutes");
 console.log("[IMPORT] Route imports completed");
 
 // Debugging function for route registration
@@ -36,7 +36,7 @@ function debugRouteRegistration(app, path, routes) {
     } else {
       console.warn(
         `[ROUTE] Unexpected routes type for ${path}:`,
-        typeof routes
+        typeof routes,
       );
     }
     app.use(path, routes);
@@ -59,7 +59,7 @@ app.use((req, res, next) => {
     console.log(
       `[${new Date().toISOString()}] ${req.method} ${req.url} - ${
         res.statusCode
-      } (${duration}ms)`
+      } (${duration}ms)`,
     );
     originalEnd.call(this, chunk, encoding);
   };
@@ -76,7 +76,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
     exposedHeaders: ["X-System-Health", "X-Response-Time"],
     credentials: true,
-  })
+  }),
 );
 
 app.use(
@@ -89,7 +89,7 @@ app.use(
         imgSrc: ["'self'", "data:", "https:"],
       },
     },
-  })
+  }),
 );
 
 app.use(express.json());
@@ -134,10 +134,10 @@ mongoose
       // Create new TTL index for bookings
       await Booking.collection.createIndex(
         { deletedAt: 1 },
-        { expireAfterSeconds: THREE_DAYS_IN_SECONDS }
+        { expireAfterSeconds: THREE_DAYS_IN_SECONDS },
       );
       console.log(
-        "✅ TTL index for Bookings created successfully (3 days expiration)"
+        "✅ TTL index for Bookings created successfully (3 days expiration)",
       );
     } catch (error) {
       console.error("❌ Error setting up TTL index for Bookings:", error);
@@ -160,10 +160,10 @@ mongoose
       // it will be automatically removed after 3 days.
       await Notification.collection.createIndex(
         { readAt: 1 },
-        { expireAfterSeconds: THREE_DAYS_IN_SECONDS }
+        { expireAfterSeconds: THREE_DAYS_IN_SECONDS },
       );
       console.log(
-        "✅ Notification TTL index created successfully (3 days expiration)"
+        "✅ Notification TTL index created successfully (3 days expiration)",
       );
     } catch (error) {
       console.error("❌ Error setting up Notification TTL index:", error);
@@ -184,10 +184,10 @@ mongoose
       // Create TTL index for HealthCheck documents
       await HealthCheck.collection.createIndex(
         { timestamp: 1 },
-        { expireAfterSeconds: THIRTY_DAYS_IN_SECONDS }
+        { expireAfterSeconds: THIRTY_DAYS_IN_SECONDS },
       );
       console.log(
-        "✅ TTL index for HealthCheck created successfully (30 days expiration)"
+        "✅ TTL index for HealthCheck created successfully (30 days expiration)",
       );
     } catch (error) {
       console.error("❌ Error setting up TTL index for HealthCheck:", error);
@@ -231,7 +231,7 @@ try {
     { path: "/api/notifications", routes: notificationsRoutes },
     { path: "/api/health", routes: healthRoutes },
     { path: "/api/issues", routes: issueRoutes },
-    { path: '/api/pages', routes: pageRoutes },
+    { path: "/api/pages", routes: pageRoutes },
   ];
 
   routesToRegister.forEach(({ path, routes }) => {
@@ -246,7 +246,7 @@ try {
 // Specific Booking Routes Debugging
 console.log(
   "[DEBUG] Booking Routes Content:",
-  require("./routes/bookingRoutes")
+  require("./routes/bookingRoutes"),
 );
 
 // Error Handling Middleware

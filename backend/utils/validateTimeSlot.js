@@ -16,7 +16,7 @@ async function validateTimeSlot(roomId, date, startTime, endTime) {
 
   // Convert times to minutes for easier comparison
   const parseTime = (timeStr) => {
-    const [hours, minutes] = timeStr.split(':').map(Number);
+    const [hours, minutes] = timeStr.split(":").map(Number);
     return hours * 60 + minutes;
   };
 
@@ -25,7 +25,7 @@ async function validateTimeSlot(roomId, date, startTime, endTime) {
 
   // Validate time order
   if (newBookingStart >= newBookingEnd) {
-    throw new Error('Start time must be before end time');
+    throw new Error("Start time must be before end time");
   }
 
   // Check for any overlapping bookings
@@ -37,19 +37,19 @@ async function validateTimeSlot(roomId, date, startTime, endTime) {
       // New booking starts within an existing booking
       {
         startTime: { $lt: endTime },
-        endTime: { $gt: startTime }
+        endTime: { $gt: startTime },
       },
       // New booking completely covers an existing booking
       {
         startTime: { $gte: startTime },
-        endTime: { $lte: endTime }
+        endTime: { $lte: endTime },
       },
       // Existing booking completely covers new booking
       {
         startTime: { $lte: startTime },
-        endTime: { $gte: endTime }
-      }
-    ]
+        endTime: { $gte: endTime },
+      },
+    ],
   });
 
   // Return true if no overlapping bookings are found

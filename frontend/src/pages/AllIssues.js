@@ -89,14 +89,14 @@ const AllIssues = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.data.issue) {
         setIssues(
           issues.map((issue) =>
-            issue._id === issueId ? response.data.issue : issue
-          )
+            issue._id === issueId ? response.data.issue : issue,
+          ),
         );
         setSuccessMessage("Status updated successfully");
         setTimeout(() => setSuccessMessage(""), 3000);
@@ -140,40 +140,40 @@ const AllIssues = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-200"
+        className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 p-4 sm:p-6 md:p-8 overflow-x-hidden"
       >
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 sm:mb-2">
               Issue Management
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Track and manage all reported issues
             </p>
           </div>
-  
+
           {/* Main Content Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
             {/* Search and Filters */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-              <div className="flex flex-col md:flex-row gap-4">
+            <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                 <div className="flex-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                   </div>
                   <input
                     type="text"
-                    placeholder="Search by description, email, or type..."
+                    placeholder="Search issues..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full pl-10 pr-4 py-3 border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition duration-150 ease-in-out bg-white dark:bg-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
+                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-100 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-gray-200"
                   />
                 </div>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="block w-full md:w-48 px-4 py-3 border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent transition duration-150 ease-in-out bg-white dark:bg-gray-700 dark:text-gray-200"
+                  className="w-full md:w-48 px-4 py-2.5 sm:py-3 border border-gray-100 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-gray-200"
                 >
                   <option value="all">All Status</option>
                   {STATUS_OPTIONS.map((option) => (
@@ -184,127 +184,104 @@ const AllIssues = () => {
                 </select>
               </div>
             </div>
-  
+
             {/* Messages */}
             {error && (
-              <div className="mx-6 mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800/30 flex items-center space-x-2">
+              <div className="mx-4 sm:mx-6 mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800/30 flex items-center gap-2 text-sm">
                 <AlertCircle className="h-5 w-5 text-red-400 dark:text-red-500" />
-                <span className="text-red-700 dark:text-red-300 text-sm">{error}</span>
+                <span className="text-red-700 dark:text-red-300">{error}</span>
               </div>
             )}
-  
+
             {successMessage && (
-              <div className="mx-6 mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800/30 flex items-center space-x-2">
+              <div className="mx-4 sm:mx-6 mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800/30 flex items-center gap-2 text-sm">
                 <CheckCircle className="h-5 w-5 text-green-400 dark:text-green-500" />
-                <span className="text-green-700 dark:text-green-300 text-sm">{successMessage}</span>
+                <span className="text-green-700 dark:text-green-300">
+                  {successMessage}
+                </span>
               </div>
             )}
-  
+
             {/* Table Section */}
             <div className="overflow-x-auto">
               {loading ? (
                 <div className="flex items-center justify-center h-64">
                   <div className="flex flex-col items-center">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 dark:border-blue-600"></div>
-                    <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500"></div>
+                    <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                       Loading issues...
                     </p>
                   </div>
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      {["Type", "Description", "Reported By", "Status", "Actions"].map((header) => (
+                      {[
+                        "Type",
+                        "Description",
+                        "Reported By",
+                        "Status",
+                        "Actions",
+                      ].map((header) => (
                         <th
                           key={header}
-                          scope="col"
-                          className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                          className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider"
                         >
                           {header}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                     {filteredIssues.map((issue) => (
                       <tr
                         key={issue._id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-200"
+                        className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30"
                       >
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-4">
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium capitalize
-                            ${
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                               issue.issueType === "technical"
-                                ? "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200"
+                                ? "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
                                 : issue.issueType === "booking"
-                                ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200"
-                                : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                                  ? "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                             }`}
                           >
                             {issue.issueType}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-gray-200 max-w-md">
-                            {issue.description}
-                          </div>
+                        <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 dark:text-gray-200 max-w-xs sm:max-w-md truncate">
+                          {issue.description}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {issue.email}
-                          </div>
+                        <td className="px-4 sm:px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                          {issue.email}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="relative inline-block">
-                            <select
-                              value={issue.status}
-                              onChange={(e) =>
-                                handleStatusUpdate(issue._id, e.target.value)
-                              }
-                              className={`appearance-none cursor-pointer pl-4 pr-10 py-2 rounded-full text-sm font-medium transition-all duration-200
-                                ${getStatusStyles(issue.status).background}
-                                ${getStatusStyles(issue.status).text}
-                                ${getStatusStyles(issue.status).hover}
-                                border-2 
-                                ${getStatusStyles(issue.status).border}
-                                focus:outline-none focus:ring-2
-                                ${getStatusStyles(issue.status).ring}
-                                dark:${getStatusStyles(issue.status).darkBackground}
-                                dark:${getStatusStyles(issue.status).darkText}
-                                dark:${getStatusStyles(issue.status).darkBorder}
-                              `}
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="in-progress">In Progress</option>
-                              <option value="resolved">Resolved</option>
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                              <svg
-                                className={`h-4 w-4 transition-colors duration-200 ${
-                                  getStatusStyles(issue.status).icon
-                                } dark:${getStatusStyles(issue.status).darkIcon}`}
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                          </div>
+                        <td className="px-4 sm:px-6 py-4">
+                          <select
+                            value={issue.status}
+                            onChange={(e) =>
+                              handleStatusUpdate(issue._id, e.target.value)
+                            }
+                            className={`w-full sm:w-48 px-3 py-1.5 rounded-full text-sm border-2 ${
+                              getStatusStyles(issue.status).background
+                            } ${getStatusStyles(issue.status).text} ${
+                              getStatusStyles(issue.status).border
+                            } focus:ring-2 focus:outline-none`}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                          </select>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-4">
                           <button
                             onClick={() => handleDelete(issue._id)}
-                            className="inline-flex items-center gap-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 px-4 py-2 rounded-lg transition-colors duration-200"
+                            className="flex items-center gap-1.5 text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm px-3 py-1.5 rounded-lg transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />
-                            Delete
+                            <span className="hidden sm:inline">Delete</span>
                           </button>
                         </td>
                       </tr>
@@ -312,17 +289,15 @@ const AllIssues = () => {
                   </tbody>
                 </table>
               )}
-  
+
               {!loading && filteredIssues.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-64">
-                  <div className="text-gray-400 dark:text-gray-600 mb-2">
-                    <Search className="h-12 w-12" />
-                  </div>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                <div className="flex flex-col items-center justify-center h-64 p-6">
+                  <Search className="h-12 w-12 text-gray-400 dark:text-gray-600 mb-3" />
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     No issues found
                   </h3>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Try adjusting your search or filter criteria
+                    Try adjusting your search or filters
                   </p>
                 </div>
               )}

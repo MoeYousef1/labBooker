@@ -230,7 +230,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       <Navbar userInfo={userInfo} setUserInfo={setUserInfo} />
-  
+
       <main className="flex-grow pt-24 pb-16 container mx-auto px-4">
         {/* Welcome Section - Enhanced */}
         <section className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl mb-8">
@@ -248,7 +248,9 @@ const HomePage = () => {
               </div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                 Welcome, {userInfo.username}
-                <span className="text-blue-600 dark:text-blue-400 ml-2">👋</span>
+                <span className="text-blue-600 dark:text-blue-400 ml-2">
+                  👋
+                </span>
               </h1>
               <p className="text-gray-600 dark:text-gray-400 text-lg max-w-3xl">
                 Manage your lab bookings and explore available rooms with
@@ -262,7 +264,7 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-  
+
         {/* Room Status Section - Enhanced */}
         <section className="mb-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700">
@@ -278,7 +280,9 @@ const HomePage = () => {
               </div>
               <button
                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                aria-label={isRoomsExpanded ? "Collapse section" : "Expand section"}
+                aria-label={
+                  isRoomsExpanded ? "Collapse section" : "Expand section"
+                }
               >
                 <svg
                   className={`w-6 h-6 transform transition-transform ${isRoomsExpanded ? "rotate-180" : ""} text-gray-900 dark:text-gray-200`}
@@ -296,7 +300,7 @@ const HomePage = () => {
               </button>
             </div>
           </div>
-  
+
           {isRoomsExpanded && (
             <div className="p-6 pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -329,11 +333,13 @@ const HomePage = () => {
                         />
                       </div>
                     </div>
-  
+
                     {room.isActive && (
                       <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-600">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-500 dark:text-gray-400">Until</span>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            Until
+                          </span>
                           <span className="font-medium text-gray-700 dark:text-gray-200">
                             {room.currentBooking?.endTime || "..."}
                           </span>
@@ -354,7 +360,7 @@ const HomePage = () => {
           setModalConfig={setModalConfig}
           userInfo={userInfo}
         />
-  
+
         {/* Quick Actions Grid - Enhanced */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Book a Room Card */}
@@ -377,7 +383,7 @@ const HomePage = () => {
             </div>
             <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-blue-50 dark:bg-blue-900/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
           </div>
-  
+
           {/* My Bookings Card */}
           <div
             onClick={() => navigate("/bookings")}
@@ -400,9 +406,9 @@ const HomePage = () => {
           </div>
         </div>
       </main>
-  
+
       <Footer className="mt-auto" />
-  
+
       {/* Modals and Toasts */}
       <Modal
         isOpen={isModalOpen}
@@ -410,8 +416,8 @@ const HomePage = () => {
         {...modalConfig}
       />
 
-        {/* {showMissedBookingPrompt && missedBooking && <MissedBookingPrompt />} */}
-  
+      {/* {showMissedBookingPrompt && missedBooking && <MissedBookingPrompt />} */}
+
       {toast.isVisible && (
         <div className="fixed bottom-4 right-4 z-50">
           <Toast

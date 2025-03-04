@@ -1,8 +1,8 @@
 // components/ProtectedRoute.js
-import { Navigate } from 'react-router-dom';
+import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem("user"));
 
   if (!user) {
     return <Navigate to="/login" replace />;

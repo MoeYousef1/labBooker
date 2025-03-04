@@ -26,7 +26,7 @@ const FormInput = ({
   placeholder,
   required,
   maxLength,
-  className
+  className,
 }) => {
   return (
     <div className="space-y-2">
@@ -49,9 +49,7 @@ const FormInput = ({
           transition-all duration-300 ${className}
         `}
       />
-      {error && (
-        <p className="text-red-400 text-sm mt-1">{error}</p>
-      )}
+      {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
     </div>
   );
 };
@@ -59,9 +57,11 @@ const FormInput = ({
 // ErrorMessage Component (same as LoginPage)
 const ErrorMessage = ({ message, onClose, className }) => {
   if (!message) return null;
-  
+
   return (
-    <div className={`bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg mt-4 ${className}`}>
+    <div
+      className={`bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg mt-4 ${className}`}
+    >
       <div className="flex justify-between items-center">
         <p className="text-sm">{message}</p>
         <button
@@ -89,9 +89,25 @@ const AuthButton = ({ isSubmitting, label, className }) => {
       `}
     >
       {isSubmitting ? (
-        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg
+          className="animate-spin h-5 w-5 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
         </svg>
       ) : (
         label
@@ -115,8 +131,8 @@ const SignUpPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: "" }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
     setGeneralError("");
   };
 
@@ -158,7 +174,9 @@ const SignUpPage = () => {
 
       navigate("/login");
     } catch (error) {
-      setGeneralError(error.response?.data?.message || "Invalid verification code");
+      setGeneralError(
+        error.response?.data?.message || "Invalid verification code",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -167,8 +185,12 @@ const SignUpPage = () => {
   const renderDetailsForm = () => (
     <form onSubmit={handleDetailsSubmit} className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl text-white font-semibold mb-2">Create Account</h2>
-        <p className="text-gray-400 text-sm">Fill in your details to get started</p>
+        <h2 className="text-xl text-white font-semibold mb-2">
+          Create Account
+        </h2>
+        <p className="text-gray-400 text-sm">
+          Fill in your details to get started
+        </p>
       </div>
 
       <FormInput
@@ -197,9 +219,9 @@ const SignUpPage = () => {
         placeholder="Enter your email"
       />
 
-      <AuthButton 
-        isSubmitting={isSubmitting} 
-        label="Continue" 
+      <AuthButton
+        isSubmitting={isSubmitting}
+        label="Continue"
         className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-all duration-300 transform hover:-translate-y-0.5"
       />
 
@@ -215,9 +237,12 @@ const SignUpPage = () => {
   const renderVerificationForm = () => (
     <form onSubmit={handleVerificationSubmit} className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl text-white font-semibold mb-2">Verify Your Email</h2>
+        <h2 className="text-xl text-white font-semibold mb-2">
+          Verify Your Email
+        </h2>
         <p className="text-gray-400 text-sm">
-          Enter the code sent to<br/>
+          Enter the code sent to
+          <br />
           <span className="font-medium text-gray-300">{formData.email}</span>
         </p>
       </div>
@@ -234,9 +259,9 @@ const SignUpPage = () => {
       />
 
       <div className="space-y-4">
-        <AuthButton 
-          isSubmitting={isSubmitting} 
-          label="Verify" 
+        <AuthButton
+          isSubmitting={isSubmitting}
+          label="Verify"
           className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-all duration-300 transform hover:-translate-y-0.5"
         />
 
@@ -263,10 +288,10 @@ const SignUpPage = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Header */}
         <div className="flex items-center justify-center space-x-3 mb-8">
-          <img 
+          <img
             className="w-16 md:w-20 h-auto object-contain drop-shadow-xl"
-            src={collegeLogoWhite} 
-            alt="logo" 
+            src={collegeLogoWhite}
+            alt="logo"
           />
           <div className="border-l border-gray-600 pl-3">
             <h4 className="text-2xl md:text-3xl font-bold text-white tracking-wider">
@@ -286,7 +311,7 @@ const SignUpPage = () => {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-gray-400">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <button
               onClick={() => navigate("/login")}
               className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300"

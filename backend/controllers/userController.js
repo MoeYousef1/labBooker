@@ -1,11 +1,11 @@
 // controllers/userController.js
-const redisClient  = require('../utils/redisClient');
+const redisClient = require("../utils/redisClient");
 const User = require("../models/User");
-const authMiddleware = require('../middleware/authMiddleware');
+const authMiddleware = require("../middleware/authMiddleware");
 const uploadMulter = require("../middleware/multer");
 const cloudinary = require("../utils/cloudinary");
 const fs = require("fs");
-const crypto = require('crypto');
+const crypto = require("crypto");
 const { sendVerificationEmail } = require("../utils/emailService");
 
 // Import notifications controller
@@ -26,7 +26,7 @@ class UserController {
     this.initiateEmailChange = this.initiateEmailChange.bind(this);
     this.verifyEmailChange = this.verifyEmailChange.bind(this);
     this.cancelEmailChange = this.cancelEmailChange.bind(this);
-    
+
     this.getAllUsers = this.getAllUsers.bind(this);
     this.updateUserRole = this.updateUserRole.bind(this);
     this.blockUser = this.blockUser.bind(this);
@@ -56,13 +56,13 @@ class UserController {
       return res.status(200).json({
         message: "Verification code sent",
         verificationCode,
-        codeExpiration: codeExpiration.toISOString()
+        codeExpiration: codeExpiration.toISOString(),
       });
     } catch (error) {
-      console.error('Send verification code error:', error);
-      return res.status(500).json({ 
-        message: "Failed to send verification code", 
-        error: error.message 
+      console.error("Send verification code error:", error);
+      return res.status(500).json({
+        message: "Failed to send verification code",
+        error: error.message,
       });
     }
   }
@@ -72,18 +72,18 @@ class UserController {
     try {
       const { email, verificationCode } = req.body;
       if (!email || !verificationCode) {
-        return res.status(400).json({ 
-          message: "Email and verification code are required" 
+        return res.status(400).json({
+          message: "Email and verification code are required",
         });
       }
-      const user = await User.findOne({ 
+      const user = await User.findOne({
         email,
         verificationCode,
-        verificationExpires: { $gt: new Date() }
+        verificationExpires: { $gt: new Date() },
       });
       if (!user) {
-        return res.status(401).json({ 
-          message: "Invalid or expired verification code" 
+        return res.status(401).json({
+          message: "Invalid or expired verification code",
         });
       }
       // Clear verification code and expiration
@@ -91,23 +91,24 @@ class UserController {
       user.verificationExpires = null;
       await user.save();
       // Generate tokens
-      const { accessToken, refreshToken } = await authMiddleware.generateTokens(user);
+      const { accessToken, refreshToken } =
+        await authMiddleware.generateTokens(user);
       return res.status(200).json({
         message: "Login successful",
         user: {
           id: user._id,
           username: user.username,
           email: user.email,
-          role: user.role
+          role: user.role,
         },
         accessToken,
-        refreshToken
+        refreshToken,
       });
     } catch (error) {
-      console.error('Verify code error:', error);
-      return res.status(500).json({ 
-        message: "Verification failed", 
-        error: error.message 
+      console.error("Verify code error:", error);
+      return res.status(500).json({
+        message: "Verification failed",
+        error: error.message,
       });
     }
   }
@@ -132,13 +133,13 @@ class UserController {
       return res.status(200).json({
         message: "New verification code sent",
         verificationCode, // Remove in production
-        codeExpiration: codeExpiration.toISOString()
+        codeExpiration: codeExpiration.toISOString(),
       });
     } catch (error) {
-      console.error('Resend code error:', error);
-      return res.status(500).json({ 
-        message: "Failed to resend code", 
-        error: error.message 
+      console.error("Resend code error:", error);
+      return res.status(500).json({
+        message: "Failed to resend code",
+        error: error.message,
       });
     }
   }
@@ -146,13 +147,15 @@ class UserController {
   // Fetch users (protected route)
   async fetchUsers(req, res) {
     try {
-      const users = await User.find().select('-verificationCode -verificationExpires');
+      const users = await User.find().select(
+        "-verificationCode -verificationExpires",
+      );
       return res.status(200).json(users);
     } catch (error) {
-      console.error('Fetch users error:', error);
-      return res.status(500).json({ 
-        message: "Failed to fetch users", 
-        error: error.message 
+      console.error("Fetch users error:", error);
+      return res.status(500).json({
+        message: "Failed to fetch users",
+        error: error.message,
       });
     }
   }
@@ -163,10 +166,10 @@ class UserController {
       const count = await User.countDocuments();
       return res.status(200).json({ count });
     } catch (error) {
-      console.error('Get user count error:', error);
-      return res.status(500).json({ 
-        message: "Failed to get user count", 
-        error: error.message 
+      console.error("Get user count error:", error);
+      return res.status(500).json({
+        message: "Failed to get user count",
+        error: error.message,
       });
     }
   }
@@ -174,17 +177,18 @@ class UserController {
   // Get user profile
   async getUserProfile(req, res) {
     try {
-      const user = await User.findById(req.user._id)
-        .select('-verificationCode -verificationExpires');
+      const user = await User.findById(req.user._id).select(
+        "-verificationCode -verificationExpires",
+      );
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
       return res.status(200).json(user);
     } catch (error) {
-      console.error('Get profile error:', error);
-      return res.status(500).json({ 
-        message: "Failed to get profile", 
-        error: error.message 
+      console.error("Get profile error:", error);
+      return res.status(500).json({
+        message: "Failed to get profile",
+        error: error.message,
       });
     }
   }
@@ -206,10 +210,18 @@ class UserController {
           if (removeImage === "true" || removeImage === true) {
             if (user.profilePicture) {
               try {
-                const publicId = user.profilePicture.split('/').pop().split('.')[0];
-                await cloudinary.uploader.destroy(`profile-pictures/${publicId}`);
+                const publicId = user.profilePicture
+                  .split("/")
+                  .pop()
+                  .split(".")[0];
+                await cloudinary.uploader.destroy(
+                  `profile-pictures/${publicId}`,
+                );
               } catch (err) {
-                console.error("Error removing image from Cloudinary:", err.message);
+                console.error(
+                  "Error removing image from Cloudinary:",
+                  err.message,
+                );
               }
             }
             user.profilePicture = null;
@@ -219,14 +231,19 @@ class UserController {
           if (req.file) {
             if (user.profilePicture && !removeImage) {
               try {
-                const publicId = user.profilePicture.split('/').pop().split('.')[0];
-                await cloudinary.uploader.destroy(`profile-pictures/${publicId}`);
+                const publicId = user.profilePicture
+                  .split("/")
+                  .pop()
+                  .split(".")[0];
+                await cloudinary.uploader.destroy(
+                  `profile-pictures/${publicId}`,
+                );
               } catch (uploadError) {
                 console.error("Error removing old image:", uploadError);
               }
             }
             const result = await cloudinary.uploader.upload(req.file.path, {
-              folder: "profile-pictures"
+              folder: "profile-pictures",
             });
             fs.unlinkSync(req.file.path); // Remove temp file
             profilePicture = result.secure_url;
@@ -245,10 +262,13 @@ class UserController {
             await notificationsController.createNotification(
               user._id,
               "Your profile has been updated successfully.",
-              "profileUpdate"
+              "profileUpdate",
             );
           } catch (notificationError) {
-            console.error("Notification creation error:", notificationError.message);
+            console.error(
+              "Notification creation error:",
+              notificationError.message,
+            );
             // Continue even if notification creation fails
           }
 
@@ -279,18 +299,18 @@ class UserController {
       if (!email) {
         return res.status(400).json({ message: "Email is required" });
       }
-      const existingUser = await User.findOne({ 
+      const existingUser = await User.findOne({
         email,
-        _id: { $ne: req.user._id } // Exclude current user
+        _id: { $ne: req.user._id }, // Exclude current user
       });
       return res.status(200).json({
-        available: !existingUser
+        available: !existingUser,
       });
     } catch (error) {
       console.error("Check email availability error:", error);
       return res.status(500).json({
         message: "Failed to check email availability",
-        error: error.message
+        error: error.message,
       });
     }
   }
@@ -314,11 +334,23 @@ class UserController {
       if (existingUser) {
         return res.status(409).json({ message: "Email already in use" });
       }
-      const verificationCode = (Math.floor(100000 + Math.random() * 900000)).toString();
+      const verificationCode = Math.floor(
+        100000 + Math.random() * 900000,
+      ).toString();
       const codeExpiration = new Date(Date.now() + 15 * 60 * 1000);
       // Store temporarily in Redis
-      await redisClient.set(`changeEmail:${userId}`, verificationCode, "EX", 300);
-      await redisClient.set(`changeEmail:newEmail:${userId}`, newEmail, "EX", 300);
+      await redisClient.set(
+        `changeEmail:${userId}`,
+        verificationCode,
+        "EX",
+        300,
+      );
+      await redisClient.set(
+        `changeEmail:newEmail:${userId}`,
+        newEmail,
+        "EX",
+        300,
+      );
       // Persist the pending request in the user's document
       const user = await User.findById(userId);
       user.emailChangeRequest = {
@@ -346,7 +378,9 @@ class UserController {
       const { verificationCode } = req.body;
       const userId = req.user._id;
       if (!verificationCode) {
-        return res.status(400).json({ message: "Verification code is required" });
+        return res
+          .status(400)
+          .json({ message: "Verification code is required" });
       }
       // Retrieve code from Redis
       const storedCode = await redisClient.get(`changeEmail:${userId}`);
@@ -358,11 +392,13 @@ class UserController {
       if (storedCode !== verificationCode) {
         return res.status(400).json({ message: "Invalid verification code" });
       }
-      const pendingNewEmail = await redisClient.get(`changeEmail:newEmail:${userId}`);
+      const pendingNewEmail = await redisClient.get(
+        `changeEmail:newEmail:${userId}`,
+      );
       if (!pendingNewEmail) {
-        return res
-          .status(400)
-          .json({ message: "Could not find pending new email. Please try again." });
+        return res.status(400).json({
+          message: "Could not find pending new email. Please try again.",
+        });
       }
       const user = await User.findById(userId);
       if (!user) {
@@ -374,7 +410,9 @@ class UserController {
         _id: { $ne: userId },
       });
       if (emailInUse) {
-        return res.status(409).json({ message: "This email is no longer available" });
+        return res
+          .status(409)
+          .json({ message: "This email is no longer available" });
       }
       // Update user's email and clear the pending request
       user.email = pendingNewEmail.toLowerCase();
@@ -388,10 +426,13 @@ class UserController {
         await notificationsController.createNotification(
           user._id,
           "Your email has been updated successfully.",
-          "emailChange"
+          "emailChange",
         );
       } catch (notificationError) {
-        console.error("Notification creation error:", notificationError.message);
+        console.error(
+          "Notification creation error:",
+          notificationError.message,
+        );
       }
       return res.status(200).json({
         message: "Email updated successfully",
@@ -427,12 +468,17 @@ class UserController {
         await notificationsController.createNotification(
           user._id,
           "Your email change request has been cancelled.",
-          "emailChangeCancel"
+          "emailChangeCancel",
         );
       } catch (notificationError) {
-        console.error("Notification cancellation error:", notificationError.message);
+        console.error(
+          "Notification cancellation error:",
+          notificationError.message,
+        );
       }
-      return res.status(200).json({ message: "Email change request cancelled." });
+      return res
+        .status(200)
+        .json({ message: "Email change request cancelled." });
     } catch (error) {
       console.error("cancelEmailChange error:", error);
       return res.status(500).json({
@@ -442,185 +488,183 @@ class UserController {
     }
   }
 
+  // Admin: Get all users with filters
+  // Fix getAllUsers method in UserController
+  async getAllUsers(req, res) {
+    try {
+      const { page = 1, limit = 10, role, search } = req.query;
+      const query = {};
 
-// Admin: Get all users with filters
-// Fix getAllUsers method in UserController
-async getAllUsers(req, res) {
-  try {
-    const { page = 1, limit = 10, role, search } = req.query;
-    const query = {};
+      if (role && role !== "all") query.role = role;
+      if (search) {
+        query.$or = [
+          { username: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+        ];
+      }
 
-    if (role && role !== 'all') query.role = role;
-    if (search) {
-      query.$or = [
-        { username: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { name: { $regex: search, $options: 'i' } }
-      ];
+      const options = {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        select:
+          "-verificationCode -verificationExpires -emailChangeRequest -__v",
+        sort: { createdAt: -1 },
+        collation: { locale: "en", strength: 2 }, // Case-insensitive sorting
+      };
+
+      const result = await User.paginate(query, options);
+
+      // Transform the result to match frontend expectations
+      return res.status(200).json({
+        docs: result.docs,
+        total: result.totalDocs,
+        limit: result.limit,
+        page: result.page,
+        totalPages: result.totalPages,
+      });
+    } catch (error) {
+      console.error("Get all users error:", error);
+      return res.status(500).json({
+        message: "Failed to fetch users",
+        error: error.message,
+      });
     }
-
-    const options = {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      select: '-verificationCode -verificationExpires -emailChangeRequest -__v',
-      sort: { createdAt: -1 },
-      collation: { locale: 'en', strength: 2 } // Case-insensitive sorting
-    };
-
-    const result = await User.paginate(query, options);
-    
-    // Transform the result to match frontend expectations
-    return res.status(200).json({
-      docs: result.docs,
-      total: result.totalDocs,
-      limit: result.limit,
-      page: result.page,
-      totalPages: result.totalPages
-    });
-    
-  } catch (error) {
-    console.error('Get all users error:', error);
-    return res.status(500).json({ 
-      message: "Failed to fetch users", 
-      error: error.message 
-    });
   }
-}
 
-// Admin: Update user role
-async updateUserRole(req, res) {
-  try {
-    const { userId } = req.params;
-    const { role } = req.body;
+  // Admin: Update user role
+  async updateUserRole(req, res) {
+    try {
+      const { userId } = req.params;
+      const { role } = req.body;
 
-    if (!['user', 'admin', 'manager'].includes(role)) {
-      return res.status(400).json({ message: "Invalid role" });
+      if (!["user", "admin", "manager"].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+
+      if (userId === req.user._id.toString()) {
+        return res.status(400).json({ message: "Cannot modify your own role" });
+      }
+
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { role },
+        { new: true, runValidators: true },
+      ).select("-verificationCode -verificationExpires");
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Create notification
+      await notificationsController.createNotification(
+        user._id,
+        `Your account role has been updated to ${role}`,
+        "roleUpdate",
+      );
+
+      return res.status(200).json(user);
+    } catch (error) {
+      console.error("Update role error:", error);
+      return res.status(500).json({
+        message: "Failed to update role",
+        error: error.message,
+      });
     }
-
-    if (userId === req.user._id.toString()) {
-      return res.status(400).json({ message: "Cannot modify your own role" });
-    }
-
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { role },
-      { new: true, runValidators: true }
-    ).select('-verificationCode -verificationExpires');
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Create notification
-    await notificationsController.createNotification(
-      user._id,
-      `Your account role has been updated to ${role}`,
-      "roleUpdate"
-    );
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error('Update role error:', error);
-    return res.status(500).json({ 
-      message: "Failed to update role", 
-      error: error.message 
-    });
   }
-}
 
-// Admin: Block/unblock user
-async blockUser(req, res) {
-  try {
-    const { userId } = req.params;
-    const { blockDuration } = req.body; // in hours
+  // Admin: Block/unblock user
+  async blockUser(req, res) {
+    try {
+      const { userId } = req.params;
+      const { blockDuration } = req.body; // in hours
 
-    if (userId === req.user._id.toString()) {
-      return res.status(400).json({ message: "Cannot block yourself" });
+      if (userId === req.user._id.toString()) {
+        return res.status(400).json({ message: "Cannot block yourself" });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const blockUntil = new Date(Date.now() + blockDuration * 60 * 60 * 1000);
+      user.cancellationStats.blockedUntil = blockUntil;
+      await user.save();
+
+      // Create notification
+      await notificationsController.createNotification(
+        user._id,
+        `Your account has been blocked until ${blockUntil.toLocaleDateString()}`,
+        "accountBlocked",
+      );
+
+      return res.status(200).json({
+        message: "User blocked successfully",
+        blockedUntil: blockUntil,
+      });
+    } catch (error) {
+      console.error("Block user error:", error);
+      return res.status(500).json({
+        message: "Failed to block user",
+        error: error.message,
+      });
     }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const blockUntil = new Date(Date.now() + blockDuration * 60 * 60 * 1000);
-    user.cancellationStats.blockedUntil = blockUntil;
-    await user.save();
-
-    // Create notification
-    await notificationsController.createNotification(
-      user._id,
-      `Your account has been blocked until ${blockUntil.toLocaleDateString()}`,
-      "accountBlocked"
-    );
-
-    return res.status(200).json({
-      message: "User blocked successfully",
-      blockedUntil: blockUntil
-    });
-  } catch (error) {
-    console.error('Block user error:', error);
-    return res.status(500).json({ 
-      message: "Failed to block user", 
-      error: error.message 
-    });
   }
-}
 
-// Admin: Unblock user
-async unblockUser(req, res) {
-  try {
-    const { userId } = req.params;
-    const user = await User.findById(userId);
-    
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+  // Admin: Unblock user
+  async unblockUser(req, res) {
+    try {
+      const { userId } = req.params;
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      user.cancellationStats.blockedUntil = null;
+      await user.save();
+
+      // Create notification
+      await notificationsController.createNotification(
+        user._id,
+        "Your account has been unblocked",
+        "accountUnblocked",
+      );
+
+      return res.status(200).json({ message: "User unblocked successfully" });
+    } catch (error) {
+      console.error("Unblock user error:", error);
+      return res.status(500).json({
+        message: "Failed to unblock user",
+        error: error.message,
+      });
     }
-
-    user.cancellationStats.blockedUntil = null;
-    await user.save();
-
-    // Create notification
-    await notificationsController.createNotification(
-      user._id,
-      "Your account has been unblocked",
-      "accountUnblocked"
-    );
-
-    return res.status(200).json({ message: "User unblocked successfully" });
-  } catch (error) {
-    console.error('Unblock user error:', error);
-    return res.status(500).json({ 
-      message: "Failed to unblock user", 
-      error: error.message 
-    });
   }
-}
 
-// Admin: Delete user
-async deleteUser(req, res) {
-  try {
-    const { userId } = req.params;
+  // Admin: Delete user
+  async deleteUser(req, res) {
+    try {
+      const { userId } = req.params;
 
-    if (userId === req.user._id.toString()) {
-      return res.status(400).json({ message: "Cannot delete yourself" });
+      if (userId === req.user._id.toString()) {
+        return res.status(400).json({ message: "Cannot delete yourself" });
+      }
+
+      const user = await User.findByIdAndDelete(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Delete user error:", error);
+      return res.status(500).json({
+        message: "Failed to delete user",
+        error: error.message,
+      });
     }
-
-    const user = await User.findByIdAndDelete(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    return res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    console.error('Delete user error:', error);
-    return res.status(500).json({ 
-      message: "Failed to delete user", 
-      error: error.message 
-    });
   }
-}
-
 }
 
 module.exports = new UserController();

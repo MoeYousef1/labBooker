@@ -1,39 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { motion } from "framer-motion";
 import api from "../utils/axiosConfig";
 
 // Helper function to get default title based on slug
 const getDefaultTitle = (slug) => {
   const titleMap = {
-    'privacy-policy': 'Privacy Policy',
-    'terms-of-service': 'Terms of Service',
-    'about': 'about',
+    "privacy-policy": "Privacy Policy",
+    "terms-of-service": "Terms of Service",
+    about: "about",
     // Add more slugs and titles as needed
   };
-  return titleMap[slug] || slug.split('-').join(' ');
+  return titleMap[slug] || slug.split("-").join(" ");
 };
 
 const PageEditor = ({ slug, onUpdate }) => {
-  const [content, setContent] = useState('');
-  const [title, setTitle] = useState('');
+  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState(null);
 
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
+      ["bold", "italic", "underline", "strike"],
       [{ color: [] }, { background: [] }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      ['link', 'blockquote', 'code-block'],
-      ['clean']
-    ]
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link", "blockquote", "code-block"],
+      ["clean"],
+    ],
   };
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
   }, []);
 
@@ -41,41 +41,48 @@ const PageEditor = ({ slug, onUpdate }) => {
     const fetchPage = async () => {
       try {
         const res = await api.get(`/pages/${slug}`);
-        
+
         if (res.data.exists) {
-          setContent(res.data.content || '');
+          setContent(res.data.content || "");
           setTitle(res.data.title || getDefaultTitle(slug));
         } else {
           setContent(`## Introduction\nStart writing your content here...`);
           setTitle(getDefaultTitle(slug));
         }
       } catch (error) {
-        console.error('Error fetching page:', error);
+        console.error("Error fetching page:", error);
         setContent(`## Introduction\nStart writing your content here...`);
         setTitle(getDefaultTitle(slug));
       }
     };
-    
-    if (user?.role === 'admin') fetchPage();
+
+    if (user?.role === "admin") fetchPage();
   }, [slug, user]);
 
   const handleSave = async () => {
     try {
-      await api.put(`/pages/${slug}`, 
+      await api.put(
+        `/pages/${slug}`,
         { title, content },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
       );
       setIsEditing(false);
       onUpdate?.();
     } catch (error) {
-      console.error('Error saving page:', error);
+      console.error("Error saving page:", error);
     }
   };
 
-  if (!user || user.role !== 'admin') return null;
+  if (!user || user.role !== "admin") return null;
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="mb-8"
+    >
       {!isEditing ? (
         <button
           onClick={() => setIsEditing(true)}

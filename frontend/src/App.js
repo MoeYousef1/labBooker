@@ -7,9 +7,7 @@ import {
 } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
-import { ThemeProvider } from './contexts/ThemeContext';
-
-
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 // Import all your pages
 import LandingPage from "./pages/landingPage";
@@ -281,11 +279,11 @@ const AnimatedRoutes = () => {
 function App() {
   return (
     <ThemeProvider>
-    <Router>
-      <div style={{ position: "relative" }}>
-        <AnimatedRoutes />
-      </div>
-    </Router>
+      <Router>
+        <div style={{ position: "relative" }}>
+          <AnimatedRoutes />
+        </div>
+      </Router>
     </ThemeProvider>
   );
 }

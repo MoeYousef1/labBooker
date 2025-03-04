@@ -25,12 +25,12 @@ const roomSchema = new mongoose.Schema(
     imageUrl: {
       type: String,
       validate: {
-        validator: function(v) {
+        validator: function (v) {
           // Optional URL validation
           return !v || /^https?:\/\/.+/.test(v);
         },
-        message: props => `${props.value} is not a valid URL!`
-      }
+        message: (props) => `${props.value} is not a valid URL!`,
+      },
     },
     amenities: [
       {
@@ -41,8 +41,16 @@ const roomSchema = new mongoose.Schema(
         icon: {
           type: String,
           enum: [
-            "wifi", "tv", "projector", "coffee", "chargingstation", 
-            "chair", "whiteboard", "ac", "printer", "speakers"
+            "wifi",
+            "tv",
+            "projector",
+            "coffee",
+            "chargingstation",
+            "chair",
+            "whiteboard",
+            "ac",
+            "printer",
+            "speakers",
           ],
         },
       },
@@ -58,24 +66,23 @@ const roomSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { 
-    timestamps: true 
-  }
+  {
+    timestamps: true,
+  },
 );
 
 // Method to check time slot availability
-roomSchema.methods.isTimeSlotAvailable = function(date, startTime, endTime) {
+roomSchema.methods.isTimeSlotAvailable = function (date, startTime, endTime) {
   return !this.occupiedTimeSlots.some(
-    slot => slot.date === date && 
-            slot.slot === `${startTime}-${endTime}`
+    (slot) => slot.date === date && slot.slot === `${startTime}-${endTime}`,
   );
 };
 
 // Method to add occupied time slot
-roomSchema.methods.addOccupiedTimeSlot = function(date, startTime, endTime) {
+roomSchema.methods.addOccupiedTimeSlot = function (date, startTime, endTime) {
   this.occupiedTimeSlots.push({
     date,
-    slot: `${startTime}-${endTime}`
+    slot: `${startTime}-${endTime}`,
   });
   return this.save();
 };

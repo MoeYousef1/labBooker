@@ -25,21 +25,20 @@ const notificationsController = {
    * Get all unread notifications for the currently authenticated user.
    */
   // controllers/notificationsController.js
-// controllers/notificationsController.js
-getNotifications: async (req, res) => {
-  try {
-    const userId = req.user._id;
-    // Return all notifications (both read and unread)
-    const notifications = await Notification.find({ user: userId })
-      .sort({ createdAt: -1 });
-    return res.status(200).json(notifications);
-  } catch (error) {
-    console.error("Get notifications error:", error);
-    return res.status(500).json({ message: "Failed to get notifications" });
-  }
-},
-
-
+  // controllers/notificationsController.js
+  getNotifications: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      // Return all notifications (both read and unread)
+      const notifications = await Notification.find({ user: userId }).sort({
+        createdAt: -1,
+      });
+      return res.status(200).json(notifications);
+    } catch (error) {
+      console.error("Get notifications error:", error);
+      return res.status(500).json({ message: "Failed to get notifications" });
+    }
+  },
 
   /**
    * PUT /notifications/:id/read
@@ -52,7 +51,7 @@ getNotifications: async (req, res) => {
       const notification = await Notification.findOneAndUpdate(
         { _id: notificationId, user: req.user._id },
         { isRead: true, readAt: new Date() },
-        { new: true }
+        { new: true },
       );
       if (!notification) {
         return res.status(404).json({ message: "Notification not found" });
@@ -60,7 +59,9 @@ getNotifications: async (req, res) => {
       return res.status(200).json(notification);
     } catch (error) {
       console.error("Mark as read error:", error);
-      return res.status(500).json({ message: "Failed to mark notification as read" });
+      return res
+        .status(500)
+        .json({ message: "Failed to mark notification as read" });
     }
   },
 
@@ -74,12 +75,16 @@ getNotifications: async (req, res) => {
       // Set isRead and readAt for all unread notifications
       await Notification.updateMany(
         { user: userId, isRead: false },
-        { isRead: true, readAt: new Date() }
+        { isRead: true, readAt: new Date() },
       );
-      return res.status(200).json({ message: "All notifications marked as read" });
+      return res
+        .status(200)
+        .json({ message: "All notifications marked as read" });
     } catch (error) {
       console.error("Mark all as read error:", error);
-      return res.status(500).json({ message: "Failed to mark all notifications as read" });
+      return res
+        .status(500)
+        .json({ message: "Failed to mark all notifications as read" });
     }
   },
 
@@ -115,7 +120,9 @@ getNotifications: async (req, res) => {
       return res.status(200).json({ message: "All notifications deleted." });
     } catch (error) {
       console.error("Delete all notifications error:", error);
-      return res.status(500).json({ message: "Failed to delete notifications" });
+      return res
+        .status(500)
+        .json({ message: "Failed to delete notifications" });
     }
   },
 };

@@ -21,7 +21,7 @@ api.interceptors.request.use(
       console.log("Making request to:", config.url);
       console.log(
         "With token:",
-        token ? `Bearer ${token.substring(0, 20)}...` : "No token"
+        token ? `Bearer ${token.substring(0, 20)}...` : "No token",
       );
     }
 
@@ -36,7 +36,7 @@ api.interceptors.request.use(
       console.error("Request error:", error);
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response Interceptor
@@ -50,8 +50,8 @@ api.interceptors.response.use(
       }
       return Promise.reject(
         new Error(
-          "Network error: Unable to reach the server. Please try again later."
-        )
+          "Network error: Unable to reach the server. Please try again later.",
+        ),
       );
     }
 
@@ -64,7 +64,7 @@ api.interceptors.response.use(
           console.error("Bad Request:", data);
         }
         return Promise.reject(
-          new Error(data.message || "Bad Request. Please check your input.")
+          new Error(data.message || "Bad Request. Please check your input."),
         );
       case 401:
         if (process.env.NODE_ENV === "development") {
@@ -78,33 +78,31 @@ api.interceptors.response.use(
           console.error("Forbidden:", data);
         }
         return Promise.reject(
-          new Error(data.message || "Forbidden. You don't have access.")
+          new Error(data.message || "Forbidden. You don't have access."),
         );
       case 404:
         if (process.env.NODE_ENV === "development") {
           console.error("Not Found:", data);
         }
-        return Promise.reject(
-          new Error(data.message || "Resource not found.")
-        );
+        return Promise.reject(new Error(data.message || "Resource not found."));
       case 500:
         if (process.env.NODE_ENV === "development") {
           console.error("Internal Server Error:", data);
         }
         return Promise.reject(
           new Error(
-            data.message || "Internal Server Error. Please try again later."
-          )
+            data.message || "Internal Server Error. Please try again later.",
+          ),
         );
       default:
         if (process.env.NODE_ENV === "development") {
           console.error(`Unhandled error [${status}]:`, data);
         }
         return Promise.reject(
-          new Error(data.message || "An unexpected error occurred.")
+          new Error(data.message || "An unexpected error occurred."),
         );
     }
-  }
+  },
 );
 
 export default api;

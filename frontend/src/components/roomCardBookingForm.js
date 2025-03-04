@@ -13,7 +13,12 @@ import CustomDatepicker from "../utils/datePicker"; // Your custom datepicker co
 //   MAX_DURATION_HOURS: 4     // Maximum booking duration in hours
 // };
 
-const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking }) => {
+const RoomCardBookingForm = ({
+  room,
+  activeRoom,
+  userInfo,
+  handleStartBooking,
+}) => {
   // Form data holds booking information
   const [formData, setFormData] = useState({
     colleagues: [],
@@ -34,7 +39,9 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
   useEffect(() => {
     if (activeRoom === room._id) {
       axios
-        .get(`http://localhost:5000/api/room/rooms/${room._id}/monthly-availability`)
+        .get(
+          `http://localhost:5000/api/room/rooms/${room._id}/monthly-availability`,
+        )
         .then((res) => {
           // Expected response:
           // { room: room.name, availability: [ { date, slots: [{ startTime, endTime, status }] }, ... ] }
@@ -43,7 +50,9 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
         .catch((error) => {
           console.error("Error fetching room availability:", error);
           const errMsg =
-            (error.response && error.response.data && error.response.data.message) ||
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
             "Unable to fetch room availability. Please try again later.";
           setFormError(errMsg);
         });
@@ -51,13 +60,18 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
   }, [activeRoom, room._id]);
 
   // Compute available date strings from the availability data
-  const availableDates = availability ? availability.map(day => day.date) : [];
+  const availableDates = availability
+    ? availability.map((day) => day.date)
+    : [];
 
   // Initialize colleague emails based on room type
   useEffect(() => {
     const initialColleagues =
-      room.type === "Large Seminar" ? ["", "", ""] :
-      room.type === "Small Seminar" ? ["", ""] : [];
+      room.type === "Large Seminar"
+        ? ["", "", ""]
+        : room.type === "Small Seminar"
+          ? ["", ""]
+          : [];
     setFormData((prev) => ({ ...prev, colleagues: initialColleagues }));
   }, [room.type]);
 
@@ -65,9 +79,17 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
   useEffect(() => {
     if (activeRoom !== room._id) {
       const initialColleagues =
-        room.type === "Large Seminar" ? ["", "", ""] :
-        room.type === "Small Seminar" ? ["", ""] : [];
-      setFormData({ colleagues: initialColleagues, date: "", startTime: "", endTime: "" });
+        room.type === "Large Seminar"
+          ? ["", "", ""]
+          : room.type === "Small Seminar"
+            ? ["", ""]
+            : [];
+      setFormData({
+        colleagues: initialColleagues,
+        date: "",
+        startTime: "",
+        endTime: "",
+      });
       setFormError("");
       setSuccessMessage("");
       setDisplaySlots([]);
@@ -79,9 +101,17 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
     if (successMessage) {
       const timer = setTimeout(() => {
         const initialColleagues =
-          room.type === "Large Seminar" ? ["", "", ""] :
-          room.type === "Small Seminar" ? ["", ""] : [];
-        setFormData({ colleagues: initialColleagues, date: "", startTime: "", endTime: ""});
+          room.type === "Large Seminar"
+            ? ["", "", ""]
+            : room.type === "Small Seminar"
+              ? ["", ""]
+              : [];
+        setFormData({
+          colleagues: initialColleagues,
+          date: "",
+          startTime: "",
+          endTime: "",
+        });
         setSuccessMessage("");
       }, 3000); // Increased to 3 seconds for better user experience
       return () => clearTimeout(timer);
@@ -107,14 +137,19 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
   // Callback when a date is selected and applied from the CustomDatepicker
   const handleDateSelected = (date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, "0");
     const dateStr = `${year}-${month}-${day}`;
-    
+
     console.log("Selected Date (Local):", dateStr); // Debugging log
 
-    setFormData((prev) => ({ ...prev, date: dateStr, startTime: "", endTime: "" }));
-    
+    setFormData((prev) => ({
+      ...prev,
+      date: dateStr,
+      startTime: "",
+      endTime: "",
+    }));
+
     if (availability) {
       const dayAvailability = availability.find((day) => day.date === dateStr);
       if (dayAvailability) {
@@ -126,7 +161,7 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
         if (isToday) {
           const currentTime = today.getHours() * 60 + today.getMinutes(); // Current time in minutes
           // Map over slots to add 'isPast' flag
-          updatedSlots = dayAvailability.slots.map(slot => {
+          updatedSlots = dayAvailability.slots.map((slot) => {
             const [endHour, endMinute] = slot.endTime.split(":").map(Number);
             const slotEndTimeInMinutes = endHour * 60 + endMinute;
             const isPast = slotEndTimeInMinutes <= currentTime;
@@ -134,7 +169,10 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
           });
         } else {
           // For future dates, none of the slots are past
-          updatedSlots = dayAvailability.slots.map(slot => ({ ...slot, isPast: false }));
+          updatedSlots = dayAvailability.slots.map((slot) => ({
+            ...slot,
+            isPast: false,
+          }));
         }
 
         setDisplaySlots(updatedSlots);
@@ -150,7 +188,7 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
     setFormData((prev) => ({
       ...prev,
       startTime: slot.startTime,
-      endTime: slot.endTime
+      endTime: slot.endTime,
     }));
     setFormError("");
   };
@@ -216,14 +254,17 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
     setFormError("");
     setIsSubmitting(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/book/booking", {
-        roomId: room._id,
-        userId: userInfo._id,
-        date: formData.date,
-        startTime: formData.startTime,
-        endTime: formData.endTime,
-        additionalUsers: formData.colleagues
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/book/booking",
+        {
+          roomId: room._id,
+          userId: userInfo._id,
+          date: formData.date,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          additionalUsers: formData.colleagues,
+        },
+      );
       if (response.status === 201) {
         setSuccessMessage(response.data.message);
         setFormError("");
@@ -234,7 +275,9 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
     } catch (error) {
       console.error("Error booking the room:", error);
       const errMsg =
-        (error.response && error.response.data && error.response.data.message) ||
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
         "An error occurred while processing your booking.";
       setFormError(errMsg);
       setSuccessMessage("");
@@ -247,9 +290,17 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
   const closeModal = () => {
     handleStartBooking();
     const initialColleagues =
-      room.type === "Large Seminar" ? ["", "", ""] :
-      room.type === "Small Seminar" ? ["", ""] : [];
-    setFormData({ colleagues: initialColleagues, date: "", startTime: "", endTime: ""});
+      room.type === "Large Seminar"
+        ? ["", "", ""]
+        : room.type === "Small Seminar"
+          ? ["", ""]
+          : [];
+    setFormData({
+      colleagues: initialColleagues,
+      date: "",
+      startTime: "",
+      endTime: "",
+    });
     setFormError("");
     setSuccessMessage("");
     setDisplaySlots([]);
@@ -265,14 +316,14 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             Booking: {room.name}
           </h2>
-          <button 
+          <button
             className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-3xl transition-colors"
             onClick={closeModal}
           >
             &times;
           </button>
         </div>
-  
+
         {/* Form Content */}
         <div className="space-y-6">
           {/* Colleague Emails (if applicable) */}
@@ -293,7 +344,7 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
                 />
               </div>
             ))}
-  
+
           {/* Custom Datepicker */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
@@ -305,7 +356,7 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
               placeholder="Choose a date"
             />
           </div>
-  
+
           {/* Time Slot Selector */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
@@ -318,45 +369,50 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
                     const isSelected =
                       formData.startTime === slot.startTime &&
                       formData.endTime === slot.endTime;
-  
+
                     let slotStatus = "Available";
                     if (slot.status !== "Available") {
                       slotStatus = "Booked";
                     } else if (slot.isPast) {
                       slotStatus = "Past";
                     }
-  
-                    let slotClasses = "relative px-4 py-3 border rounded-md flex items-center justify-center transition ";
+
+                    let slotClasses =
+                      "relative px-4 py-3 border rounded-md flex items-center justify-center transition ";
                     slotClasses += "dark:border-gray-600 ";
-  
+
                     if (slotStatus === "Available") {
-                      slotClasses += "text-gray-800 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer ";
+                      slotClasses +=
+                        "text-gray-800 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer ";
                     } else {
-                      slotClasses += "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed ";
+                      slotClasses +=
+                        "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed ";
                     }
-  
+
                     return (
                       <button
                         key={index}
                         onClick={() => handleSlotSelect(slot)}
                         className={`${slotClasses} ${
-                          isSelected 
-                            ? "bg-blue-700 dark:bg-blue-600 text-white border-blue-600 hover:bg-blue-700" 
+                          isSelected
+                            ? "bg-blue-700 dark:bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
                             : ""
                         }`}
                         disabled={slotStatus !== "Available"}
                         aria-pressed={isSelected}
                         aria-label={`${slot.startTime} - ${slot.endTime} ${slotStatus}`}
                       >
-                        <span className={`${slotStatus !== "Available" ? "line-through" : ""}`}>
+                        <span
+                          className={`${slotStatus !== "Available" ? "line-through" : ""}`}
+                        >
                           {slot.startTime} - {slot.endTime}
                         </span>
                         {(slotStatus === "Booked" || slotStatus === "Past") && (
                           <div className="absolute bottom-0 right-2">
                             <span
                               className={`text-[10px] uppercase font-semibold ${
-                                slotStatus === "Booked" 
-                                  ? "text-red-500 dark:text-red-400" 
+                                slotStatus === "Booked"
+                                  ? "text-red-500 dark:text-red-400"
                                   : "text-gray-500 dark:text-gray-400"
                               }`}
                             >
@@ -369,13 +425,17 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
                   })}
                 </div>
               ) : (
-                <p className="text-red-500 dark:text-red-400">No available time slots for this date.</p>
+                <p className="text-red-500 dark:text-red-400">
+                  No available time slots for this date.
+                </p>
               )
             ) : (
-              <p className="text-gray-500 dark:text-gray-400">Please select a date first.</p>
+              <p className="text-gray-500 dark:text-gray-400">
+                Please select a date first.
+              </p>
             )}
           </div>
-  
+
           {/* Error and Success Messages */}
           {(formError || successMessage) && (
             <div className="text-center">
@@ -396,13 +456,15 @@ const RoomCardBookingForm = ({ room, activeRoom, userInfo, handleStartBooking })
               )}
             </div>
           )}
-  
+
           {/* Submit Button */}
           <button
             onClick={handleProceedBooking}
             disabled={isSubmitting}
             className={`w-full py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-800 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg ${
-              isSubmitting ? "opacity-50 cursor-not-allowed dark:opacity-70" : ""
+              isSubmitting
+                ? "opacity-50 cursor-not-allowed dark:opacity-70"
+                : ""
             }`}
           >
             {isSubmitting ? "Booking..." : "Proceed with Booking"}

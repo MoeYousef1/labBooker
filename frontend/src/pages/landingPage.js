@@ -4,7 +4,6 @@ import HeroSection from "../components/HeroSection";
 import Footer from "../components/footer";
 import Navbar from "../components/Navbar";
 
-
 const LandingPage = () => {
   const navigate = useNavigate();
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -34,7 +33,7 @@ const LandingPage = () => {
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-gray-50 to-gray-200">
       {/* No Navbar needed if you're hiding it for non-logged in,
           or you can import a "logged-out" Navbar here */}
-          <Navbar enableTransparentOnScroll  />
+      <Navbar enableTransparentOnScroll />
       <HeroSection />
       <Footer />
     </div>

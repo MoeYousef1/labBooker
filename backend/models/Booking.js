@@ -90,7 +90,7 @@ const bookingSchema = new mongoose.Schema(
   {
     timestamps: true,
     validateBeforeSave: true,
-  }
+  },
 );
 
 // Existing pre-save validation hook
@@ -135,7 +135,7 @@ bookingSchema.statics.softDelete = async function (bookingId) {
 // Make sure your TTL index is correctly set
 bookingSchema.index(
   { deletedAt: 1 },
-  { expireAfterSeconds: THREE_DAYS_IN_SECONDS }
+  { expireAfterSeconds: THREE_DAYS_IN_SECONDS },
 );
 
 module.exports = mongoose.model("Booking", bookingSchema);

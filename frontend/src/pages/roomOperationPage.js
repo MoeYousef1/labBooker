@@ -34,7 +34,7 @@ const RoomPage = () => {
         >
           Room Management
         </motion.h1>
-  
+
         {/* Room Operations */}
         <div className="w-full max-w-4xl">
           <RoomOperations
@@ -44,7 +44,7 @@ const RoomPage = () => {
             operation={operation}
           />
         </div>
-  
+
         {/* Forms */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -53,8 +53,8 @@ const RoomPage = () => {
           className="w-full max-w-4xl mt-4 sm:mt-6"
         >
           {operation === "create" && (
-            <CreateRoomForm 
-              operation={operation} 
+            <CreateRoomForm
+              operation={operation}
               onSuccess={handleSuccess}
               className="dark:text-gray-200"
             />
@@ -71,8 +71,8 @@ const RoomPage = () => {
             />
           )}
           {operation === "delete" && (
-            <DeleteRoomForm 
-              operation={operation} 
+            <DeleteRoomForm
+              operation={operation}
               onSuccess={handleSuccess}
               className="dark:text-gray-200"
             />

@@ -1,6 +1,6 @@
 // models/User.js
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const userSchema = new mongoose.Schema(
   {
@@ -44,10 +44,10 @@ const userSchema = new mongoose.Schema(
       countLast7Days: { type: Number, default: 0 },
       lastCancellation: Date,
       warnings: { type: Number, default: 0 },
-      blockedUntil: Date
+      blockedUntil: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.plugin(mongoosePaginate);

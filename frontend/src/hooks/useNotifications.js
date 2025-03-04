@@ -12,7 +12,7 @@ export const useNotifications = () => {
     setLoading(true);
     try {
       const response = await api.get("/notifications", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(response.data);
     } catch (error) {
@@ -40,7 +40,7 @@ export const useNotifications = () => {
 
     try {
       await api.delete("/notifications/clear-all", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications([]);
     } catch (error) {
@@ -51,17 +51,23 @@ export const useNotifications = () => {
   const markNotificationAsRead = useCallback(async (id) => {
     const token = localStorage.getItem("token");
     if (!token) return;
-  
+
     try {
       // Change to empty object instead of null
-      await api.put(`/notifications/${id}/read`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      setNotifications(prev =>
-        prev.map(notif =>
-          notif._id === id ? { ...notif, isRead: true, readAt: new Date() } : notif
-        )
+      await api.put(
+        `/notifications/${id}/read`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif._id === id
+            ? { ...notif, isRead: true, readAt: new Date() }
+            : notif,
+        ),
       );
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
@@ -74,17 +80,18 @@ export const useNotifications = () => {
 
     try {
       await api.delete(`/notifications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setNotifications(prev => prev.filter(notif => notif._id !== id));
+      setNotifications((prev) => prev.filter((notif) => notif._id !== id));
     } catch (error) {
       console.error("Failed to delete notification:", error);
     }
   }, []);
 
-  const unreadCount = useMemo(() => (
-    notifications.filter(notif => !notif.isRead).length
-  ), [notifications]);
+  const unreadCount = useMemo(
+    () => notifications.filter((notif) => !notif.isRead).length,
+    [notifications],
+  );
 
   return {
     notifications,

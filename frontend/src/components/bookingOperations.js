@@ -1,13 +1,13 @@
 // BookingOperations.jsx
 import React from "react";
 import { motion } from "framer-motion";
-import { Calendar, Edit, Trash } from 'lucide-react'; // Added icons for better mobile display
+import { Calendar, Edit, Trash } from "lucide-react"; // Added icons for better mobile display
 
 const BookingOperations = ({
   setOperation,
   setBookingId,
   setBookingDetails,
-  operation
+  operation,
 }) => {
   const handleOperationChange = (newOperation) => {
     setOperation(newOperation);

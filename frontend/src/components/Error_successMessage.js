@@ -2,25 +2,23 @@ import React from "react";
 
 const Message = ({ message, type, onClose }) => {
   return (
-    <div className={`rounded-lg p-4 mb-4 text-sm ${
-      type === 'error' 
-        ? 'bg-red-50 text-red-800' 
-        : 'bg-green-50 text-green-800'
-    }`}>
+    <div
+      className={`rounded-lg p-4 mb-4 text-sm ${
+        type === "error"
+          ? "bg-red-50 text-red-800"
+          : "bg-green-50 text-green-800"
+      }`}
+    >
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          {typeof message === 'string' ? (
-            <p>{message}</p>
-          ) : (
-            message
-          )}
+          {typeof message === "string" ? <p>{message}</p> : message}
         </div>
         <button
           onClick={onClose}
           className={`ml-3 inline-flex ${
-            type === 'error' 
-              ? 'text-red-500 hover:text-red-600' 
-              : 'text-green-500 hover:text-green-600'
+            type === "error"
+              ? "text-red-500 hover:text-red-600"
+              : "text-green-500 hover:text-green-600"
           }`}
         >
           <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -35,6 +33,5 @@ const Message = ({ message, type, onClose }) => {
     </div>
   );
 };
-
 
 export default Message;

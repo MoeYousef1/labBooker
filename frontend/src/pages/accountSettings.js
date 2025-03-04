@@ -8,12 +8,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Cropper from "react-easy-crop";
 import { getCroppedImg } from "../utils/cropImageUtil";
 import { useContext } from "react";
-import { ThemeContext } from '../contexts/ThemeContext';
+import { ThemeContext } from "../contexts/ThemeContext";
 
 const ProfileSettings = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const { toggleTheme, isDark } = useContext(ThemeContext);
-  
+
   const [userInfo, setUserInfo] = useState({
     email: "",
     username: "",
@@ -103,7 +103,7 @@ const ProfileSettings = () => {
   const onZoomChange = useCallback((newZoom) => setZoom(newZoom), []);
   const onCropComplete = useCallback(
     (_, croppedAreaPx) => setCroppedAreaPixels(croppedAreaPx),
-    []
+    [],
   );
 
   // Confirm cropping
@@ -175,7 +175,7 @@ const ProfileSettings = () => {
     } catch (error) {
       setErrors(
         error.response?.data?.message ||
-          "Failed to cancel email change request"
+          "Failed to cancel email change request",
       );
     }
   };
@@ -256,9 +256,7 @@ const ProfileSettings = () => {
       setIsEditing(false);
       setSuccessMessage("Profile updated successfully");
     } catch (error) {
-      setErrors(
-        error.response?.data?.message || "Failed to update profile"
-      );
+      setErrors(error.response?.data?.message || "Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -295,7 +293,7 @@ const ProfileSettings = () => {
         >
           Profile Settings
         </motion.h1>
-  
+
         {/* Tabs Navigation */}
         <div className="w-full max-w-4xl">
           <motion.div
@@ -339,7 +337,7 @@ const ProfileSettings = () => {
             ))}
           </motion.div>
         </div>
-  
+
         {/* Main Content Area */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -378,7 +376,7 @@ const ProfileSettings = () => {
                               </div>
                             )}
                           </div>
-  
+
                           {isEditing && (
                             <label className="absolute bottom-0 right-0 bg-white dark:bg-gray-700 rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300">
                               <Upload className="w-4 h-4 text-gray-600 dark:text-gray-300" />
@@ -391,7 +389,7 @@ const ProfileSettings = () => {
                             </label>
                           )}
                         </div>
-  
+
                         <div className="text-center sm:text-left">
                           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 transition-colors duration-300">
                             {userInfo.name}
@@ -415,7 +413,7 @@ const ProfileSettings = () => {
                         </div>
                       </div>
                     </div>
-  
+
                     {/* Profile Information Section */}
                     <div className="space-y-4 sm:space-y-6">
                       <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2 transition-colors duration-300">
@@ -437,55 +435,59 @@ const ProfileSettings = () => {
                             Username cannot be changed
                           </p>
                         </div>
-  
-                        {/* Name Field */}
-<div className="w-full">
-  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-    Name
-    {isEditing && <span className="text-red-500 ml-1">*</span>}
-  </label>
-  <input
-    type="text"
-    value={isEditing ? editForm.name : userInfo.name}
-    onChange={(e) => {
-      clearMessages();
-      setEditForm((prev) => ({
-        ...prev,
-        name: e.target.value,
-      }));
-    }}
-    disabled={!isEditing}
-    className={`mt-1 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-      !isEditing ? "bg-gray-50" : ""
-    } dark:bg-gray-700 transition-colors duration-300 dark:text-gray-200`}
-  />
-</div>
 
-{/* Email Field */}
-<div className="md:col-span-2 w-full">
-  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
-    Email
-    {isEditing && <span className="text-red-500 ml-1">*</span>}
-  </label>
-  <input
-    type="email"
-    value={isEditing ? editForm.email : userInfo.email}
-    onChange={(e) => {
-      clearMessages();
-      setEditForm((prev) => ({
-        ...prev,
-        email: e.target.value,
-      }));
-    }}
-    disabled={!isEditing}
-    className={`mt-1 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-      !isEditing ? "bg-gray-50" : ""
-    } dark:bg-gray-700 transition-colors duration-300 dark:text-gray-200`}
-  />
-</div>
+                        {/* Name Field */}
+                        <div className="w-full">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                            Name
+                            {isEditing && (
+                              <span className="text-red-500 ml-1">*</span>
+                            )}
+                          </label>
+                          <input
+                            type="text"
+                            value={isEditing ? editForm.name : userInfo.name}
+                            onChange={(e) => {
+                              clearMessages();
+                              setEditForm((prev) => ({
+                                ...prev,
+                                name: e.target.value,
+                              }));
+                            }}
+                            disabled={!isEditing}
+                            className={`mt-1 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+                              !isEditing ? "bg-gray-50" : ""
+                            } dark:bg-gray-700 transition-colors duration-300 dark:text-gray-200`}
+                          />
+                        </div>
+
+                        {/* Email Field */}
+                        <div className="md:col-span-2 w-full">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                            Email
+                            {isEditing && (
+                              <span className="text-red-500 ml-1">*</span>
+                            )}
+                          </label>
+                          <input
+                            type="email"
+                            value={isEditing ? editForm.email : userInfo.email}
+                            onChange={(e) => {
+                              clearMessages();
+                              setEditForm((prev) => ({
+                                ...prev,
+                                email: e.target.value,
+                              }));
+                            }}
+                            disabled={!isEditing}
+                            className={`mt-1 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+                              !isEditing ? "bg-gray-50" : ""
+                            } dark:bg-gray-700 transition-colors duration-300 dark:text-gray-200`}
+                          />
+                        </div>
                       </div>
                     </div>
-  
+
                     {/* Messages */}
                     <div className="text-center">
                       {errors && (
@@ -503,7 +505,7 @@ const ProfileSettings = () => {
                         />
                       )}
                     </div>
-  
+
                     {/* Action Buttons */}
                     <div className="flex justify-end space-x-2 sm:space-x-3">
                       {isEditing ? (
@@ -533,32 +535,33 @@ const ProfileSettings = () => {
                     </div>
                   </div>
                 )}
-  
-  {activeTab === "security" && (
-  // In your Appearance Settings section
-<div className="space-y-4">
-  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2">
-    Appearance Settings
-  </h3>
-  <div className="bg-white dark:bg-gray-700 rounded-lg p-4 sm:p-6">
-    <label className="inline-flex items-center cursor-pointer w-full justify-between">
-      <div>
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
-          Dark Mode
-        </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Toggle between light and dark themes
-        </p>
-      </div>
-      
-      <div className="inline-flex items-center">
-  <input 
-    type="checkbox" 
-    className="sr-only peer"
-    checked={isDark}
-    onChange={toggleTheme}
-  />
-  <div className="
+
+                {activeTab === "security" && (
+                  // In your Appearance Settings section
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2">
+                      Appearance Settings
+                    </h3>
+                    <div className="bg-white dark:bg-gray-700 rounded-lg p-4 sm:p-6">
+                      <label className="inline-flex items-center cursor-pointer w-full justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                            Dark Mode
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Toggle between light and dark themes
+                          </p>
+                        </div>
+
+                        <div className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={isDark}
+                            onChange={toggleTheme}
+                          />
+                          <div
+                            className="
     relative 
     w-11 
     h-6 
@@ -578,20 +581,23 @@ const ProfileSettings = () => {
     after:h-5 
     after:w-5 
     after:transition-all
-  ">
-    {/* Add RTL support */}
-    <style jsx>{`
-      .peer-checked:after:translate-x-full {
-        transform: translateX(calc(1.25rem - 2px)) !important;
-      }
-    `}</style>
-  </div>
-</div>
-    </label>
-  </div>
-</div>
-)}
-  
+  "
+                          >
+                            {/* Add RTL support */}
+                            <style jsx>{`
+                              .peer-checked:after:translate-x-full {
+                                transform: translateX(
+                                  calc(1.25rem - 2px)
+                                ) !important;
+                              }
+                            `}</style>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
                 {activeTab === "notifications" && (
                   <div className="space-y-6">
                     <div className="space-y-4">
@@ -603,7 +609,8 @@ const ProfileSettings = () => {
                           Coming Soon
                         </h4>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                          Notification settings will be available in a future update.
+                          Notification settings will be available in a future
+                          update.
                         </p>
                       </div>
                     </div>
@@ -613,7 +620,7 @@ const ProfileSettings = () => {
             </AnimatePresence>
           </div>
         </motion.div>
-  
+
         {/* Verification Modal */}
         <VerificationModal
           isOpen={verificationModal.isOpen}
@@ -625,11 +632,16 @@ const ProfileSettings = () => {
           }
           onConfirm={handleVerifyEmail}
           onClose={() =>
-            setVerificationModal({ isOpen: false, email: "", code: "", error: "" })
+            setVerificationModal({
+              isOpen: false,
+              email: "",
+              code: "",
+              error: "",
+            })
           }
           onCancelEmailChange={cancelEmailChangeRequest}
         />
-  
+
         {/* Cropper Modal */}
         {showCropper && (
           <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">

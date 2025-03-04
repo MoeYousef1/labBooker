@@ -15,7 +15,7 @@ const TermsOfService = () => {
   const [pageData, setPageData] = useState({
     title: "Terms of Service",
     content: "Loading...",
-    lastUpdated: new Date().toISOString()
+    lastUpdated: new Date().toISOString(),
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,14 +52,12 @@ const TermsOfService = () => {
         {props.children}
       </ol>
     ),
-    li: ({ node, ...props }) => (
-      <li className="pl-2">{props.children}</li>
-    ),
+    li: ({ node, ...props }) => <li className="pl-2">{props.children}</li>,
     a: ({ node, ...props }) => (
-      <a 
-        className="text-blue-600 dark:text-blue-400 hover:underline font-medium" 
-        href={props.href} 
-        target="_blank" 
+      <a
+        className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+        href={props.href}
+        target="_blank"
         rel="noopener noreferrer"
       >
         {props.children}
@@ -74,11 +72,11 @@ const TermsOfService = () => {
       <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 my-4 italic text-gray-600 dark:text-gray-400">
         {props.children}
       </blockquote>
-    )
+    ),
   };
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
   }, []);
 
@@ -88,7 +86,7 @@ const TermsOfService = () => {
       setPageData({
         title: response.data.title,
         content: response.data.content,
-        lastUpdated: response.data.lastUpdated
+        lastUpdated: response.data.lastUpdated,
       });
       setError(null);
     } catch (err) {
@@ -107,7 +105,7 @@ const TermsOfService = () => {
     fetchPageData();
   };
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
 
   return (
     <motion.div
@@ -173,12 +171,16 @@ const TermsOfService = () => {
               <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Last updated:{" "}
-                  {pageData.lastUpdated ? 
-                    new Date(pageData.lastUpdated).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric"
-                    }) : "No update date available"}
+                  {pageData.lastUpdated
+                    ? new Date(pageData.lastUpdated).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        },
+                      )
+                    : "No update date available"}
                 </p>
               </div>
             </>

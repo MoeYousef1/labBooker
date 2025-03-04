@@ -1,16 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class',
+  darkMode: "class",
   content: ["./src/**/*.{html,js}"],
   theme: {
     extend: {
       screens: {
         "2xl": "2000px",
-        "1800":"1800px",
-        "xxl": "1200px",
+        1800: "1800px",
+        xxl: "1200px",
         med: "900px",
-        h700: { raw: '(max-height: 700px)' }, // Add a custom media query for height
-
+        h700: { raw: "(max-height: 700px)" }, // Add a custom media query for height
       },
       colors: {
         primary: "#3B82F6",
@@ -26,11 +25,13 @@ module.exports = {
         grayExtraDark: "#111827",
       },
       backgroundImage: {
-        "gradient-primaryToRight": "linear-gradient(to right, #60A5FA, #1E40AF)",
+        "gradient-primaryToRight":
+          "linear-gradient(to right, #60A5FA, #1E40AF)",
         "gradient-primaryToLeft": "linear-gradient(to left, #60A5FA, #1E40AF)",
         "gradient-grayToRight": "linear-gradient(to right, #D1D5DB, #1F2937)",
         "gradient-grayToLeft": "linear-gradient(to left, #D1D5DB, #1F2937)",
-        "gradient-grayMidToRight": "linear-gradient(to right, #4B5563, #111827)",
+        "gradient-grayMidToRight":
+          "linear-gradient(to right, #4B5563, #111827)",
         "gradient-grayMidToLeft": "linear-gradient(to left, #4B5563, #1F2937)",
       },
       fontFamily: {
@@ -47,8 +48,5 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require("@tailwindcss/forms"),
-    require("tailwind-scrollbar"),
-  ],
+  plugins: [require("@tailwindcss/forms"), require("tailwind-scrollbar")],
 };

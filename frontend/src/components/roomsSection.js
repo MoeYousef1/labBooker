@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import MoreAboutRoomPopup from "./amenitiesPopup";
 import RoomCard from "./roomCard";
-import { BookOpen } from 'lucide-react';
+import { BookOpen } from "lucide-react";
 
 const RoomsSection = ({ userInfo }) => {
   const [rooms, setRooms] = useState([]);
@@ -26,7 +26,7 @@ const RoomsSection = ({ userInfo }) => {
     const fetchRooms = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/room/rooms"
+          "http://localhost:5000/api/room/rooms",
         );
         setRooms(response.data);
         setLoading(false);
@@ -48,47 +48,55 @@ const RoomsSection = ({ userInfo }) => {
   };
 
   return (
-    <div className="
+    <div
+      className="
       w-full 
       flex flex-col 
       px-4 sm:px-6 md:px-10 
       py-6
-    ">
+    "
+    >
       {/* Loading and Error States */}
       {loading && (
-        <div className="
+        <div
+          className="
           flex-grow 
           flex justify-center items-center 
           text-center text-lg text-gray-700
-        ">
+        "
+        >
           <BookOpen className="mr-2 animate-pulse" />
           Loading rooms...
         </div>
       )}
-      
+
       {error && (
-        <div className="
+        <div
+          className="
           flex-grow 
           flex justify-center items-center 
           text-center text-lg text-red-500
-        ">
+        "
+        >
           {error}
         </div>
       )}
 
       {/* Rooms Grid */}
-      <div className="
+      <div
+        className="
         grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 
         gap-6 
         w-full
         max-w-screen-xl 
         mx-auto
-      ">
+      "
+      >
         {rooms.length > 0 ? (
           rooms.map((room) => {
             const extraCount = Math.max(
               0,
-              room.amenities.length - visibleIconsCount
+              room.amenities.length - visibleIconsCount,
             );
             return (
               <RoomCard
@@ -106,11 +114,13 @@ const RoomsSection = ({ userInfo }) => {
             );
           })
         ) : (
-          <div className="
+          <div
+            className="
             text-center text-lg text-gray-700 
             col-span-full 
             flex justify-center items-center
-          ">
+          "
+          >
             <BookOpen className="mr-2" />
             No rooms available.
           </div>

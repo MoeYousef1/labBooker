@@ -53,10 +53,7 @@ const BookingPage = () => {
           className="w-full max-w-4xl mt-4 sm:mt-6"
         >
           {operation === "create" && (
-            <CretaeBooking 
-              operation={operation} 
-              onSuccess={handleSuccess} 
-            />
+            <CretaeBooking operation={operation} onSuccess={handleSuccess} />
           )}
           {operation === "update" && (
             <UpdateBooking
@@ -69,10 +66,7 @@ const BookingPage = () => {
             />
           )}
           {operation === "delete" && (
-            <DeleteBooking 
-              operation={operation} 
-              onSuccess={handleSuccess} 
-            />
+            <DeleteBooking operation={operation} onSuccess={handleSuccess} />
           )}
         </motion.div>
       </motion.div>

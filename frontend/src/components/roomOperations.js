@@ -1,8 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, Edit, Trash } from 'lucide-react';
+import { Plus, Edit, Trash } from "lucide-react";
 
-const RoomOperations = ({ setOperation, setRoomId, setRoomDetails, operation }) => {
+const RoomOperations = ({
+  setOperation,
+  setRoomId,
+  setRoomDetails,
+  operation,
+}) => {
   const handleOperationChange = (newOperation) => {
     setOperation(newOperation);
     if (newOperation !== "create") {

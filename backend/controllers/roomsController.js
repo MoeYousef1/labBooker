@@ -58,7 +58,7 @@ async function createRoom(req, res) {
                     return { name: item.name, icon: item.icon };
                   }
                   throw new Error(
-                    "Each amenity must have a 'name' and 'icon' property."
+                    "Each amenity must have a 'name' and 'icon' property.",
                   );
                 });
               } else {
@@ -158,7 +158,7 @@ async function updateRoom(req, res) {
               room.amenities = JSON.parse(amenities).map((amenity) => {
                 if (!amenity.name || !amenity.icon) {
                   throw new Error(
-                    "Each amenity must have 'name' and 'icon' properties."
+                    "Each amenity must have 'name' and 'icon' properties.",
                   );
                 }
                 return { name: amenity.name, icon: amenity.icon };
@@ -174,7 +174,7 @@ async function updateRoom(req, res) {
           }
 
           // Update fields with the provided data
-          if(name) room.name = name;
+          if (name) room.name = name;
           if (type) room.type = type;
           if (capacity) room.capacity = capacity;
           if (description) room.description = description;
@@ -199,10 +199,6 @@ async function updateRoom(req, res) {
     });
   });
 }
-
-
-
-
 
 async function deleteRoom(name) {
   try {
@@ -234,15 +230,16 @@ async function deleteRoom(name) {
       message: "Room and associated bookings deleted successfully",
       data: {
         roomName: room.name,
-        deletedBookingsCount: deletedBookings.deletedCount
-      }
+        deletedBookingsCount: deletedBookings.deletedCount,
+      },
     };
   } catch (error) {
     console.error("Error deleting room:", error.message);
     return {
       status: 500,
-      message: "Failed to delete room and associated bookings. Please try again.",
-      error: error.message
+      message:
+        "Failed to delete room and associated bookings. Please try again.",
+      error: error.message,
     };
   }
 }
@@ -268,8 +265,8 @@ const generateNext30Days = () => {
     date.setDate(today.getDate() + i);
 
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const day = String(date.getDate()).padStart(2, "0");
 
     const formattedDate = `${year}-${month}-${day}`; // Format as YYYY-MM-DD
     dates.push(formattedDate);
@@ -280,8 +277,12 @@ const generateNext30Days = () => {
 
 function generateHalfHourlySlots() {
   const slots = [];
-  for (let hour = 8; hour < 22; hour++) { // From 8:00 AM to 10:00 PM
-    const times = [`${String(hour).padStart(2, '0')}:00`, `${String(hour).padStart(2, '0')}:30`];
+  for (let hour = 8; hour < 22; hour++) {
+    // From 8:00 AM to 10:00 PM
+    const times = [
+      `${String(hour).padStart(2, "0")}:00`,
+      `${String(hour).padStart(2, "0")}:30`,
+    ];
     for (let i = 0; i < times.length - 1; i++) {
       const startTime = times[i];
       const endTime = hour === 21 && i === 1 ? "22:00" : times[i + 1]; // Special handling for the last slot
@@ -305,7 +306,7 @@ const getRoomAvailabilityForMonth = async (roomId) => {
   const bookings = await Booking.find({
     roomId,
     date: { $in: dates },
-    status: { $in: ["Pending", "Confirmed",  "Active"] }, // Include Pending and Confirmed bookings
+    status: { $in: ["Pending", "Confirmed", "Active"] }, // Include Pending and Confirmed bookings
   });
 
   // Prepare availability for each date
@@ -318,9 +319,12 @@ const getRoomAvailabilityForMonth = async (roomId) => {
       const isOccupied = bookings.some(
         (booking) =>
           booking.date === date &&
-          ((slot.startTime >= booking.startTime && slot.startTime < booking.endTime) || // Slot starts during booking
-            (slot.endTime > booking.startTime && slot.endTime <= booking.endTime) || // Slot ends during booking
-            (slot.startTime <= booking.startTime && slot.endTime >= booking.endTime)) // Slot fully overlaps booking
+          ((slot.startTime >= booking.startTime &&
+            slot.startTime < booking.endTime) || // Slot starts during booking
+            (slot.endTime > booking.startTime &&
+              slot.endTime <= booking.endTime) || // Slot ends during booking
+            (slot.startTime <= booking.startTime &&
+              slot.endTime >= booking.endTime)), // Slot fully overlaps booking
       );
 
       return {
@@ -338,7 +342,7 @@ const getRoomAvailabilityForMonth = async (roomId) => {
   return {
     room: room.name,
     availability,
-  }; 
+  };
 };
 
 async function getRoomAvailabilityForMonthByName(roomName) {
@@ -370,13 +374,11 @@ async function getRoomAvailabilityForMonthByName(roomName) {
       const isOccupied = bookings.some(
         (b) =>
           b.date === date &&
-          (
-            // Overlapping start or end
-            (slot.startTime >= b.startTime && slot.startTime < b.endTime) ||
+          // Overlapping start or end
+          ((slot.startTime >= b.startTime && slot.startTime < b.endTime) ||
             (slot.endTime > b.startTime && slot.endTime <= b.endTime) ||
             // slot fully covers the booking
-            (slot.startTime <= b.startTime && slot.endTime >= b.endTime)
-          )
+            (slot.startTime <= b.startTime && slot.endTime >= b.endTime)),
       );
       return { ...slot, status: isOccupied ? "Occupied" : "Available" };
     });

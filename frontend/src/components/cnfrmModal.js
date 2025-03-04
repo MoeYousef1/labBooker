@@ -1,7 +1,14 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 
-const Modal = ({ isOpen, onClose, onConfirm, message, confirmText, cancelText }) => {
+const Modal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  message,
+  confirmText,
+  cancelText,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -21,11 +28,9 @@ const Modal = ({ isOpen, onClose, onConfirm, message, confirmText, cancelText })
       >
         {/* Scrollable Content */}
         <div className="max-h-[calc(100vh-8rem)] overflow-y-auto">
-          <div className="p-6 dark:text-gray-100">
-            {message}
-          </div>
+          <div className="p-6 dark:text-gray-100">{message}</div>
         </div>
-  
+
         {/* Fixed Actions */}
         <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 border-t border-gray-200 dark:border-gray-700 rounded-b-lg">
           <div className="flex justify-end space-x-3">

@@ -34,22 +34,32 @@ export async function getCroppedImg(imageFile, croppedAreaPixels) {
           0,
           0,
           croppedAreaPixels.width,
-          croppedAreaPixels.height
+          croppedAreaPixels.height,
         );
 
         // Turn canvas into a Blob (or base64)
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            reject(new Error("Canvas is empty"));
-            return;
-          }
-          // Convert blob to a File (optional)
-          const fileExt = imageFile.name.substring(imageFile.name.lastIndexOf("."));
-          const newFile = new File([blob], `cropped_${Date.now()}${fileExt}`, {
-            type: blob.type,
-          });
-          resolve(newFile);
-        }, "image/jpeg", 1);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Canvas is empty"));
+              return;
+            }
+            // Convert blob to a File (optional)
+            const fileExt = imageFile.name.substring(
+              imageFile.name.lastIndexOf("."),
+            );
+            const newFile = new File(
+              [blob],
+              `cropped_${Date.now()}${fileExt}`,
+              {
+                type: blob.type,
+              },
+            );
+            resolve(newFile);
+          },
+          "image/jpeg",
+          1,
+        );
       };
     };
     reader.readAsDataURL(imageFile);

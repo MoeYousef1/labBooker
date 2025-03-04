@@ -3,16 +3,13 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { useNotifications } from "../hooks/useNotifications";
 import api from "../utils/axiosConfig";
-import {
-  Menu,
-  X,
-  Home,
-  BookOpen,
-  LogOut,
-  Bell,
-} from "lucide-react";
+import { Menu, X, Home, BookOpen, LogOut, Bell } from "lucide-react";
 
-const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) => {
+const Navbar = ({
+  userInfo,
+  setUserInfo,
+  enableTransparentOnScroll = false,
+}) => {
   const [state, setState] = useState({
     mobileMenuOpen: false,
     profileDropdownOpen: false,
@@ -53,7 +50,7 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
       navigate("/login");
       return;
     }
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       notificationDropdownOpen: !prev.notificationDropdownOpen,
       profileDropdownOpen: false,
@@ -73,21 +70,40 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
   const isMobile = useScreenSize();
 
   const navBgClass = useMemo(
-    () => (!enableTransparentOnScroll ? "bg-gray-900" : isScrolled ? "bg-gray-900" : "bg-transparent"),
-    [enableTransparentOnScroll, isScrolled]
+    () =>
+      !enableTransparentOnScroll
+        ? "bg-gray-900"
+        : isScrolled
+          ? "bg-gray-900"
+          : "bg-transparent",
+    [enableTransparentOnScroll, isScrolled],
   );
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       const profileDropdown = document.getElementById("profile-dropdown");
-      const notificationDropdown = document.getElementById("notification-dropdown");
+      const notificationDropdown = document.getElementById(
+        "notification-dropdown",
+      );
       const profileTrigger = document.getElementById("profile-trigger");
-      const notificationTrigger = document.getElementById("notification-trigger");
-      if (profileDropdown && profileTrigger && !profileDropdown.contains(event.target) && !profileTrigger.contains(event.target)) {
+      const notificationTrigger = document.getElementById(
+        "notification-trigger",
+      );
+      if (
+        profileDropdown &&
+        profileTrigger &&
+        !profileDropdown.contains(event.target) &&
+        !profileTrigger.contains(event.target)
+      ) {
         setState((prev) => ({ ...prev, profileDropdownOpen: false }));
       }
-      if (notificationDropdown && notificationTrigger && !notificationDropdown.contains(event.target) && !notificationTrigger.contains(event.target)) {
+      if (
+        notificationDropdown &&
+        notificationTrigger &&
+        !notificationDropdown.contains(event.target) &&
+        !notificationTrigger.contains(event.target)
+      ) {
         setState((prev) => ({ ...prev, notificationDropdownOpen: false }));
       }
     };
@@ -103,7 +119,7 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
         icon: <RiUserSettingsLine className="w-5 h-5" />,
       },
     ],
-    []
+    [],
   );
 
   const navLinks = useMemo(
@@ -111,12 +127,16 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
       {
         label: "Home",
         path: "/homepage",
-        icon: <Home className="w-5 h-5 transition-transform group-hover:scale-110" />,
+        icon: (
+          <Home className="w-5 h-5 transition-transform group-hover:scale-110" />
+        ),
       },
       {
         label: "Lab Rooms",
         path: "/labrooms",
-        icon: <BookOpen className="w-5 h-5 transition-transform group-hover:scale-110" />,
+        icon: (
+          <BookOpen className="w-5 h-5 transition-transform group-hover:scale-110" />
+        ),
       },
       {
         label: "College Website",
@@ -124,7 +144,7 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
         external: true,
       },
     ],
-    []
+    [],
   );
 
   const handleLogout = useCallback(() => {
@@ -134,8 +154,14 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
     navigate("/login");
   }, [navigate, setUserInfo]);
 
-  const handleHoverEffect = useCallback((key) => setState((prev) => ({ ...prev, activeHover: key })), []);
-  const clearHoverEffect = useCallback(() => setState((prev) => ({ ...prev, activeHover: null })), []);
+  const handleHoverEffect = useCallback(
+    (key) => setState((prev) => ({ ...prev, activeHover: key })),
+    [],
+  );
+  const clearHoverEffect = useCallback(
+    () => setState((prev) => ({ ...prev, activeHover: null })),
+    [],
+  );
 
   const renderNavLink = useCallback(
     (link, index) => {
@@ -152,7 +178,9 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
       const linkContent = (
         <div className="relative z-10 flex items-center space-x-2">
           {link.icon}
-          <span className="transition-all duration-300 group-hover:tracking-wider">{link.label}</span>
+          <span className="transition-all duration-300 group-hover:tracking-wider">
+            {link.label}
+          </span>
         </div>
       );
       return link.external ? (
@@ -181,7 +209,7 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
         </Link>
       );
     },
-    [location.pathname, handleHoverEffect, clearHoverEffect]
+    [location.pathname, handleHoverEffect, clearHoverEffect],
   );
 
   const ProfileDropdown = useMemo(() => {
@@ -193,15 +221,23 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
           isMobile ? "w-72 left-1/2 -translate-x-[90%]" : "w-72 right-0"
         }`}
         style={{ maxHeight: isMobile ? "80vh" : "auto" }}
-        onMouseEnter={() => setState((prev) => ({ ...prev, profileDropdownOpen: true }))}
-        onMouseLeave={() => setState((prev) => ({ ...prev, profileDropdownOpen: false }))}
+        onMouseEnter={() =>
+          setState((prev) => ({ ...prev, profileDropdownOpen: true }))
+        }
+        onMouseLeave={() =>
+          setState((prev) => ({ ...prev, profileDropdownOpen: false }))
+        }
       >
         <div className="p-4 bg-gray-800 border-b border-gray-700">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 rounded-full flex items-center justify-center border-2 border-white p-0.5 hover:border-blue-500 transition-colors">
               <div className="w-full h-full rounded-full overflow-hidden">
                 {userInfo.profilePicture ? (
-                  <img src={userInfo.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                  <img
+                    src={userInfo.profilePicture}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold text-xl">
                     {userInfo.username.charAt(0).toUpperCase()}
@@ -210,7 +246,9 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white truncate">{userInfo.username}</p>
+              <p className="text-sm font-semibold text-white truncate">
+                {userInfo.username}
+              </p>
               <p className="text-xs text-gray-400 truncate">{userInfo.email}</p>
             </div>
           </div>
@@ -220,7 +258,9 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
             <Link
               key={index}
               to={item.path}
-              onClick={() => setState((prev) => ({ ...prev, profileDropdownOpen: false }))}
+              onClick={() =>
+                setState((prev) => ({ ...prev, profileDropdownOpen: false }))
+              }
               className="flex items-center px-4 py-2.5 text-gray-300 hover:text-white hover:bg-gray-700 transition-all group"
             >
               <span className="p-1.5 rounded-lg bg-gray-800 transition-colors group-hover:bg-blue-500/20">
@@ -241,7 +281,13 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
         </button>
       </div>
     );
-  }, [state.profileDropdownOpen, userInfo, profileMenuItems, handleLogout, isMobile]);
+  }, [
+    state.profileDropdownOpen,
+    userInfo,
+    profileMenuItems,
+    handleLogout,
+    isMobile,
+  ]);
 
   const NotificationDropdown = useMemo(() => {
     if (!state.notificationDropdownOpen || !userInfo) return null;
@@ -250,14 +296,18 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
       <div
         id="notification-dropdown"
         className={`absolute bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden z-50 ${
-          isMobile ? "w-80 left-1/2 -translate-x-[70%] mt-4" : "w-80 right-0 mt-2"
+          isMobile
+            ? "w-80 left-1/2 -translate-x-[70%] mt-4"
+            : "w-80 right-0 mt-2"
         }`}
         style={{ maxHeight: isMobile ? "80vh" : "auto" }}
       >
         <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between bg-gray-800">
           <div className="flex items-center space-x-2">
             <Bell className="w-5 h-5 text-blue-400" />
-            <span className="text-sm font-semibold text-white">Notifications</span>
+            <span className="text-sm font-semibold text-white">
+              Notifications
+            </span>
             <span className="px-2 py-0.5 rounded-full bg-gray-800 text-xs text-gray-300">
               {unreadCount}
             </span>
@@ -276,7 +326,10 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
                     await api.put("/notifications/read-all");
                     fetchNotifications();
                   } catch (error) {
-                    console.error("Failed to mark all notifications as read:", error);
+                    console.error(
+                      "Failed to mark all notifications as read:",
+                      error,
+                    );
                   }
                 }}
                 className="text-xs text-green-400 hover:text-green-300 hover:underline transition-colors px-2 py-1 rounded-md hover:bg-green-500/10"
@@ -295,7 +348,9 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
                   notif.isRead ? "bg-gray-700 opacity-70" : "hover:bg-gray-600"
                 }`}
               >
-                <span className="text-sm mr-4 text-gray-300">{notif.message}</span>
+                <span className="text-sm mr-4 text-gray-300">
+                  {notif.message}
+                </span>
                 <div className="flex space-x-2">
                   {!notif.isRead && (
                     <button
@@ -335,7 +390,9 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
   ]);
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 text-white transition-colors duration-300 ${navBgClass}`}>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 text-white transition-colors duration-300 ${navBgClass}`}
+    >
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link
           to="/"
@@ -351,11 +408,11 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
           {userInfo ? (
             <>
               <div className="relative">
-              <button
-    id="notification-trigger"
-    onClick={handleNotificationClick}
-    className="text-gray-300 hover:text-white hover:scale-110 transition-all focus:outline-none relative"
-  >
+                <button
+                  id="notification-trigger"
+                  onClick={handleNotificationClick}
+                  className="text-gray-300 hover:text-white hover:scale-110 transition-all focus:outline-none relative"
+                >
                   <Bell className="w-6 h-6" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
@@ -380,7 +437,11 @@ const Navbar = ({ userInfo, setUserInfo, enableTransparentOnScroll = false }) =>
                   <div className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-white p-0.5 hover:border-blue-500 transition-all transform hover:scale-105">
                     <div className="w-full h-full rounded-full overflow-hidden">
                       {userInfo.profilePicture ? (
-                        <img src={userInfo.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                        <img
+                          src={userInfo.profilePicture}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold">
                           {userInfo.username.charAt(0).toUpperCase()}

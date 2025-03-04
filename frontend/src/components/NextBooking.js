@@ -446,7 +446,7 @@ const NextBooking = ({
             </button>
           </div>
         </div>
-    
+
         {/* Collapsible Content */}
         <div
           className={`transition-all duration-300 ease-in-out ${isExpanded ? "opacity-100 max-h-[1000px]" : "opacity-0 max-h-0"}`}
@@ -520,7 +520,7 @@ const NextBooking = ({
           </button>
         </div>
       </div>
-  
+
       {/* Content Area */}
       <div
         className={`transition-all duration-300 ease-in-out ${isExpanded ? "opacity-100 max-h-[1000px]" : "opacity-0 max-h-0"}`}
@@ -560,7 +560,7 @@ const NextBooking = ({
             className={`p-6 pt-4 ${isTransitioning ? "opacity-0" : "opacity-100"}`}
           >
             {renderAlerts()}
-  
+
             {/* Progress Section */}
             <div className="flex items-center justify-between mb-6">
               <div className="w-20 h-20 hover:scale-105 transition-transform duration-300">
@@ -570,13 +570,9 @@ const NextBooking = ({
                   styles={buildStyles({
                     pathTransitionDuration: 0.5,
                     pathColor:
-                      bookingState === "active" 
-                        ? "#16a34a" 
-                        : "#2563eb",
+                      bookingState === "active" ? "#16a34a" : "#2563eb",
                     textColor:
-                      bookingState === "active" 
-                        ? "#15803d" 
-                        : "#1e40af",
+                      bookingState === "active" ? "#15803d" : "#1e40af",
                     trailColor: "#f3f4f6",
                     textSize: "32px",
                   })}
@@ -603,7 +599,7 @@ const NextBooking = ({
                 </div>
               </div>
             </div>
-  
+
             {/* Detail Cards with Hover Effects */}
             <div className="grid md:grid-cols-3 gap-4 mb-6">
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-100 dark:border-gray-600 hover:shadow-md dark:hover:shadow-gray-900/30 hover:-translate-y-1 transition-all duration-300">
@@ -612,28 +608,32 @@ const NextBooking = ({
                     <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Date
+                    </p>
                     <p className="font-semibold text-gray-800 dark:text-gray-200 hover:text-blue-700 dark:hover:text-blue-400 transition-colors">
                       {booking.date}
                     </p>
                   </div>
                 </div>
               </div>
-  
+
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-100 dark:border-gray-600 hover:shadow-md dark:hover:shadow-gray-900/30 hover:-translate-y-1 transition-all duration-300">
                 <div className="flex items-center space-x-3">
                   <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors">
                     <MapPin className="w-5 h-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Room</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Room
+                    </p>
                     <p className="font-semibold text-gray-800 dark:text-gray-200 hover:text-green-700 dark:hover:text-green-400 transition-colors">
                       {booking.roomId.name}
                     </p>
                   </div>
                 </div>
               </div>
-  
+
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-100 dark:border-gray-600 hover:shadow-md dark:hover:shadow-gray-900/30 hover:-translate-y-1 transition-all duration-300">
                 <div className="flex items-center space-x-3">
                   <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors">
@@ -652,7 +652,7 @@ const NextBooking = ({
                 </div>
               </div>
             </div>
-  
+
             {/* Action Buttons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {bookingState === "upcoming" && (
@@ -680,7 +680,7 @@ const NextBooking = ({
                       <span>Cancel Unavailable</span>
                     </div>
                   )}
-  
+
                   <button
                     onClick={handleDownloadICS}
                     className="flex items-center justify-center space-x-2 p-3 bg-white dark:bg-gray-700 border border-blue-200 dark:border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5"
@@ -688,7 +688,7 @@ const NextBooking = ({
                     <Download className="w-5 h-5" />
                     <span>Download .ICS</span>
                   </button>
-  
+
                   <a
                     href={getGoogleCalendarUrl(booking)}
                     target="_blank"
@@ -700,7 +700,7 @@ const NextBooking = ({
                   </a>
                 </>
               )}
-  
+
               {bookingState === "active" && !booking.checkedIn && (
                 <button
                   onClick={handleCheckIn}

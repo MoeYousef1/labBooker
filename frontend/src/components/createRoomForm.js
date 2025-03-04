@@ -33,7 +33,7 @@ const CreateRoomForm = ({ onSuccess }) => {
     setSelectedAmenities((prev) =>
       prev.includes(amenity)
         ? prev.filter((a) => a !== amenity)
-        : [...prev, amenity]
+        : [...prev, amenity],
     );
   };
 
@@ -72,7 +72,7 @@ const CreateRoomForm = ({ onSuccess }) => {
       const response = await axios.post(
         "http://localhost:5000/api/room/rooms",
         formPayload,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       if (response.status === 201) {
@@ -91,7 +91,7 @@ const CreateRoomForm = ({ onSuccess }) => {
     } catch (err) {
       setErrors(
         err.response?.data?.message ||
-          "An error occurred while creating the room"
+          "An error occurred while creating the room",
       );
     } finally {
       setLoading(false);
@@ -108,8 +108,11 @@ const CreateRoomForm = ({ onSuccess }) => {
       <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 text-center mb-6 sm:mb-8">
         Create a New Room
       </h2>
-  
-      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 md:space-y-10">
+
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 sm:space-y-8 md:space-y-10"
+      >
         {/* Section: Basic Details */}
         <div className="space-y-4 sm:space-y-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2 dark:border-gray-600">
@@ -130,7 +133,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                 placeholder="Enter room name"
               />
             </div>
-  
+
             {/* Room Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -142,13 +145,21 @@ const CreateRoomForm = ({ onSuccess }) => {
                 onChange={handleInputChange}
                 className="w-full p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
               >
-                <option value="" disabled className="dark:bg-gray-700">Select Room Type</option>
-                <option value="Open" className="dark:bg-gray-700">Open</option>
-                <option value="Small Seminar" className="dark:bg-gray-700">Small Seminar</option>
-                <option value="Large Seminar" className="dark:bg-gray-700">Large Seminar</option>
+                <option value="" disabled className="dark:bg-gray-700">
+                  Select Room Type
+                </option>
+                <option value="Open" className="dark:bg-gray-700">
+                  Open
+                </option>
+                <option value="Small Seminar" className="dark:bg-gray-700">
+                  Small Seminar
+                </option>
+                <option value="Large Seminar" className="dark:bg-gray-700">
+                  Large Seminar
+                </option>
               </select>
             </div>
-  
+
             {/* Capacity */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -163,7 +174,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                 placeholder="Enter capacity"
               />
             </div>
-  
+
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -179,7 +190,7 @@ const CreateRoomForm = ({ onSuccess }) => {
             </div>
           </div>
         </div>
-  
+
         {/* Section: Amenities */}
         <div className="space-y-4 sm:space-y-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2 dark:border-gray-600">
@@ -198,7 +209,7 @@ const CreateRoomForm = ({ onSuccess }) => {
               </span>
               <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-400" />
             </button>
-  
+
             {showAmenitiesDropdown && (
               <div className="absolute z-10 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg dark:shadow-gray-950/50 p-3 sm:p-4 max-h-48 sm:max-h-60 overflow-y-auto">
                 <input
@@ -211,7 +222,7 @@ const CreateRoomForm = ({ onSuccess }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {availableAmenities
                     .filter((amenity) =>
-                      amenity.toLowerCase().includes(searchQuery.toLowerCase())
+                      amenity.toLowerCase().includes(searchQuery.toLowerCase()),
                     )
                     .map((amenity) => (
                       <label
@@ -233,7 +244,7 @@ const CreateRoomForm = ({ onSuccess }) => {
             )}
           </div>
         </div>
-  
+
         {/* Section: Image Upload */}
         <div className="space-y-4">
           <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2 dark:border-gray-600">
@@ -246,7 +257,7 @@ const CreateRoomForm = ({ onSuccess }) => {
             className="w-full p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
           />
         </div>
-  
+
         {/* Messages */}
         <div className="text-center">
           {errors && (
@@ -264,7 +275,7 @@ const CreateRoomForm = ({ onSuccess }) => {
             />
           )}
         </div>
-  
+
         {/* Submit Button */}
         <div className="flex justify-end">
           <button

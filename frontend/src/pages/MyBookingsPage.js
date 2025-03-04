@@ -272,7 +272,7 @@ const MyBookingsPage = () => {
 
   const ModalContent = () => {
     const selectedBooking = bookings.find((b) => b._id === selectedBookingId);
-  
+
     return (
       <div className="space-y-6">
         <div className="text-center">
@@ -300,7 +300,7 @@ const MyBookingsPage = () => {
             undone.
           </div>
         </div>
-  
+
         {selectedBooking && (
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="px-4 py-3 bg-gray-100 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
@@ -311,32 +311,42 @@ const MyBookingsPage = () => {
             <div className="p-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="block text-gray-500 dark:text-gray-400">Room</span>
+                  <span className="block text-gray-500 dark:text-gray-400">
+                    Room
+                  </span>
                   <span className="font-medium dark:text-gray-200">
                     {selectedBooking.roomId?.name}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-gray-500 dark:text-gray-400">Date</span>
+                  <span className="block text-gray-500 dark:text-gray-400">
+                    Date
+                  </span>
                   <span className="font-medium dark:text-gray-200">
                     {formatDate(selectedBooking.date)}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-gray-500 dark:text-gray-400">Time</span>
+                  <span className="block text-gray-500 dark:text-gray-400">
+                    Time
+                  </span>
                   <span className="font-medium dark:text-gray-200">
                     {selectedBooking.startTime} - {selectedBooking.endTime}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-gray-500 dark:text-gray-400">Status</span>
-                  <span className="font-medium dark:text-gray-200">{selectedBooking.status}</span>
+                  <span className="block text-gray-500 dark:text-gray-400">
+                    Status
+                  </span>
+                  <span className="font-medium dark:text-gray-200">
+                    {selectedBooking.status}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         )}
-  
+
         <div className="text-center">
           <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
             <svg
@@ -356,22 +366,24 @@ const MyBookingsPage = () => {
       </div>
     );
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Navbar userInfo={userInfo} setUserInfo={setUserInfo} />
-  
+
       <main className="container mx-auto px-4 py-8 max-w-7xl pt-20">
         {/* Header Section */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8 sticky top-20 z-10 transition-colors duration-300">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Bookings</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                My Bookings
+              </h1>
               <p className="text-md text-gray-600 dark:text-gray-400 mt-2">
                 Manage your lab room reservations
               </p>
             </div>
-  
+
             <div className="flex gap-4">
               <button
                 onClick={() => navigate("/labrooms")}
@@ -380,7 +392,7 @@ const MyBookingsPage = () => {
                 <CalendarIcon className="w-5 h-5" />
                 New Booking
               </button>
-  
+
               <button
                 onClick={fetchBookings}
                 className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow flex-1 md:flex-none justify-center"
@@ -393,17 +405,17 @@ const MyBookingsPage = () => {
               </button>
             </div>
           </div>
-  
+
           {/* Filter Section */}
           <div className="mt-6 flex gap-4">
-            {['all', 'upcoming', 'past'].map((f) => (
+            {["all", "upcoming", "past"].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   filter === f
-                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)} Bookings
@@ -411,7 +423,7 @@ const MyBookingsPage = () => {
             ))}
           </div>
         </div>
-  
+
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-800 p-4 mb-6 rounded-r-lg">
@@ -421,7 +433,7 @@ const MyBookingsPage = () => {
             </div>
           </div>
         )}
-  
+
         {/* Content Section */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
@@ -459,7 +471,7 @@ const MyBookingsPage = () => {
                 const statusDisplay = getBookingStatusDisplay(booking);
                 const isPast = isBookingPast(booking.date, booking.endTime);
                 const canCancel = isBookingCancelable(booking);
-  
+
                 return (
                   <div
                     key={booking._id}
@@ -477,7 +489,7 @@ const MyBookingsPage = () => {
                         </span>
                       </div>
                     </div>
-  
+
                     <div className="p-6 space-y-4">
                       <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                         <Calendar className="w-5 h-5 text-blue-500" />
@@ -496,7 +508,7 @@ const MyBookingsPage = () => {
                           {booking.startTime} - {booking.endTime}
                         </span>
                       </div>
-  
+
                       {booking.additionalUsers?.length > 0 && (
                         <div className="text-sm text-gray-600 dark:text-gray-400">
                           <p>Other Users in this Booking:</p>
@@ -509,7 +521,7 @@ const MyBookingsPage = () => {
                                 </span>
                               </li>
                             )}
-  
+
                             {booking.additionalUsers
                               .filter((user) => user.email !== userInfo.email)
                               .map((user, index) => (
@@ -518,7 +530,7 @@ const MyBookingsPage = () => {
                           </ul>
                         </div>
                       )}
-  
+
                       {canCancel ? (
                         <button
                           onClick={() => openCancelModal(booking._id)}
@@ -545,7 +557,7 @@ const MyBookingsPage = () => {
                 );
               })}
             </div>
-  
+
             <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
               <p className="text-center text-blue-800 dark:text-blue-300 text-sm">
                 You can cancel bookings up until their scheduled time. Past
@@ -556,7 +568,7 @@ const MyBookingsPage = () => {
           </div>
         )}
       </main>
-  
+
       {/* Confirmation Modal */}
       <Modal
         isOpen={isModalOpen}
@@ -586,7 +598,7 @@ const MyBookingsPage = () => {
         }
         cancelText="Close"
       />
-  
+
       {/* Toast Notification */}
       {toast.isVisible && (
         <Toast
@@ -595,7 +607,7 @@ const MyBookingsPage = () => {
           onClose={() => setToast({ ...toast, isVisible: false })}
         />
       )}
-  
+
       <Footer />
     </div>
   );

@@ -19,8 +19,8 @@ const DASHBOARD_PATHS = [
 ];
 
 export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const isAdminOrManager = ['admin', 'manager'].includes(user?.role);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdminOrManager = ["admin", "manager"].includes(user?.role);
   const [showDashboardSubmenu, setShowDashboardSubmenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,9 +46,9 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
 
   const ProtectedMenuItem = ({ path, label, allowedRoles }) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    
+
     if (!allowedRoles.includes(user?.role)) return null;
-  
+
     return (
       <li
         className={`px-12 py-2 cursor-pointer transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 ${
@@ -61,14 +61,15 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
         {label}
       </li>
     );
-  }
+  };
 
   return (
     <div
       className="fixed top-0 left-0 h-screen z-40 transition-all duration-300 bg-white border-r border-gray-200 shadow-xl dark:bg-gray-800 dark:border-gray-700 dark:shadow-gray-800/50"
-      style={{ 
+      style={{
         width: isExpanded ? 225 : 80,
-        transform: isMobile && !isExpanded ? 'translateX(calc(-100% + 80px))' : 'none',
+        transform:
+          isMobile && !isExpanded ? "translateX(calc(-100% + 80px))" : "none",
       }}
     >
       {/* Toggle Button positioned within the sidebar */}
@@ -82,7 +83,7 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
           <ChevronRight className="w-5 h-5 dark:text-gray-200" />
         )}
       </button>
-  
+
       <div className="h-full flex flex-col justify-between">
         {/* Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -94,7 +95,7 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
             LabBooker
           </h2>
         </div>
-  
+
         {/* Navigation Items */}
         <ul className="flex-1 py-4">
           {isAdminOrManager && (
@@ -119,39 +120,39 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
                   } ${isExpanded ? "opacity-100" : "opacity-0"}`}
                 />
               </div>
-  
+
               {showDashboardSubmenu && isExpanded && (
                 <ul className="bg-gray-50 py-2 dark:bg-gray-700/30">
-                  <ProtectedMenuItem 
-                    path="/dashboard" 
-                    label="Overview" 
-                    allowedRoles={['admin', 'manager']}
+                  <ProtectedMenuItem
+                    path="/dashboard"
+                    label="Overview"
+                    allowedRoles={["admin", "manager"]}
                   />
-                  <ProtectedMenuItem 
-                    path="/usermanagement" 
-                    label="Manage Users" 
-                    allowedRoles={['admin']}
+                  <ProtectedMenuItem
+                    path="/usermanagement"
+                    label="Manage Users"
+                    allowedRoles={["admin"]}
                   />
-                  <ProtectedMenuItem 
-                    path="/roomOperationpage" 
-                    label="Manage Rooms" 
-                    allowedRoles={['admin', 'manager']}
+                  <ProtectedMenuItem
+                    path="/roomOperationpage"
+                    label="Manage Rooms"
+                    allowedRoles={["admin", "manager"]}
                   />
-                  <ProtectedMenuItem 
-                    path="/bookingOperationpage" 
-                    label="Manage Bookings" 
-                    allowedRoles={['admin', 'manager']}
+                  <ProtectedMenuItem
+                    path="/bookingOperationpage"
+                    label="Manage Bookings"
+                    allowedRoles={["admin", "manager"]}
                   />
-                  <ProtectedMenuItem 
-                    path="/configmanagement" 
-                    label="Configurations" 
-                    allowedRoles={['admin']}
+                  <ProtectedMenuItem
+                    path="/configmanagement"
+                    label="Configurations"
+                    allowedRoles={["admin"]}
                   />
                 </ul>
               )}
             </li>
           )}
-  
+
           {[
             { icon: User, label: "Profile", path: "/accountSettings" },
             { icon: Home, label: "Home", path: "/homepage" },
@@ -176,7 +177,7 @@ export function Sidebar({ isExpanded, toggleSidebar, isMobile }) {
             </li>
           ))}
         </ul>
-  
+
         {/* Logout */}
         <div className="border-t border-gray-200 dark:border-gray-700">
           <div

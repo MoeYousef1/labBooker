@@ -7,8 +7,8 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ContactPage = () => {
-    const navigate = useNavigate();
-  
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -36,20 +36,20 @@ const ContactPage = () => {
       className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-6 sm:px-8 md:px-12 py-12 relative"
     >
       {/* Back Button */}
-            <motion.div
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="absolute top-6 left-4 sm:left-6"
-            >
-              <button
-                onClick={() => navigate(-1)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-300 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </button>
-            </motion.div>
+      <motion.div
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="absolute top-6 left-4 sm:left-6"
+      >
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-300 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-colors shadow-sm border border-gray-200 dark:border-gray-600"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </button>
+      </motion.div>
 
       {/* Main Content */}
       <div className="max-w-4xl w-full mt-10">
@@ -63,7 +63,8 @@ const ContactPage = () => {
             Contact Support
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Have questions about lab bookings or need assistance? We're here to help!
+            Have questions about lab bookings or need assistance? We're here to
+            help!
           </p>
         </motion.div>
 
@@ -81,9 +82,15 @@ const ContactPage = () => {
                   <FiMapPin className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Visit Us</h3>
-                  <p className="text-gray-600 dark:text-gray-400">123 Lab Street</p>
-                  <p className="text-gray-600 dark:text-gray-400">Science Campus, CA 98765</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Visit Us
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    123 Lab Street
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Science Campus, CA 98765
+                  </p>
                 </div>
               </div>
 
@@ -92,9 +99,15 @@ const ContactPage = () => {
                   <FiPhone className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Call Us</h3>
-                  <p className="text-gray-600 dark:text-gray-400">+1 (555) 123-4567</p>
-                  <p className="text-gray-600 dark:text-gray-400">Mon-Fri, 9am-5pm PST</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Call Us
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    +1 (555) 123-4567
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Mon-Fri, 9am-5pm PST
+                  </p>
                 </div>
               </div>
 
@@ -103,9 +116,15 @@ const ContactPage = () => {
                   <FiMail className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Email Us</h3>
-                  <p className="text-gray-600 dark:text-gray-400">support@labbookings.com</p>
-                  <p className="text-gray-600 dark:text-gray-400">Response within 24 hours</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Email Us
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    support@labbookings.com
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Response within 24 hours
+                  </p>
                 </div>
               </div>
             </div>

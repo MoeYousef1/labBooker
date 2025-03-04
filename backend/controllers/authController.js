@@ -1,6 +1,6 @@
-const User = require('../models/User');
+const User = require("../models/User");
 const redisClient = require("../config/redisClient");
-const authMiddleware = require('../middleware/authMiddleware');
+const authMiddleware = require("../middleware/authMiddleware");
 const { sendVerificationEmail } = require("../utils/emailService");
 
 // Helper function for email validation
@@ -14,12 +14,12 @@ const debugVerification = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.params.email });
     const redisCode = await redisClient.get(`login:${req.params.email}`);
-    
+
     res.json({
       userCode: user?.verificationCode,
       redisCode,
       expires: user?.verificationExpires,
-      now: new Date()
+      now: new Date(),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -31,33 +31,33 @@ const signup = async (req, res) => {
   const { username, name, email } = req.body;
 
   try {
-    console.log('Signup attempt:', { username, name, email });
+    console.log("Signup attempt:", { username, name, email });
 
     // Input validation
     if (!username || !name || !email) {
-      return res.status(400).json({ 
-        message: "Username, name, and email are required" 
+      return res.status(400).json({
+        message: "Username, name, and email are required",
       });
     }
 
     // Validate username
     if (username.length < 3 || username.length > 30) {
       return res.status(400).json({
-        message: "Username must be between 3 and 30 characters"
+        message: "Username must be between 3 and 30 characters",
       });
     }
 
     // Validate name
     if (name.length < 2 || name.length > 50) {
       return res.status(400).json({
-        message: "Name must be between 2 and 50 characters"
+        message: "Name must be between 2 and 50 characters",
       });
     }
 
     // Validate email format
     if (!isValidEmail(email)) {
-      return res.status(400).json({ 
-        message: "Invalid email format" 
+      return res.status(400).json({
+        message: "Invalid email format",
       });
     }
 
@@ -68,22 +68,22 @@ const signup = async (req, res) => {
 
     // Check if user already exists
     const existingUser = await User.findOne({
-      $or: [
-        { email: normalizedEmail },
-        { username: normalizedUsername }
-      ]
+      $or: [{ email: normalizedEmail }, { username: normalizedUsername }],
     });
 
     if (existingUser) {
-      return res.status(409).json({ 
-        message: existingUser.email === normalizedEmail 
-          ? "Email already registered" 
-          : "Username already taken" 
+      return res.status(409).json({
+        message:
+          existingUser.email === normalizedEmail
+            ? "Email already registered"
+            : "Username already taken",
       });
     }
 
     // Generate verification code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
     const verificationExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
     // Create new user
@@ -93,18 +93,18 @@ const signup = async (req, res) => {
       email: normalizedEmail,
       verificationCode,
       verificationExpires,
-      role: 'user'
+      role: "user",
     });
 
     await newUser.save();
-    console.log('User created:', newUser._id);
+    console.log("User created:", newUser._id);
 
     // Store verification code in Redis
     await redisClient.set(
-      `signup:${normalizedEmail}`, 
-      verificationCode, 
-      "EX", 
-      300
+      `signup:${normalizedEmail}`,
+      verificationCode,
+      "EX",
+      300,
     );
 
     // Send verification email
@@ -112,21 +112,20 @@ const signup = async (req, res) => {
 
     const response = {
       message: "Signup successful. Please verify your email.",
-      userId: newUser._id
+      userId: newUser._id,
     };
 
     // Include verification code in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       response.verificationCode = verificationCode;
     }
 
     res.status(201).json(response);
-
   } catch (error) {
     console.error("Signup error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Failed to create account",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -136,7 +135,7 @@ const login = async (req, res) => {
   const { email } = req.body;
 
   try {
-    console.log('Login attempt:', { email });
+    console.log("Login attempt:", { email });
 
     if (!email || !isValidEmail(email)) {
       return res.status(400).json({ message: "Valid email is required" });
@@ -147,13 +146,15 @@ const login = async (req, res) => {
     // Find user
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
-      console.log('User not found:', normalizedEmail);
+      console.log("User not found:", normalizedEmail);
       return res.status(404).json({ message: "User not found" });
     }
 
     // Generate verification code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log('Generated code:', verificationCode);
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
+    console.log("Generated code:", verificationCode);
 
     // Update user's verification code
     user.verificationCode = verificationCode;
@@ -162,10 +163,10 @@ const login = async (req, res) => {
 
     // Store code in Redis
     await redisClient.set(
-      `login:${normalizedEmail}`, 
-      verificationCode, 
-      "EX", 
-      300
+      `login:${normalizedEmail}`,
+      verificationCode,
+      "EX",
+      300,
     );
 
     // Send verification email
@@ -173,21 +174,20 @@ const login = async (req, res) => {
 
     const response = {
       message: "Login verification code sent",
-      userId: user._id
+      userId: user._id,
     };
 
     // Include verification code in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       response.verificationCode = verificationCode;
     }
 
     res.status(200).json(response);
-
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Login failed",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -196,11 +196,11 @@ const verifyLoginCode = async (req, res) => {
   const { email, code } = req.body;
 
   try {
-    console.log('Verification attempt:', { email, code });
+    console.log("Verification attempt:", { email, code });
 
     if (!email || !code) {
-      return res.status(400).json({ 
-        message: "Email and verification code are required" 
+      return res.status(400).json({
+        message: "Email and verification code are required",
       });
     }
 
@@ -228,10 +228,13 @@ const verifyLoginCode = async (req, res) => {
     try {
       tokens = await authMiddleware.generateTokens(user);
     } catch (tokenError) {
-      console.error('Token generation error:', tokenError);
-      return res.status(500).json({ 
+      console.error("Token generation error:", tokenError);
+      return res.status(500).json({
         message: "Error generating authentication tokens",
-        error: process.env.NODE_ENV === 'development' ? tokenError.message : undefined
+        error:
+          process.env.NODE_ENV === "development"
+            ? tokenError.message
+            : undefined,
       });
     }
 
@@ -244,7 +247,7 @@ const verifyLoginCode = async (req, res) => {
     try {
       await redisClient.del(`login:${normalizedEmail}`);
     } catch (redisError) {
-      console.error('Redis cleanup error:', redisError);
+      console.error("Redis cleanup error:", redisError);
     }
 
     res.status(200).json({
@@ -257,14 +260,13 @@ const verifyLoginCode = async (req, res) => {
         name: user.name,
         profilePicture: user.profilePicture || null, // Add this line
       },
-      ...tokens
+      ...tokens,
     });
-
   } catch (error) {
     console.error("Login verification error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Login verification failed",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -273,7 +275,7 @@ const requestCode = async (req, res) => {
   const { email } = req.body;
 
   try {
-    console.log('Code request:', { email });
+    console.log("Code request:", { email });
 
     if (!email || !isValidEmail(email)) {
       return res.status(400).json({ message: "Valid email is required" });
@@ -284,8 +286,8 @@ const requestCode = async (req, res) => {
     // Check rate limiting
     const attempts = await redisClient.get(`${normalizedEmail}_attempts`);
     if (attempts && parseInt(attempts) >= 3) {
-      return res.status(429).json({ 
-        message: "Too many attempts. Please try again later." 
+      return res.status(429).json({
+        message: "Too many attempts. Please try again later.",
       });
     }
 
@@ -296,7 +298,9 @@ const requestCode = async (req, res) => {
     }
 
     // Generate new code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
 
     // Update user
     user.verificationCode = verificationCode;
@@ -307,7 +311,7 @@ const requestCode = async (req, res) => {
     await Promise.all([
       redisClient.set(normalizedEmail, verificationCode, "EX", 300),
       redisClient.incr(`${normalizedEmail}_attempts`),
-      redisClient.expire(`${normalizedEmail}_attempts`, 3600)
+      redisClient.expire(`${normalizedEmail}_attempts`, 3600),
     ]);
 
     // Send email
@@ -315,20 +319,19 @@ const requestCode = async (req, res) => {
 
     const response = {
       message: "New verification code sent",
-      expiresIn: "5 minutes"
+      expiresIn: "5 minutes",
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       response.verificationCode = verificationCode;
     }
 
     res.status(200).json(response);
-
   } catch (error) {
     console.error("Request code error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Failed to send verification code",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -337,7 +340,7 @@ const verifySignup = async (req, res) => {
   const { email, code } = req.body;
 
   try {
-    console.log('Signup verification attempt:', { email, code });
+    console.log("Signup verification attempt:", { email, code });
 
     const normalizedEmail = email.trim().toLowerCase();
 
@@ -354,7 +357,7 @@ const verifySignup = async (req, res) => {
 
     // Verify code from Redis
     const redisCode = await redisClient.get(`signup:${normalizedEmail}`);
-    
+
     if (code !== user.verificationCode || code !== redisCode) {
       return res.status(400).json({ message: "Invalid verification code" });
     }
@@ -369,7 +372,8 @@ const verifySignup = async (req, res) => {
     await redisClient.del(`signup:${normalizedEmail}`);
 
     // Generate tokens
-    const { accessToken, refreshToken } = await authMiddleware.generateTokens(user);
+    const { accessToken, refreshToken } =
+      await authMiddleware.generateTokens(user);
 
     res.status(200).json({
       message: "Email verified successfully",
@@ -377,17 +381,16 @@ const verifySignup = async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
       },
       accessToken,
-      refreshToken
+      refreshToken,
     });
-
   } catch (error) {
     console.error("Signup verification error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: "Verification failed",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -398,5 +401,5 @@ module.exports = {
   login,
   verifyLoginCode,
   requestCode,
-  verifySignup
+  verifySignup,
 };

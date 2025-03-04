@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { FaTimes } from "react-icons/fa"; // For remove icon
 import api from "../utils/axiosConfig"; // Import the centralized Axios instance
 
-
 const CreateBookingByNamesForm = ({ onSuccess }) => {
   // Main form data
   const [formData, setFormData] = useState({
@@ -36,7 +35,6 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
 
   const token = localStorage.getItem("token");
 
-
   // Function to fetch room details manually
   const fetchRoomDetails = async () => {
     if (!formData.roomName.trim()) {
@@ -45,9 +43,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
     }
 
     try {
-      const response = await api.get(
-        `/room/rooms/${formData.roomName.trim()}`,
-      );
+      const response = await api.get(`/room/rooms/${formData.roomName.trim()}`);
       if (response.status === 200) {
         const room = response.data;
         setRoomType(room.type);
@@ -293,9 +289,9 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
       if (response.status === 201) {
         setSuccessMessage(
@@ -339,8 +335,11 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
       <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 text-center mb-6 sm:mb-8">
         Create a Booking
       </h2>
-  
-      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 md:space-y-10">
+
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 sm:space-y-8 md:space-y-10"
+      >
         {/* Section: Basic Details */}
         <div className="space-y-4 sm:space-y-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2">
@@ -369,7 +368,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                 </button>
               </div>
             </div>
-  
+
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Your Username <span className="text-red-500">*</span>
@@ -385,7 +384,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
             </div>
           </div>
         </div>
-  
+
         {/* Section: Additional Users */}
         {roomType && (
           <div className="space-y-4">
@@ -395,14 +394,18 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                   "Additional users are not allowed for Open rooms."
                 ) : (
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                    <span>Add Additional User <span className="text-red-500">*</span></span>
+                    <span>
+                      Add Additional User{" "}
+                      <span className="text-red-500">*</span>
+                    </span>
                     <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                      (Exactly {requiredUsers} user{requiredUsers > 1 ? "s" : ""} required)
+                      (Exactly {requiredUsers} user
+                      {requiredUsers > 1 ? "s" : ""} required)
                     </span>
                   </div>
                 )}
               </label>
-  
+
               {roomType !== "Open" && (
                 <div className="space-y-3">
                   <div className="flex flex-col sm:flex-row gap-2">
@@ -415,9 +418,11 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                         setSuccessMessage("");
                       }}
                       className={`w-full p-2 sm:p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base
-                        ${formData.colleagues.length === requiredUsers 
-                          ? "border-green-500 dark:border-green-600" 
-                          : "border-gray-300 dark:border-gray-600"}
+                        ${
+                          formData.colleagues.length === requiredUsers
+                            ? "border-green-500 dark:border-green-600"
+                            : "border-gray-300 dark:border-gray-600"
+                        }
                         bg-white dark:bg-gray-700 dark:text-gray-200`}
                       placeholder="Enter user email"
                       disabled={formData.colleagues.length >= requiredUsers}
@@ -425,35 +430,49 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                     <button
                       type="button"
                       onClick={handleAddColleague}
-                      disabled={!colleagueEmail.trim() || formData.colleagues.length >= requiredUsers}
+                      disabled={
+                        !colleagueEmail.trim() ||
+                        formData.colleagues.length >= requiredUsers
+                      }
                       className={`px-4 py-2 rounded-lg shadow-md transition-colors text-sm sm:text-base whitespace-nowrap
-                        ${!colleagueEmail.trim() || formData.colleagues.length >= requiredUsers
-                          ? "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                          : "bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700 focus:ring-2 focus:ring-green-400"
+                        ${
+                          !colleagueEmail.trim() ||
+                          formData.colleagues.length >= requiredUsers
+                            ? "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                            : "bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700 focus:ring-2 focus:ring-green-400"
                         }`}
                     >
                       Add User
                     </button>
                   </div>
-  
+
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <p className={`text-xs sm:text-sm ${
-                      formData.colleagues.length === requiredUsers 
-                        ? "text-green-600 dark:text-green-400" 
-                        : "text-red-600 dark:text-red-400"
-                    }`}>
-                      {formData.colleagues.length}/{requiredUsers} user{requiredUsers > 1 ? "s" : ""} added
+                    <p
+                      className={`text-xs sm:text-sm ${
+                        formData.colleagues.length === requiredUsers
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      {formData.colleagues.length}/{requiredUsers} user
+                      {requiredUsers > 1 ? "s" : ""} added
                     </p>
                     {formData.colleagues.length !== requiredUsers && (
                       <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">
-                        {requiredUsers - formData.colleagues.length} more user{requiredUsers - formData.colleagues.length > 1 ? "s" : ""} required
+                        {requiredUsers - formData.colleagues.length} more user
+                        {requiredUsers - formData.colleagues.length > 1
+                          ? "s"
+                          : ""}{" "}
+                        required
                       </p>
                     )}
                   </div>
-  
+
                   {formData.colleagues.length > 0 && (
                     <div className="mt-2">
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Added emails:</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Added emails:
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {formData.colleagues.map((email, index) => (
                           <span
@@ -478,7 +497,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
             </div>
           </div>
         )}
-  
+
         {/* Section: Availability */}
         <div className="space-y-4 sm:space-y-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 border-b pb-2">
@@ -496,7 +515,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
           >
             {loadingAvailability ? "Loading..." : "Fetch Availability"}
           </button>
-  
+
           {availableDates.length > 0 && (
             <div className="space-y-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -512,7 +531,7 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
               </div>
             </div>
           )}
-  
+
           {/* Time Slots */}
           {formData.date && (
             <div className="space-y-4">
@@ -522,14 +541,16 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
               {displaySlots.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
                   {displaySlots.map((slot, index) => {
-                    const isSelected = formData.startTime === slot.startTime && formData.endTime === slot.endTime;
+                    const isSelected =
+                      formData.startTime === slot.startTime &&
+                      formData.endTime === slot.endTime;
                     let slotStatus = "Available";
                     if (slot.status !== "Available") {
                       slotStatus = "Booked";
                     } else if (slot.isPast) {
                       slotStatus = "Past";
                     }
-  
+
                     if (slotStatus !== "Available") {
                       return (
                         <div
@@ -540,18 +561,20 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                             {slot.startTime} - {slot.endTime}
                           </span>
                           <div className="absolute bottom-0 right-1 sm:right-2">
-                            <span className={`text-[8px] sm:text-[10px] uppercase font-semibold ${
-                              slotStatus === "Booked" 
-                                ? "text-red-500 dark:text-red-400" 
-                                : "text-gray-500 dark:text-gray-400"
-                            }`}>
+                            <span
+                              className={`text-[8px] sm:text-[10px] uppercase font-semibold ${
+                                slotStatus === "Booked"
+                                  ? "text-red-500 dark:text-red-400"
+                                  : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
                               {slotStatus}
                             </span>
                           </div>
                         </div>
                       );
                     }
-  
+
                     return (
                       <button
                         key={index}
@@ -571,47 +594,56 @@ const CreateBookingByNamesForm = ({ onSuccess }) => {
                 </div>
               ) : (
                 <div className="text-center p-3 sm:p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                  <p className="text-red-500 dark:text-red-400 text-sm">No available slots for {formData.date}</p>
+                  <p className="text-red-500 dark:text-red-400 text-sm">
+                    No available slots for {formData.date}
+                  </p>
                 </div>
               )}
             </div>
           )}
         </div>
-  
+
         {/* Messages */}
         <div className="text-center">
           {formError && (
-            <Message 
-              message={formError} 
-              type="error" 
-              onClose={() => setFormError("")} 
+            <Message
+              message={formError}
+              type="error"
+              onClose={() => setFormError("")}
               className="dark:bg-red-900/20 dark:text-red-300"
             />
           )}
           {successMessage && (
-            <Message 
-              message={successMessage} 
-              type="success" 
+            <Message
+              message={successMessage}
+              type="success"
               onClose={() => setSuccessMessage("")}
               className="dark:bg-green-900/20 dark:text-green-300"
             />
           )}
         </div>
-  
+
         {/* Submit Button */}
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={isSubmitting || (roomType !== "Open" && formData.colleagues.length !== requiredUsers)}
+            disabled={
+              isSubmitting ||
+              (roomType !== "Open" &&
+                formData.colleagues.length !== requiredUsers)
+            }
             className={`w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md transition-colors text-sm sm:text-base ${
-              isSubmitting || (roomType !== "Open" && formData.colleagues.length !== requiredUsers)
+              isSubmitting ||
+              (roomType !== "Open" &&
+                formData.colleagues.length !== requiredUsers)
                 ? "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                 : "bg-white dark:bg-gray-700 text-green-500 dark:text-green-400 hover:bg-green-500 dark:hover:bg-green-600 hover:text-white focus:ring-2 focus:ring-green-400"
             }`}
           >
             {isSubmitting
               ? "Creating..."
-              : roomType !== "Open" && formData.colleagues.length !== requiredUsers
+              : roomType !== "Open" &&
+                  formData.colleagues.length !== requiredUsers
                 ? `Add ${requiredUsers - formData.colleagues.length} More User${
                     requiredUsers - formData.colleagues.length > 1 ? "s" : ""
                   }`

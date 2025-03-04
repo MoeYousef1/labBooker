@@ -1,11 +1,23 @@
-import React, { useLayoutEffect, useCallback, useRef, useState, useEffect } from "react";
+import React, {
+  useLayoutEffect,
+  useCallback,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 import RoomImg from "../assets/room.jpg";
 import iconMapping from "../utils/iconMapping";
 import RoomCardBookingForm from "./roomCardBookingForm";
 import { Users } from "lucide-react";
 import debounce from "lodash/debounce";
 
-const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom }) => {
+const RoomCard = ({
+  room,
+  userInfo,
+  toggleDescription,
+  activeRoom,
+  setActiveRoom,
+}) => {
   const [visibleAmenities, setVisibleAmenities] = useState(room.amenities);
   const [extraCount, setExtraCount] = useState(0);
 
@@ -17,15 +29,19 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
     (roomId) => {
       setActiveRoom((prev) => (prev === roomId ? null : roomId));
     },
-    [setActiveRoom]
+    [setActiveRoom],
   );
 
   const calculateVisibleAmenities = useCallback(() => {
     if (!containerRef.current) return;
     const containerWidth = containerRef.current.getBoundingClientRect().width;
     const gapSize = 8;
-    const amenitiesWidths = measurementAmenitiesRef.current.map((ref) => (ref ? ref.offsetWidth : 0));
-    const moreWidth = measurementMoreRef.current ? measurementMoreRef.current.offsetWidth : 0;
+    const amenitiesWidths = measurementAmenitiesRef.current.map((ref) =>
+      ref ? ref.offsetWidth : 0,
+    );
+    const moreWidth = measurementMoreRef.current
+      ? measurementMoreRef.current.offsetWidth
+      : 0;
 
     let availableWidth = containerWidth;
     let visibleCount = 0;
@@ -33,7 +49,9 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
     for (let i = 0; i < amenitiesWidths.length; i++) {
       const amenityWidth = amenitiesWidths[i];
       const requiredWidth =
-        amenityWidth + (visibleCount > 0 ? gapSize : 0) + (i < amenitiesWidths.length - 1 ? moreWidth : 0);
+        amenityWidth +
+        (visibleCount > 0 ? gapSize : 0) +
+        (i < amenitiesWidths.length - 1 ? moreWidth : 0);
 
       if (availableWidth - requiredWidth >= 0) {
         availableWidth -= amenityWidth + (visibleCount > 0 ? gapSize : 0);
@@ -52,7 +70,7 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
   useEffect(() => {
     // Create the debounced function
     debouncedCalculateRef.current = debounce(calculateVisibleAmenities, 100);
-    
+
     // Cleanup on unmount
     return () => {
       debouncedCalculateRef.current?.cancel();
@@ -66,7 +84,7 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
 
     const resizeObserver = new ResizeObserver(handleResize);
     if (containerRef.current) resizeObserver.observe(containerRef.current);
-    
+
     return () => {
       resizeObserver.disconnect();
       debouncedCalculateRef.current?.cancel();
@@ -81,13 +99,17 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
     <>
       {/* Hidden Measurement Container - No changes needed here */}
       <div className="absolute top-0 left-[-9999px] opacity-0 pointer-events-none whitespace-nowrap">
-      {room.amenities.map((amenity, index) => (
+        {room.amenities.map((amenity, index) => (
           <div
             key={`measure-${amenity.name}-${index}`}
             ref={(el) => (measurementAmenitiesRef.current[index] = el)}
             className="inline-flex items-center px-2 py-1 text-xs box-border bg-blue-50 text-blue-700 shadow-sm whitespace-nowrap"
           >
-            <span className="mr-1 text-sm">{React.cloneElement(iconMapping[amenity.icon], { className: "h-5 w-5" })}</span>
+            <span className="mr-1 text-sm">
+              {React.cloneElement(iconMapping[amenity.icon], {
+                className: "h-5 w-5",
+              })}
+            </span>
             {amenity.name}
           </div>
         ))}
@@ -99,10 +121,11 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
             +{room.amenities.length} more
           </span>
         )}
-      </div> 
-  
+      </div>
+
       {/* Main Card Layout */}
-      <div className="
+      <div
+        className="
         flex flex-col md:flex-row 
         bg-white dark:bg-gray-800 
         rounded-2xl shadow-lg dark:shadow-gray-900/30 
@@ -111,7 +134,8 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
         overflow-hidden 
         border border-gray-200 dark:border-gray-700 
         h-full
-      ">
+      "
+      >
         <div className="relative md:w-1/2 h-64 overflow-hidden">
           <img
             src={room.imageUrl || RoomImg}
@@ -123,7 +147,7 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
             {room.type}
           </div>
         </div>
-  
+
         <div className="p-5 flex flex-col flex-grow md:w-1/2">
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
@@ -136,9 +160,12 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
               </div>
             </div>
           </div>
-  
+
           {/* Amenities Container */}
-          <div ref={containerRef} className="flex flex-nowrap gap-2 mb-4 mx-1 mt-auto overflow-hidden justify-center items-center">
+          <div
+            ref={containerRef}
+            className="flex flex-nowrap gap-2 mb-4 mx-1 mt-auto overflow-hidden justify-center items-center"
+          >
             {visibleAmenities.map((amenity, index) => (
               <div
                 key={`${amenity.name}-${index}`}
@@ -153,14 +180,14 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
                 "
               >
                 <span className="mr-1 text-sm">
-                  {React.cloneElement(iconMapping[amenity.icon], { 
-                    className: "h-5 w-5 text-blue-600 dark:text-blue-400" 
+                  {React.cloneElement(iconMapping[amenity.icon], {
+                    className: "h-5 w-5 text-blue-600 dark:text-blue-400",
                   })}
                 </span>
                 {amenity.name}
               </div>
             ))}
-  
+
             {extraCount > 0 && (
               <span
                 className="
@@ -174,27 +201,31 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
                 "
               >
                 +{extraCount} more
-                <div className="
+                <div
+                  className="
                   absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 
                   w-max bg-gray-700 dark:bg-gray-600 text-white text-xs 
                   rounded py-1 px-2 opacity-0 group-hover:opacity-100 
                   transition-opacity z-10 pointer-events-none
-                ">
-                  {room.amenities.slice(visibleAmenities.length).map((hiddenAmenity, idx) => (
-                    <div key={`tooltip-${idx}`} className="flex items-center">
-                      <span className="mr-1">
-                        {React.cloneElement(iconMapping[hiddenAmenity.icon], { 
-                          className: "h-4 w-4 text-blue-400" 
-                        })}
-                      </span>
-                      {hiddenAmenity.name}
-                    </div>
-                  ))}
+                "
+                >
+                  {room.amenities
+                    .slice(visibleAmenities.length)
+                    .map((hiddenAmenity, idx) => (
+                      <div key={`tooltip-${idx}`} className="flex items-center">
+                        <span className="mr-1">
+                          {React.cloneElement(iconMapping[hiddenAmenity.icon], {
+                            className: "h-4 w-4 text-blue-400",
+                          })}
+                        </span>
+                        {hiddenAmenity.name}
+                      </div>
+                    ))}
                 </div>
               </span>
             )}
           </div>
-  
+
           <div className="flex space-x-2 mt-auto">
             <button
               onClick={() => toggleDescription(room._id)}
@@ -227,12 +258,12 @@ const RoomCard = ({ room, userInfo, toggleDescription, activeRoom, setActiveRoom
           </div>
         </div>
       </div>
-  
-      <RoomCardBookingForm 
-        room={room} 
-        activeRoom={activeRoom} 
-        userInfo={userInfo} 
-        handleStartBooking={handleStartBooking} 
+
+      <RoomCardBookingForm
+        room={room}
+        activeRoom={activeRoom}
+        userInfo={userInfo}
+        handleStartBooking={handleStartBooking}
       />
     </>
   );

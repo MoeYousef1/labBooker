@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 const PrivateRoute = ({ children, allowedRoles }) => {
   // Get user data from localStorage
   const userData = localStorage.getItem("user");
-  
+
   // Parse user object if exists
   const user = userData ? JSON.parse(userData) : null;
 
@@ -14,10 +14,10 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   }
 
   // Check if user has required role (if specified)
- // components/PrivateRoute.js
-if (allowedRoles && !allowedRoles.includes(user?.role)) {
-  return <Navigate to="/homepage" replace />;
-}
+  // components/PrivateRoute.js
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    return <Navigate to="/homepage" replace />;
+  }
 
   // If all checks pass, render children
   return children;

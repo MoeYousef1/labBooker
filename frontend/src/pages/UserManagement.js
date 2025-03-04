@@ -1,13 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { SidebarLayout } from "../components/SidebarLayout";
-import { User, Trash2, Edit, Ban, CircleX, CheckCircle2, Loader2, Search } from "lucide-react";
+import {
+  User,
+  Trash2,
+  Edit,
+  Ban,
+  CircleX,
+  CheckCircle2,
+  Loader2,
+  Search,
+} from "lucide-react";
 import api from "../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import RoleEditModal from "../components/RoleEditModal";
 import BlockUserModal from "../components/BlockUserModal";
 import ConfirmationModal from "../components/cnfrmModal";
-
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -25,30 +33,37 @@ const UserManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const fetchUsers = useCallback(async (page = pagination.page, role = selectedRole, search = searchTerm) => {
-    try {
-      setLoading(true);
-      const response = await api.get("/user/admin/users", {
-        params: {
-          page,
-          limit: pagination.limit,
-          role: role !== "all" ? role : undefined,
-          search,
-        },
-      });
-      
-      setUsers(response.data.docs);
-      setPagination(prev => ({
-        ...prev,
-        page: response.data.page,
-        totalPages: response.data.totalPages,
-      }));
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch users");
-    } finally {
-      setLoading(false);
-    }
-  }, [pagination.page, pagination.limit, selectedRole, searchTerm]);
+  const fetchUsers = useCallback(
+    async (
+      page = pagination.page,
+      role = selectedRole,
+      search = searchTerm,
+    ) => {
+      try {
+        setLoading(true);
+        const response = await api.get("/user/admin/users", {
+          params: {
+            page,
+            limit: pagination.limit,
+            role: role !== "all" ? role : undefined,
+            search,
+          },
+        });
+
+        setUsers(response.data.docs);
+        setPagination((prev) => ({
+          ...prev,
+          page: response.data.page,
+          totalPages: response.data.totalPages,
+        }));
+      } catch (error) {
+        toast.error(error.response?.data?.message || "Failed to fetch users");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pagination.page, pagination.limit, selectedRole, searchTerm],
+  );
 
   // Initial fetch on mount
   useEffect(() => {
@@ -62,7 +77,9 @@ const UserManagement = () => {
 
   const handleRoleUpdate = async (newRole) => {
     try {
-      await api.patch(`/user/admin/users/${selectedUser._id}/role`, { role: newRole });
+      await api.patch(`/user/admin/users/${selectedUser._id}/role`, {
+        role: newRole,
+      });
       toast.success("Role updated successfully");
       fetchUsers();
       setShowRoleModal(false);
@@ -73,7 +90,9 @@ const UserManagement = () => {
 
   const handleBlockUser = async (duration) => {
     try {
-      await api.patch(`/user/admin/users/${selectedUser._id}/block`, { blockDuration: duration });
+      await api.patch(`/user/admin/users/${selectedUser._id}/block`, {
+        blockDuration: duration,
+      });
       toast.success("User blocked successfully");
       fetchUsers();
       setShowBlockModal(false);
@@ -110,7 +129,7 @@ const UserManagement = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="w-full p-4 sm:p-6 md:p-8 dark:bg-gray-900 transition-colors duration-300"
+        className="w-full p-4 sm:p-6 md:p-8 dark:bg-gray-900 transition-colors duration-300 min-h-screen overflow-x-hidden"
       >
         {loading && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -124,43 +143,42 @@ const UserManagement = () => {
             </motion.div>
           </div>
         )}
-  
-        <div className="max-w-7xl mx-auto">
+
+        <div className="max-w-7xl mx-auto flex flex-col min-h-[calc(100vh-4rem)]">
+          {/* Header */}
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6"
+            className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6"
           >
             User Management
           </motion.h1>
-          
-          {/* Search Form */}
+
+          {/* Search and Filter */}
           <motion.form
             onSubmit={handleSearch}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col sm:flex-row gap-3 mb-6"
+            className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6"
           >
-            <div className="flex flex-grow gap-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-1">
+            <div className="flex flex-grow gap-2 bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-1 sm:p-2">
               <div className="relative flex-grow flex items-center">
-                <Search className="h-5 w-5 text-gray-400 ml-3 dark:text-gray-500" />
+                <Search className="h-5 w-5 text-gray-400 ml-2 sm:ml-3 dark:text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search users..."
-                  className="w-full p-2.5 pl-2 border-0 focus:ring-0 bg-transparent dark:text-gray-200 dark:placeholder-gray-400"
+                  className="w-full p-2 sm:p-2.5 pl-2 border-0 focus:ring-0 bg-transparent dark:text-gray-200 text-sm sm:text-base"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <button
                 type="submit"
-                className="px-5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:opacity-90 transition-opacity shadow-sm"
+                className="px-4 sm:px-5 bg-green-500 text-white rounded-lg hover:opacity-90 transition-opacity shadow-sm text-sm sm:text-base"
               >
                 Search
               </button>
             </div>
             <select
-              className="p-2.5 border border-gray-100 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 shadow-sm appearance-none pr-10 bg-no-repeat bg-right-center [background-image:url('data:image/svg+xml;charset=UTF-8,<svg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22currentColor%22><path%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%2F><%2Fsvg>')] dark:text-gray-200"
+              className="p-2 sm:p-2.5 border border-gray-100 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 shadow-sm text-sm sm:text-base"
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
             >
@@ -170,22 +188,23 @@ const UserManagement = () => {
               <option value="manager">Manager</option>
             </select>
           </motion.form>
-  
+
           {/* Users Table */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700"
-          >
-            <div className="overflow-x-auto">
+          <motion.div className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-full">
+            <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
               <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">User</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Email</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Role</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Booking Status</th>
-                    <th className="px-5 py-4 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+                    {["User", "Email", "Role", "Status", "Actions"].map(
+                      (header, index) => (
+                        <th
+                          key={index}
+                          className="px-3 sm:px-5 py-3 text-left text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                          {header}
+                        </th>
+                      ),
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -193,14 +212,12 @@ const UserManagement = () => {
                     {users.map((user) => (
                       <motion.tr
                         key={user._id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors"
+                        className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30"
                       >
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-100 to-green-100 dark:from-cyan-900/30 dark:to-green-900/30 flex items-center justify-center overflow-hidden">
+                        {/* User Cell */}
+                        <td className="px-3 sm:px-5 py-2 sm:py-3">
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-100 dark:bg-gray-600 flex items-center justify-center overflow-hidden">
                               {user.profilePicture ? (
                                 <img
                                   src={user.profilePicture}
@@ -208,95 +225,106 @@ const UserManagement = () => {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-gray-400" />
                               )}
                             </div>
-                            <div className="max-w-[160px]">
-                              <p className="font-medium text-gray-900 dark:text-gray-200 truncate">{user.name || user.username}</p>
-                              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">@{user.username}</p>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
+                                {user.name || user.username}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                @{user.username}
+                              </p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-3 text-gray-600 dark:text-gray-400 text-sm max-w-[200px] truncate">{user.email}</td>
-                        <td className="px-5 py-3">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide ${
-                            user.role === "admin" 
-                              ? "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300" 
-                              : user.role === "manager" 
-                              ? "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300" 
-                              : "bg-gray-100 dark:bg-gray-700 dark:text-gray-300 text-gray-700"
-                          }`}>
+
+                        {/* Email Cell */}
+                        <td className="px-3 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">
+                          {user.email}
+                        </td>
+
+                        {/* Role Cell */}
+                        <td className="px-3 sm:px-5 py-2 sm:py-3">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              user.role === "admin"
+                                ? "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300"
+                                : user.role === "manager"
+                                  ? "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                            }`}
+                          >
                             {user.role.toUpperCase()}
                           </span>
                         </td>
-                        <td className="px-5 py-3">
-                          {user.cancellationStats?.blockedUntil &&
-                            new Date(user.cancellationStats.blockedUntil) > new Date() ? (
-                              <span className="text-red-600 dark:text-red-400 flex items-center gap-1.5 text-sm">
-                                <Ban size={16} className="shrink-0" />
-                                <span>Blocked</span>
-                              </span>
-                            ) : (
-                              <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 text-sm">
-                                <CheckCircle2 size={16} className="shrink-0" />
-                                <span>Active</span>
-                              </span>
-                            )}
+
+                        {/* Status Cell */}
+                        <td className="px-3 sm:px-5 py-2 sm:py-3">
+                          {user.cancellationStats?.blockedUntil ? (
+                            <span className="text-red-600 dark:text-red-400 flex items-center gap-1 text-xs sm:text-sm">
+                              <Ban size={14} className="shrink-0" />
+                              <span>Blocked</span>
+                            </span>
+                          ) : (
+                            <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 text-xs sm:text-sm">
+                              <CheckCircle2 size={14} className="shrink-0" />
+                              <span>Active</span>
+                            </span>
+                          )}
                         </td>
-                        <td className="px-5 py-3">
-                          <div className="flex justify-center gap-2">
+
+                        {/* Actions Cell */}
+                        <td className="px-3 sm:px-5 py-2 sm:py-3">
+                          <div className="flex justify-center gap-1 sm:gap-2">
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
+                              className="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md text-blue-600 dark:text-blue-400"
                               onClick={() => {
                                 setSelectedUser(user);
                                 setShowRoleModal(true);
                               }}
-                              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-blue-600 dark:text-blue-400 transition-colors tooltip"
-                              data-tip="Edit Role"
                             >
-                              <Edit size={18} />
+                              <Edit size={16} />
                             </motion.button>
-                            
+
                             {user.cancellationStats?.blockedUntil ? (
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
+                                className="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md text-emerald-600 dark:text-emerald-400"
                                 onClick={() => {
                                   setSelectedUser(user);
                                   setShowUnblockModal(true);
                                 }}
-                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-emerald-600 dark:text-emerald-400 transition-colors tooltip"
-                                data-tip="Unblock User"
                               >
-                                <CircleX size={18} />
+                                <CircleX size={16} />
                               </motion.button>
                             ) : (
                               <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
+                                className="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md text-amber-600 dark:text-amber-400"
                                 onClick={() => {
                                   setSelectedUser(user);
                                   setShowBlockModal(true);
                                 }}
-                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-amber-600 dark:text-amber-400 transition-colors tooltip"
-                                data-tip="Block User"
                               >
-                                <Ban size={18} />
+                                <Ban size={16} />
                               </motion.button>
                             )}
-                            
+
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
+                              className="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md text-red-600 dark:text-red-400"
                               onClick={() => {
                                 setSelectedUser(user);
                                 setShowDeleteModal(true);
                               }}
-                              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg text-red-600 dark:text-red-400 transition-colors tooltip"
-                              data-tip="Delete User"
                             >
-                              <Trash2 size={18} />
+                              <Trash2 size={16} />
                             </motion.button>
                           </div>
                         </td>
@@ -307,39 +335,35 @@ const UserManagement = () => {
               </table>
             </div>
           </motion.div>
-  
+
           {/* Pagination */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-between items-center mt-6"
-          >
-            <button
-              onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-              disabled={pagination.page === 1}
-              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-gray-300 dark:hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-200 shadow-sm"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Previous
-            </button>
-            <span className="text-gray-600 dark:text-gray-400 text-sm">
+          <motion.div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-6 gap-3 flex-shrink-0">
+            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <button
-              onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-              disabled={pagination.page === pagination.totalPages}
-              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-gray-300 dark:hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-200 shadow-sm"
-            >
-              Next
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-            </button>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() =>
+                  setPagination((prev) => ({ ...prev, page: prev.page - 1 }))
+                }
+                disabled={pagination.page === 1}
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-gray-300 dark:hover:border-gray-500 disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() =>
+                  setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+                }
+                disabled={pagination.page === pagination.totalPages}
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-gray-300 dark:hover:border-gray-500 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </motion.div>
         </div>
-  
         {/* Modals */}
         <RoleEditModal
           isOpen={showRoleModal}
@@ -348,7 +372,7 @@ const UserManagement = () => {
           onSave={handleRoleUpdate}
           className="z-[100]"
         />
-  
+
         <BlockUserModal
           isOpen={showBlockModal}
           onClose={() => setShowBlockModal(false)}
@@ -356,7 +380,7 @@ const UserManagement = () => {
           onConfirm={handleBlockUser}
           className="z-[100]"
         />
-  
+
         <ConfirmationModal
           isOpen={showUnblockModal}
           onClose={() => setShowUnblockModal(false)}
@@ -366,7 +390,7 @@ const UserManagement = () => {
           cancelText="Cancel"
           className="z-[100]"
         />
-  
+
         <ConfirmationModal
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}

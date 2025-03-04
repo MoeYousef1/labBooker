@@ -135,7 +135,7 @@ const HeroSection = () => {
             ))}
           </div>
         </div>
-        
+
         {/* College Logo */}
         <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2">
           <img

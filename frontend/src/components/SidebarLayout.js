@@ -5,7 +5,6 @@ export function SidebarLayout({ children }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
-
   const toggleSidebar = () => setIsExpanded((prev) => !prev);
 
   // Detect screen size
@@ -28,27 +27,30 @@ export function SidebarLayout({ children }) {
   // Compute sidebar width (256px expanded, 80px collapsed)
   const sidebarWidth = isExpanded ? 225 : 80;
   // On mobile, if sidebar is closed, use 0 margin (full width content)
-  const contentMargin = isMobile ? (isExpanded ? sidebarWidth : 80) : sidebarWidth;
-  
+  const contentMargin = isMobile
+    ? isExpanded
+      ? sidebarWidth
+      : 80
+    : sidebarWidth;
 
   return (
     <>
       {/* Render the fixed sidebar */}
-<Sidebar 
-  isExpanded={isExpanded} 
-  toggleSidebar={toggleSidebar} 
-  isMobile={isMobile} 
-/>
+      <Sidebar
+        isExpanded={isExpanded}
+        toggleSidebar={toggleSidebar}
+        isMobile={isMobile}
+      />
       {/* Main content area with dynamic left margin */}
-<div
-  className="transition-all duration-300"
-  style={{ 
-    marginLeft: contentMargin,
-    transitionProperty: 'margin-left' // Smooth transition for margin changes
-  }}
->
-  {children}
-</div>
+      <div
+        className="transition-all duration-300"
+        style={{
+          marginLeft: contentMargin,
+          transitionProperty: "margin-left", // Smooth transition for margin changes
+        }}
+      >
+        {children}
+      </div>
     </>
   );
 }

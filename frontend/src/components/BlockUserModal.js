@@ -17,15 +17,16 @@ const BlockUserModal = ({ isOpen, onClose, user, onConfirm }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const duration = selectedBlockDuration === "custom" 
-      ? parseInt(customDuration, 10)
-      : parseInt(selectedBlockDuration, 10);
-    
+    const duration =
+      selectedBlockDuration === "custom"
+        ? parseInt(customDuration, 10)
+        : parseInt(selectedBlockDuration, 10);
+
     if (!duration || duration <= 0) {
       setError("Please enter a valid duration (minimum 1 hour)");
       return;
     }
-    
+
     onConfirm(duration);
     onClose();
   };
@@ -61,12 +62,19 @@ const BlockUserModal = ({ isOpen, onClose, user, onConfirm }) => {
                 <X size={20} />
               </button>
             </div>
-  
-            <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+
+            <form
+              onSubmit={handleSubmit}
+              className="p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto"
+            >
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Select duration for blocking this user account. During this period, the user will not be able to <span className="text-red-600/80 dark:text-red-400">Book Any Room</span>
+                Select duration for blocking this user account. During this
+                period, the user will not be able to{" "}
+                <span className="text-red-600/80 dark:text-red-400">
+                  Book Any Room
+                </span>
               </p>
-  
+
               <div className="space-y-3">
                 {[
                   { value: "24", label: "24 Hours", time: "1 Day" },
@@ -90,13 +98,20 @@ const BlockUserModal = ({ isOpen, onClose, user, onConfirm }) => {
                       className="h-4 w-4 text-red-500 border-gray-300 focus:ring-red-500 dark:border-gray-500"
                     />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900 dark:text-gray-200">{option.time}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{option.label}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-200">
+                        {option.time}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {option.label}
+                      </p>
                     </div>
-                    <Clock size={18} className="text-gray-400 dark:text-gray-500" />
+                    <Clock
+                      size={18}
+                      className="text-gray-400 dark:text-gray-500"
+                    />
                   </label>
                 ))}
-                
+
                 <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-3 space-y-3">
                   <label className="flex items-center gap-3">
                     <input
@@ -110,9 +125,11 @@ const BlockUserModal = ({ isOpen, onClose, user, onConfirm }) => {
                       }}
                       className="h-4 w-4 text-red-500 border-gray-300 focus:ring-red-500 dark:border-gray-500"
                     />
-                    <span className="font-medium text-gray-900 dark:text-gray-200">Custom Duration</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-200">
+                      Custom Duration
+                    </span>
                   </label>
-  
+
                   <div className="flex flex-col sm:flex-row gap-3 pl-7">
                     <input
                       type="number"
@@ -131,7 +148,7 @@ const BlockUserModal = ({ isOpen, onClose, user, onConfirm }) => {
                     </span>
                   </div>
                 </div>
-  
+
                 {error && (
                   <div className="flex items-center gap-2 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 p-3 rounded-lg mt-3">
                     <AlertTriangle size={16} />
@@ -139,7 +156,7 @@ const BlockUserModal = ({ isOpen, onClose, user, onConfirm }) => {
                   </div>
                 )}
               </div>
-  
+
               <div className="flex flex-row justify-end gap-3 sm:space-y-0 space-y-2">
                 <button
                   type="button"

@@ -175,7 +175,7 @@ const LogInPage = () => {
           break;
         default:
           setGeneralError(
-            error.response.data.message || "An unexpected error occurred"
+            error.response.data.message || "An unexpected error occurred",
           );
       }
     } else if (error.request) {
@@ -203,7 +203,7 @@ const LogInPage = () => {
         return;
       }
 
-       await api.post("/auth/login", {
+      await api.post("/auth/login", {
         email: formData.email,
       });
 

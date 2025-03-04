@@ -47,7 +47,8 @@ const issueController = {
 
   updateIssue: async (req, res) => {
     try {
-      const { issueType, description, email, bookingReference, status } = req.body;
+      const { issueType, description, email, bookingReference, status } =
+        req.body;
 
       const updatedIssue = await Issue.findByIdAndUpdate(
         req.params.id,
@@ -58,7 +59,7 @@ const issueController = {
           bookingReference,
           status,
         },
-        { new: true } // Return the updated document
+        { new: true }, // Return the updated document
       );
 
       if (!updatedIssue) {
@@ -67,7 +68,7 @@ const issueController = {
 
       res.json({
         msg: "Issue updated successfully",
-        issue: updatedIssue
+        issue: updatedIssue,
       });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -88,7 +89,7 @@ const issueController = {
       const updatedIssue = await Issue.findByIdAndUpdate(
         req.params.id,
         { status },
-        { new: true }
+        { new: true },
       );
 
       if (!updatedIssue) {
@@ -97,7 +98,7 @@ const issueController = {
 
       res.json({
         msg: "Status updated successfully",
-        issue: updatedIssue
+        issue: updatedIssue,
       });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -107,7 +108,7 @@ const issueController = {
   deleteIssue: async (req, res) => {
     try {
       const deletedIssue = await Issue.findByIdAndDelete(req.params.id);
-      
+
       if (!deletedIssue) {
         return res.status(404).json({ msg: "Issue not found" });
       }

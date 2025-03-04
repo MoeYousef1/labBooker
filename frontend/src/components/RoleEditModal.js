@@ -28,7 +28,10 @@ const RoleEditModal = ({ isOpen, onClose, user, onSave }) => {
             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
-                  <User size={20} className="text-green-600 dark:text-green-400" />
+                  <User
+                    size={20}
+                    className="text-green-600 dark:text-green-400"
+                  />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   Edit {user?.name}'s Role
@@ -41,7 +44,7 @@ const RoleEditModal = ({ isOpen, onClose, user, onSave }) => {
                 <X size={20} />
               </button>
             </div>
-  
+
             <div className="p-6 space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -53,19 +56,30 @@ const RoleEditModal = ({ isOpen, onClose, user, onSave }) => {
                     onChange={(e) => setSelectedRole(e.target.value)}
                     className="w-full p-3 pl-11 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white dark:bg-gray-800 dark:text-gray-200 transition-colors duration-300"
                   >
-                    <option value="user" className="dark:bg-gray-800 dark:text-gray-200">
+                    <option
+                      value="user"
+                      className="dark:bg-gray-800 dark:text-gray-200"
+                    >
                       <span className="flex items-center gap-2">
                         <User size={16} className="dark:text-gray-300" /> User
                       </span>
                     </option>
-                    <option value="admin" className="dark:bg-gray-800 dark:text-gray-200">
+                    <option
+                      value="admin"
+                      className="dark:bg-gray-800 dark:text-gray-200"
+                    >
                       <span className="flex items-center gap-2">
-                        <Shield size={16} className="dark:text-gray-300" /> Admin
+                        <Shield size={16} className="dark:text-gray-300" />{" "}
+                        Admin
                       </span>
                     </option>
-                    <option value="manager" className="dark:bg-gray-800 dark:text-gray-200">
+                    <option
+                      value="manager"
+                      className="dark:bg-gray-800 dark:text-gray-200"
+                    >
                       <span className="flex items-center gap-2">
-                        <Badge size={16} className="dark:text-gray-300" /> Manager
+                        <Badge size={16} className="dark:text-gray-300" />{" "}
+                        Manager
                       </span>
                     </option>
                   </select>
@@ -80,7 +94,7 @@ const RoleEditModal = ({ isOpen, onClose, user, onSave }) => {
                   </div>
                 </div>
               </div>
-  
+
               <div className="flex justify-end gap-3">
                 <button
                   onClick={onClose}

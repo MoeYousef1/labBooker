@@ -67,9 +67,9 @@ const VerificationModal = ({
               <button
                 type="button"
                 onClick={() => {
-                  onCancelEmailChange();  // Trigger cancellation endpoint
-                  onCodeChange("");       // Clear code
-                  onClose();              // Close modal and clear modal state
+                  onCancelEmailChange(); // Trigger cancellation endpoint
+                  onCodeChange(""); // Clear code
+                  onClose(); // Close modal and clear modal state
                 }}
                 className="w-full sm:w-auto px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md hover:bg-gray-50 focus:ring-2 focus:ring-green-400 border border-gray-300 transition-all duration-300"
               >

@@ -141,7 +141,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 text-center mb-6 sm:mb-8">
           Delete Room
         </h2>
-  
+
         <div className="space-y-4 sm:space-y-6">
           {/* Room Selection */}
           <div className="space-y-4 sm:space-y-6">
@@ -158,15 +158,21 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                 className="w-full p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
                 disabled={loadingRooms}
               >
-                <option value="" disabled className="dark:bg-gray-700">Choose a Room</option>
+                <option value="" disabled className="dark:bg-gray-700">
+                  Choose a Room
+                </option>
                 {roomsList.map((room) => (
-                  <option key={room._id} value={room.name} className="dark:bg-gray-700">
+                  <option
+                    key={room._id}
+                    value={room.name}
+                    className="dark:bg-gray-700"
+                  >
                     {room.name} - {room.type} (Capacity: {room.capacity})
                   </option>
                 ))}
               </select>
             </div>
-  
+
             {/* Room Details Preview */}
             {roomId && (
               <div className="mt-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/30 border border-gray-200 dark:border-gray-600 rounded-lg">
@@ -175,21 +181,33 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                 </h4>
                 {(() => {
                   const selectedRoom = roomsList.find(
-                    (room) => room.name === roomId
+                    (room) => room.name === roomId,
                   );
                   return selectedRoom ? (
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
                       <div className="space-y-1">
-                        <span className="block text-gray-500 dark:text-gray-400">Name</span>
-                        <span className="font-medium dark:text-gray-200">{selectedRoom.name}</span>
+                        <span className="block text-gray-500 dark:text-gray-400">
+                          Name
+                        </span>
+                        <span className="font-medium dark:text-gray-200">
+                          {selectedRoom.name}
+                        </span>
                       </div>
                       <div className="space-y-1">
-                        <span className="block text-gray-500 dark:text-gray-400">Type</span>
-                        <span className="font-medium dark:text-gray-200">{selectedRoom.type}</span>
+                        <span className="block text-gray-500 dark:text-gray-400">
+                          Type
+                        </span>
+                        <span className="font-medium dark:text-gray-200">
+                          {selectedRoom.type}
+                        </span>
                       </div>
                       <div className="space-y-1">
-                        <span className="block text-gray-500 dark:text-gray-400">Capacity</span>
-                        <span className="font-medium dark:text-gray-200">{selectedRoom.capacity}</span>
+                        <span className="block text-gray-500 dark:text-gray-400">
+                          Capacity
+                        </span>
+                        <span className="font-medium dark:text-gray-200">
+                          {selectedRoom.capacity}
+                        </span>
                       </div>
                     </div>
                   ) : null;
@@ -197,7 +215,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
               </div>
             )}
           </div>
-  
+
           {/* Messages */}
           <div className="text-center">
             <AnimatePresence mode="wait">
@@ -231,7 +249,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
               )}
             </AnimatePresence>
           </div>
-  
+
           {/* Actions */}
           <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
             {roomId && (
@@ -248,9 +266,10 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
               onClick={handleDeleteClick}
               disabled={loading || !roomId}
               className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md transition-colors text-sm sm:text-base
-                ${loading || !roomId
-                  ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  : "bg-white dark:bg-gray-700 text-red-500 dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-600 hover:text-white focus:ring-2 focus:ring-red-400 border border-gray-200 dark:border-gray-600"
+                ${
+                  loading || !roomId
+                    ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    : "bg-white dark:bg-gray-700 text-red-500 dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-600 hover:text-white focus:ring-2 focus:ring-red-400 border border-gray-200 dark:border-gray-600"
                 }`}
             >
               {loading ? "Deleting..." : "Delete Room"}
@@ -258,7 +277,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
           </div>
         </div>
       </motion.div>
-  
+
       {/* Modal Content */}
       <Modal
         isOpen={isModalOpen}
@@ -288,10 +307,11 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                 Confirm Room Deletion
               </h3>
               <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-                Are you sure you want to delete this room? This action cannot be undone.
+                Are you sure you want to delete this room? This action cannot be
+                undone.
               </p>
             </div>
-  
+
             {roomId && roomsList.find((room) => room.name === roomId) && (
               <div className="space-y-4">
                 {/* Room Details */}
@@ -304,27 +324,36 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                   <div className="p-3 sm:p-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                       <div className="space-y-1">
-                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">Name</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">
+                          Name
+                        </span>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
                           {roomsList.find((room) => room.name === roomId).name}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">Type</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">
+                          Type
+                        </span>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
                           {roomsList.find((room) => room.name === roomId).type}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">Capacity</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">
+                          Capacity
+                        </span>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                          {roomsList.find((room) => room.name === roomId).capacity}
+                          {
+                            roomsList.find((room) => room.name === roomId)
+                              .capacity
+                          }
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
-  
+
                 {/* Related Bookings */}
                 {relatedBookings.length > 0 && (
                   <div className="bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 overflow-hidden">
@@ -341,13 +370,17 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                             className="p-2 sm:p-3 text-xs sm:text-sm border-l-4 border-red-300 dark:border-red-600 bg-red-100 dark:bg-red-900/20"
                           >
                             <div className="text-red-700 dark:text-red-300">
-                              Date: {booking.date} | Time: {booking.startTime} - {booking.endTime}
+                              Date: {booking.date} | Time: {booking.startTime} -{" "}
+                              {booking.endTime}
                             </div>
                             <div className="text-red-600 dark:text-red-400 text-xs mt-1">
                               Booked by: {booking.userId?.username}
                               {booking.additionalUsers?.length > 0 && (
                                 <span className="ml-2">
-                                  | With: {booking.additionalUsers.map(user => user.username).join(", ")}
+                                  | With:{" "}
+                                  {booking.additionalUsers
+                                    .map((user) => user.username)
+                                    .join(", ")}
                                 </span>
                               )}
                             </div>
@@ -359,7 +392,7 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                 )}
               </div>
             )}
-  
+
             <div className="text-center">
               <p className="text-xs sm:text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-3 sm:px-4 py-2 rounded-lg">
                 <svg
@@ -373,7 +406,8 @@ const DeleteRoomForm = ({ operation, onSuccess }) => {
                     clipRule="evenodd"
                   />
                 </svg>
-                This will permanently delete the room and {relatedBookings.length} associated booking(s)
+                This will permanently delete the room and{" "}
+                {relatedBookings.length} associated booking(s)
               </p>
             </div>
           </div>
