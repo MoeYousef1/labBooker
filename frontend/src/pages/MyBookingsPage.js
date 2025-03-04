@@ -51,13 +51,23 @@ const MyBookingsPage = () => {
     return bookingDateTime < today;
   };
 
+  const isWithinTwoHours = (dateString, startTime) => {
+    const now = new Date();
+    const bookingDate = new Date(dateString);
+    const [hours, minutes] = startTime.split(":");
+    bookingDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+    const timeDiff = bookingDate.getTime() - now.getTime();
+    return timeDiff > 0 && timeDiff < 7200000;
+  };
+
   const isBookingCancelable = (booking) => {
     return (
       !["canceled", "completed", "missed", "active"].includes(
         booking.status.toLowerCase(),
       ) &&
       !isBookingPast(booking.date, booking.endTime) &&
-      booking.userId.email === userInfo.email
+      booking.userId.email === userInfo.email &&
+      !isWithinTwoHours(booking.date, booking.startTime)
     );
   };
 
@@ -541,15 +551,17 @@ const MyBookingsPage = () => {
                         </button>
                       ) : (
                         <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 text-center">
-                          {booking.status.toLowerCase() === "canceled"
-                            ? "This booking has been canceled"
-                            : booking.status.toLowerCase() === "active"
-                              ? "This booking is currently active and cannot be canceled"
-                              : isBookingPast(booking.date, booking.endTime)
-                                ? "This booking has already passed"
-                                : booking.userId.email !== userInfo.email
-                                  ? "Only the main booker can cancel this booking"
-                                  : "This booking cannot be canceled"}
+                          {isWithinTwoHours(booking.date, booking.startTime)
+                            ? "This booking cannot be canceled as it starts within 2 hours"
+                            : booking.status.toLowerCase() === "canceled"
+                              ? "This booking has been canceled"
+                              : booking.status.toLowerCase() === "active"
+                                ? "This booking is currently active and cannot be canceled"
+                                : isBookingPast(booking.date, booking.endTime)
+                                  ? "This booking has already passed"
+                                  : booking.userId.email !== userInfo.email
+                                    ? "Only the main booker can cancel this booking"
+                                    : "This booking cannot be canceled"}
                         </div>
                       )}
                     </div>

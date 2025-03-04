@@ -104,9 +104,21 @@ const PageEditor = ({ slug, onUpdate }) => {
             value={content}
             onChange={setContent}
             modules={modules}
-            className="bg-white rounded dark:bg-gray-800 dark:text-gray-200 mb-8
-              [&_.ql-toolbar]:dark:bg-gray-700 [&_.ql-toolbar]:dark:border-gray-600
-              [&_.ql-container]:dark:bg-gray-800 [&_.ql-container]:dark:border-gray-700"
+            className="bg-white rounded-lg shadow-sm dark:bg-gray-800 
+           dark:text-gray-200 mb-8
+           [&_.ql-toolbar]:bg-gray-50 [&_.ql-toolbar]:dark:bg-gray-700
+           [&_.ql-toolbar]:border-gray-200 [&_.ql-toolbar]:dark:border-gray-600
+           [&_.ql-container]:border-gray-200 [&_.ql-container]:dark:border-gray-600
+           [&_.ql-editor]:dark:text-gray-200
+           [&_.ql-snow_.ql-stroke]:dark:stroke-white
+           [&_.ql-snow_.ql-fill]:dark:fill-white
+           [&_.ql-snow_.ql-picker-label]:dark:text-white
+           [&_.ql-snow_.ql-picker-item]:dark:text-white
+           [&_.ql-snow_.ql-picker-options]:dark:bg-gray-700
+           [&_.ql-snow_.ql-picker-options]:dark:border-gray-600
+           [&_.ql-snow.ql-toolbar_button:hover]:dark:bg-gray-700
+           [&_.ql-snow.ql-toolbar_button.ql-active]:dark:bg-gray-600
+           [&_.ql-color-picker_.ql-picker-item]:dark:border-gray-400"
             placeholder="Write your content here..."
           />
           <div className="flex gap-4 mt-4">
