@@ -246,4 +246,97 @@ const sendContactEmail = async (name, email, message) => {
   }
 };
 
-module.exports = { sendVerificationEmail, sendContactEmail };
+const sendBookingConfirmation = async (userEmail, userName, bookingDetails) => {
+  const subject = "Booking Confirmed 🎉";
+  const html = `
+    <div style="max-width: 600px; margin: 0 auto; font-family: 'Inter', sans-serif;">
+      <div style="background: #f8fafc; padding: 2rem; border-radius: 1rem;">
+        <h1 style="color: #1a365d; font-size: 1.5rem; margin-bottom: 1rem;">
+          Hi ${userName}, your booking is confirmed!
+        </h1>
+        
+        <div style="background: white; padding: 1.5rem; border-radius: 0.5rem;">
+          <h2 style="font-size: 1.25rem; color: #2d3748; margin-bottom: 1rem;">Booking Details</h2>
+          <p style="margin: 0.5rem 0;">
+            <strong>Room:</strong> ${bookingDetails.roomName}<br>
+            <strong>Date:</strong> ${bookingDetails.date}<br>
+            <strong>Time:</strong> ${bookingDetails.startTime} - ${bookingDetails.endTime}
+          </p>
+        </div>
+
+        <p style="margin: 1.5rem 0; color: #4a5568;">
+          Need to make changes? Visit your 
+          <a href="${process.env.CLIENT_URL}/my-bookings" style="color: #4299e1; text-decoration: none;">
+            bookings dashboard
+          </a>
+        </p>
+      </div>
+    </div>
+  `;
+
+  await sendEmail(userEmail, subject, html);
+};
+
+const sendPendingConfirmation = async (userEmail, userName, bookingDetails) => {
+  const subject = "Booking Pending Review ⏳";
+  const html = `
+    <div style="max-width: 600px; margin: 0 auto; font-family: 'Inter', sans-serif;">
+      <div style="background: #f8fafc; padding: 2rem; border-radius: 1rem;">
+        <h1 style="color: #1a365d; font-size: 1.5rem; margin-bottom: 1rem;">
+          Hi ${userName}, your booking request has been received
+        </h1>
+        
+        <div style="background: white; padding: 1.5rem; border-radius: 0.5rem;">
+          <h2 style="font-size: 1.25rem; color: #2d3748; margin-bottom: 1rem;">Request Details</h2>
+          <p style="margin: 0.5rem 0;">
+            <strong>Room:</strong> ${bookingDetails.roomName}<br>
+            <strong>Date:</strong> ${bookingDetails.date}<br>
+            <strong>Time:</strong> ${bookingDetails.startTime} - ${bookingDetails.endTime}
+          </p>
+        </div>
+
+        <p style="margin: 1.5rem 0; color: #4a5568;">
+          Your request for the Large Seminar Room is under review. 
+          We'll notify you once it's approved by our team.
+        </p>
+      </div>
+    </div>
+  `;
+
+  await sendEmail(userEmail, subject, html);
+};
+
+const sendAdminApprovalRequest = async (bookingDetails, userDetails) => {
+  const subject = "New Large Seminar Room Request 🚨";
+  const html = `
+    <div style="max-width: 600px; margin: 0 auto; font-family: 'Inter', sans-serif;">
+      <div style="background: #fef2f2; padding: 2rem; border-radius: 1rem;">
+        <h1 style="color: #dc2626; font-size: 1.5rem; margin-bottom: 1rem;">
+          New Large Seminar Room Request
+        </h1>
+        
+        <div style="background: white; padding: 1.5rem; border-radius: 0.5rem;">
+          <h2 style="font-size: 1.25rem; color: #2d3748; margin-bottom: 1rem;">Request Details</h2>
+          <p style="margin: 0.5rem 0;">
+            <strong>User:</strong> ${userDetails.name} (${userDetails.email})<br>
+            <strong>Room:</strong> ${bookingDetails.roomName}<br>
+            <strong>Date:</strong> ${bookingDetails.date}<br>
+            <strong>Time:</strong> ${bookingDetails.startTime} - ${bookingDetails.endTime}
+          </p>
+        </div>
+
+        <p style="margin: 1.5rem 0; color: #4a5568;">
+          <a href="${process.env.CLIENT_URL}/admin/bookings/${bookingDetails.id}" 
+             style="background: #dc2626; color: white; padding: 0.5rem 1rem; 
+                    border-radius: 0.375rem; text-decoration: none;">
+            Review Booking Request
+          </a>
+        </p>
+      </div>
+    </div>
+  `;
+
+  await sendEmail(process.env.SUPPORT_EMAIL, subject, html);
+};
+
+module.exports = { sendVerificationEmail, sendContactEmail, sendAdminApprovalRequest, sendBookingConfirmation, sendPendingConfirmation, sendEmail };
